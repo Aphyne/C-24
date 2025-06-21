@@ -8,7 +8,6 @@ if (!isset($_SESSION["jabatan"])) {
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
