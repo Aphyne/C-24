@@ -101,88 +101,249 @@ if (!isset($_SESSION["jabatan"])) {
         </div>
         <div id="layoutSidenav_content" class="bg-white text-dark">
             <main>
-                <div class="container-fluid">
-                    <h1 class="mt-4">Data Pendaftaran</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Data Pendaftaran</li>
-                    </ol>
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <i class="fas fa-table mr-1 mt-2"></i>
-                                    Tabel Data Pendaftaran
-                                </div>
-                                <div class="col-md-3">
-                                    <a href="pendaftaran_tambah.php" class="btn-success btn px-3 font-weight-bold ml-5">
-                                        <i class="fas fa-plus"></i> Tambah Data Daftar
-                                    </a>
+                    <div class="container-fluid">
+                        <h1 class="mt-4">Laporan Keuntungan</h1>
+                        <ol class="breadcrumb mb-4">
+                            <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Keuntungan</li>
+                        </ol>
+
+                        <!-- Summary Box -->
+                        <div class="row">
+                            <!-- Total Keuntungan Tahun Ini -->
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body d-flex align-items-center justify-content-between">
+                                        <div class="font-weight-bold">Total Keuntungan Tahun Ini</div>
+                                        <div><i class="fas fa-coins fa-2x text-white"></i></div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <h5>Rp <span class="counter" data-count="<?php 
+                                            $totalKeuntungan = 320000000; // ambil dari database
+                                            echo $totalKeuntungan;
+                                        ?>">0</span></h5>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Kode Daftar</th>
-                                            <th>Nama Pasien</th>
-                                            <th>Dokter</th>
-                                            <th>Poli</th>
-                                            <th>Tanggal Daftar</th>
-                                            <th>Aksi</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $ambil = $koneksi->query("SELECT * FROM tb_pendaftaran a
-                                            JOIN tb_pasien b ON a.id_pasien = b.id_pasien
-                                            JOIN tb_dokter c ON a.id_dokter = c.id_dokter
-                                            JOIN tb_poli d ON a.id_poli =  d.id_poli"); ?>
-                                        <?php while ($pecah = $ambil->fetch_assoc()) { ?>
-                                            <tr>
-                                                <td><?php echo $pecah['kd_pendaftaran']; ?></td>
-                                                <td><?php echo $pecah['nm_pasien']; ?></td>
-                                                <td><?php echo $pecah['nm_dokter']; ?></td>
-                                                <td><?php echo $pecah['nm_poli']; ?></td>
-                                                <td><?php echo $pecah['tgl_pendaftaran']; ?></td>
-                                                <td>
-                                                    <?php if ($pecah['status'] == 0) { ?>
-                                                        <a href="pendaftaran_batal.php?&id_pendaftaran=<?php echo $pecah['id_pendaftaran']; ?>" class="btn-danger btn-sm btn">
-                                                            <i class="fas fa-times"></i>
-                                                        </a>
-                                                    <?php } elseif ($pecah['status'] == 1) { ?>
-                                                        <a href="#" class="btn-secondary btn-sm btn">
-                                                            <i class="fas fa-minus"></i>
-                                                        </a>
-                                                    <?php } else { ?>
-                                                        <a href="#" class="btn-secondary btn-sm btn">
-                                                            <i class="fas fa-minus"></i>
-                                                        </a>
-                                                    <?php } ?>
-                                                </td>
-                                                <td>
-                                                    <?php if ($pecah['status'] == 0) { ?>
-                                                        <span class="badge badge-primary p-2">Belum Diperiksa</span>
-                                                    <?php } elseif ($pecah['status'] == 1) { ?>
-                                                        <span class="badge badge-success p-2">Sudah Diperiksa</span>
-                                                    <?php } else { ?>
-                                                        <span class="badge badge-danger p-2">Dibatalkan</span>
-                                                    <?php } ?>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+
+                            <!-- Rata-rata Keuntungan Bulanan -->
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body d-flex align-items-center justify-content-between">
+                                        <div class="font-weight-bold">Rata-rata / Bulan</div>
+                                        <div><i class="fas fa-chart-line fa-2x text-white"></i></div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <h5>Rp <span class="counter" data-count="<?php 
+                                            $rataBulan = 320000000 / 12;
+                                            echo $rataBulan;
+                                        ?>">0</span></h5>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-footer">
+
+                            <!-- Keuntungan Bulan Ini -->
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body d-flex align-items-center justify-content-between">
+                                        <div class="font-weight-bold">Keuntungan Bulan Ini</div>
+                                        <div><i class="fas fa-calendar-alt fa-2x text-white"></i></div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <h5>Rp <span class="counter" data-count="<?php 
+                                            $keuntunganBulanIni = 27000000; 
+                                            echo $keuntunganBulanIni;
+                                        ?>">0</span></h5>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pertumbuhan Bulanan -->
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body d-flex align-items-center justify-content-between">
+                                        <div class="font-weight-bold">Pertumbuhan Bulanan</div>
+                                        <div><i class="fas fa-percentage fa-2x text-white"></i></div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <h5><span class="counter" data-count="<?php 
+                                            $pertumbuhan = 15; // misal 15% pertumbuhan
+                                            echo $pertumbuhan;
+                                        ?>">0</span>%</h5>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
-                    </div>
-                </div>
-            </main>
+
+
+                        <!-- Script animasi counter -->
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            $('.counter').each(function () {
+                                var $this = $(this),
+                                    countTo = $this.attr('data-count');
+
+                                $({ countNum: 0 }).animate({
+                                    countNum: countTo
+                                },
+                                {
+                                    duration: 1500,
+                                    easing: 'swing',
+                                    step: function () {
+                                        $this.text(new Intl.NumberFormat('id-ID').format(Math.floor(this.countNum)));
+                                    },
+                                    complete: function () {
+                                        $this.text(new Intl.NumberFormat('id-ID').format(this.countNum));
+                                    }
+                                });
+                            });
+                        </script>
+
+
+                        <!-- Chart Keuntungan -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white font-weight-bold d-flex justify-content-between align-items-center">
+                                <div><i class="fas fa-chart-bar mr-2"></i> Grafik Keuntungan Bulanan</div>
+                                <div>
+                                    <select id="tahunSelect" class="form-control form-control-sm">
+                                        <option value="2025" selected>2025</option>
+                                        <option value="2024">2024</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="card-body" style="height: 250px;">
+                                <canvas id="keuntunganChart"></canvas>
+                            </div>
+                        </div>
+
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+                        <script>
+                            const dataKeuntungan = {
+                                2025: [40, 45, 50, 55, 52, 60, 65, 70, 68, 72, 75, 80],
+                                2024: [35, 40, 42, 50, 47, 55, 58, 60, 61, 63, 68, 70]
+                            };
+
+                            const labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                            const colors = [
+                            '#5A9BFF', '#5ACF85', '#4BBFC9', '#FFD350',
+                            '#E35B5B', '#8A5BFF', '#3ED1AA', '#FF9240',
+                            '#9356A3', '#FF70A6', '#FFB347', '#FF8F8F'
+                        ];
+
+
+                            const ctx = document.getElementById("keuntunganChart").getContext('2d');
+
+                            let chart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Keuntungan (Juta)',
+                                        data: dataKeuntungan[2025],
+                                        backgroundColor: colors,
+                                        borderColor: colors,
+                                        borderWidth: 0,
+                                        borderRadius: 20,
+                                        barThickness: 10,
+                                        categoryPercentage: 0.8,
+                                        barPercentage: 0.9
+                                    }]
+                                },
+                                options: {
+                                    indexAxis: 'y',
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: false }
+                                    },
+                                    scales: {
+                                        x: {
+                                            beginAtZero: true,
+                                            grid: { display: false }, // Hapus garis kotak grid
+                                            ticks: {
+                                                callback: function(value) { return 'Rp ' + value + 'jt'; },
+                                                font: { size: 12 }
+                                            }
+                                        },
+                                        y: {
+                                            grid: { display: false },
+                                            ticks: { font: { size: 12 } }
+                                        }
+                                    }
+                                }
+                            });
+
+                            document.getElementById('tahunSelect').addEventListener('change', function() {
+                                const tahun = this.value;
+                                chart.data.datasets[0].data = dataKeuntungan[tahun];
+                                chart.update();
+                            });
+                        </script>
+
+
+                        <!-- Tabel Keuntungan -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white font-weight-bold">
+                                <i class="fas fa-table mr-2"></i> Breakdown Keuntungan per Layanan
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Layanan</th>
+                                    <th>Sub Layanan</th>
+                                    <th>Total Keuntungan</th>
+                                    <th>Jumlah Pasien / Transaksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Penjualan Obat</td>
+                                    <td>Obat Resep, Obat Bebas (OTC)</td>
+                                    <td>Rp 180.000.000</td>
+                                    <td>500 transaksi</td>
+                                </tr>
+                                <tr>
+                                    <td>Layanan Pemeriksaan Cepat</td>
+                                    <td>Cek Tekanan Darah, Gula Darah, Kolesterol</td>
+                                    <td>Rp 40.000.000</td>
+                                    <td>200 pasien</td>
+                                </tr>
+                                <tr>
+                                    <td>Vaksinasi</td>
+                                    <td>Vaksin Flu, Hepatitis</td>
+                                    <td>Rp 25.000.000</td>
+                                    <td>100 pasien</td>
+                                </tr>
+                                <tr>
+                                    <td>Konsultasi Dokter</td>
+                                    <td>Konsultasi Umum</td>
+                                    <td>Rp 60.000.000</td>
+                                    <td>150 pasien</td>
+                                </tr>
+                                <tr>
+                                    <td>Layanan Kesehatan Korporat</td>
+                                    <td>Medical Checkup Karyawan</td>
+                                    <td>Rp 35.000.000</td>
+                                    <td>5 perusahaan</td>
+                                </tr>
+                                <tr>
+                                    <td>Alat Kesehatan & Vitamin</td>
+                                    <td>Alat Medis Kecil, Vitamin</td>
+                                    <td>Rp 20.000.000</td>
+                                    <td>80 transaksi</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                                </div>
+                            </div>
+                        </div>
+
+                </main>
+
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
