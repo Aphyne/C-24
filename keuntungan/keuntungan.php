@@ -201,7 +201,7 @@ if (!isset($_SESSION["jabatan"])) {
                         </script>
 
 
-                        <!-- Chart Keuntungan -->
+                        <!-- Header Grafik Keuntungan Bulanan -->
                         <div class="card mb-4">
                             <div class="card-header bg-primary text-white font-weight-bold d-flex justify-content-between align-items-center">
                                 <div><i class="fas fa-chart-bar mr-2"></i> Grafik Keuntungan Bulanan</div>
@@ -212,14 +212,33 @@ if (!isset($_SESSION["jabatan"])) {
                                     </select>
                                 </div>
                             </div>
-                            <div class="card-body" style="height: 250px;">
-                                <canvas id="keuntunganChart"></canvas>
+                        </div>
+
+                        <!-- Bar Chart & Pie Chart disusun dalam satu row -->
+                        <div class="row mb-4">
+                            <!-- Bar Chart -->
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-body" style="height: 300px;">
+                                        <canvas id="keuntunganChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pie Chart -->
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <div style="width: 100%; height: 300px;">
+                                    <canvas id="pieKeuntunganChart"></canvas>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Load Library Chart.js dan Plugin DataLabels -->
                         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
                         <script>
+                            // Data Bar Chart
                             const dataKeuntungan = {
                                 2025: [40, 45, 50, 55, 52, 60, 65, 70, 68, 72, 75, 80],
                                 2024: [35, 40, 42, 50, 47, 55, 58, 60, 61, 63, 68, 70]
@@ -227,14 +246,12 @@ if (!isset($_SESSION["jabatan"])) {
 
                             const labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
                             const colors = [
-                            '#5A9BFF', '#5ACF85', '#4BBFC9', '#FFD350',
-                            '#E35B5B', '#8A5BFF', '#3ED1AA', '#FF9240',
-                            '#9356A3', '#FF70A6', '#FFB347', '#FF8F8F'
-                        ];
-
+                                '#5A9BFF', '#5ACF85', '#4BBFC9', '#FFD350',
+                                '#E35B5B', '#8A5BFF', '#3ED1AA', '#FF9240',
+                                '#9356A3', '#FF70A6', '#FFB347', '#FF8F8F'
+                            ];
 
                             const ctx = document.getElementById("keuntunganChart").getContext('2d');
-
                             let chart = new Chart(ctx, {
                                 type: 'bar',
                                 data: {
@@ -261,7 +278,7 @@ if (!isset($_SESSION["jabatan"])) {
                                     scales: {
                                         x: {
                                             beginAtZero: true,
-                                            grid: { display: false }, // Hapus garis kotak grid
+                                            grid: { display: false },
                                             ticks: {
                                                 callback: function(value) { return 'Rp ' + value + 'jt'; },
                                                 font: { size: 12 }
@@ -279,6 +296,57 @@ if (!isset($_SESSION["jabatan"])) {
                                 const tahun = this.value;
                                 chart.data.datasets[0].data = dataKeuntungan[tahun];
                                 chart.update();
+                            });
+
+                            // Data Pie Chart
+                            const pieLabels = [
+                                "Penjualan Obat",
+                                "Pemeriksaan Cepat",
+                                "Vaksinasi",
+                                "Konsultasi Dokter",
+                                "Kesehatan Korporat",
+                                "Alat Kesehatan & Vitamin"
+                            ];
+                            const pieData = [180, 40, 25, 60, 35, 20];
+                            const pieColors = [
+                                '#5A9BFF', '#5ACF85', '#FFD350',
+                                '#E35B5B', '#8A5BFF', '#FF9240'
+                            ];
+
+                            const pieCtx = document.getElementById('pieKeuntunganChart').getContext('2d');
+                            const pieChart = new Chart(pieCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: pieLabels,
+                                    datasets: [{
+                                        data: pieData,
+                                        backgroundColor: pieColors,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    cutout: '60%', 
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'bottom',
+                                            labels: { font: { size: 12 } }
+                                        },
+                                        datalabels: {
+                                            color: '#fff',
+                                            font: { size: 12, weight: 'bold' },
+                                            formatter: function(value, context) {
+                                                let total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                let percentage = (value / total * 100).toFixed(1) + '%';
+                                                return percentage;
+                                            }
+                                        }
+                                    }
+                                },
+                                plugins: [ChartDataLabels]
                             });
                         </script>
 

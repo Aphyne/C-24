@@ -101,90 +101,214 @@ if (!isset($_SESSION["jabatan"])) {
         </div>
         <div id="layoutSidenav_content" class="bg-white text-dark">
             <main>
-                <div class="container-fluid">
-                    <h1 class="mt-4">Data Kasir Pembayaran</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Data Kasir Pembayaran</li>
-                    </ol>
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <i class="fas fa-table mr-1 mt-2"></i>
-                                    Tabel Kasir Pembayaran
-                                </div>
-                                <div class="col-md-3">
-                                    <a href="pembayaran_tambah.php" class="btn-success btn px-3 font-weight-bold ml-5">
-                                        <i class="fas fa-plus"></i> Tambah Pembayaran
-                                    </a>
-                                </div>
+            <div class="container-fluid">
+                <h1 class="mt-4">Pengeluaran Klinik</h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Pengeluaran</li>
+                </ol>
+
+                <!-- Summary Box Pengeluaran -->
+                <div class="row">
+                    <!-- Total Pengeluaran Tahun Ini -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div class="font-weight-bold">Total Pengeluaran Tahun Ini</div>
+                                <div><i class="fas fa-coins fa-2x text-white"></i></div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <h5>Rp <span class="counter" data-count="<?php 
+                                    $totalPengeluaran = 200000000; // ambil dari database
+                                    echo $totalPengeluaran;
+                                ?>">0</span></h5>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Kode Bayar</th>
-                                            <th>Nama</th>
-                                            <th>Kode Resep</th>
-                                            <th>Total</th>
-                                            <th>Jumlah Bayar</th>
-                                            <th>Kembalian</th>
-                                            <th>Tanggal Bayar</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $ambil = $koneksi->query("SELECT * FROM tb_pembayaran a
-                                            JOIN tb_resep b ON a.id_resep = b.id_resep
-                                            JOIN tb_pemeriksaan c ON b.id_pemeriksaan = c.id_pemeriksaan
-                                            JOIN tb_pendaftaran d ON c.id_pendaftaran = d.id_pendaftaran
-                                            JOIN tb_pasien e ON d.id_pasien = e.id_pasien"); ?>
-                                        <?php while ($pecah = $ambil->fetch_assoc()) { ?>
-                                            <tr>
-                                                <td><?php echo $pecah['kd_pembayaran']; ?></td>
-                                                <td><?php echo $pecah['nama_pasien']; ?></td>
-                                                <td><?php echo $pecah['kd_resep']; ?></td>
-                                                <td><?php echo $pecah['total_pembayaran']; ?></td>
-                                                <td><?php echo $pecah['jumlah_bayar']; ?></td>
-                                                <td><?php echo $pecah['kembalian']; ?></td>
-                                                <td><?php echo $pecah['tgl_pembayaran']; ?></td>
-                                                <td>
-                                                    <?php if ($pecah['status_pembayaran'] == 0) { ?>
-                                                        <span class="badge badge-danger p-2"></span>
-                                                    <?php } elseif ($pecah['status_pembayaran'] == 1) { ?>
-                                                        <span class="badge badge-success p-2">Lunas</span>
-                                                    <?php } else { ?>
-                                                        <span class="badge badge-danger p-2">
-                                                            <i class="fas fa-minus"></i>
-                                                        </span>
-                                                    <?php } ?>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+                    </div>
+
+                    <!-- Rata-rata Pengeluaran Bulanan -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div class="font-weight-bold">Rata-rata / Bulan</div>
+                                <div><i class="fas fa-chart-line fa-2x text-white"></i></div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <h5>Rp <span class="counter" data-count="<?php 
+                                    $rataPengeluaran = 200000000 / 12;
+                                    echo $rataPengeluaran;
+                                ?>">0</span></h5>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <form class="mb-2" action="cetak_pembayaran.php" method="POST">
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        <label>Dari</label>
-                                        <input type="date" class="form-control" name="tanggal_1">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label>Sampai</label>
-                                        <input type="date" class="form-control" name="tanggal_2">
-                                    </div>  
-                                    <button type="submit" class="btn btn-primary font-weight-bold" style="height: 37px; margin-top: 33px;"> Cetak</button>
-                                </div>
-                            </form>
+                    </div>
+
+                    <!-- Pengeluaran Bulan Ini -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div class="font-weight-bold">Pengeluaran Bulan Ini</div>
+                                <div><i class="fas fa-calendar-alt fa-2x text-white"></i></div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <h5>Rp <span class="counter" data-count="<?php 
+                                    $pengeluaranBulanIni = 17500000; 
+                                    echo $pengeluaranBulanIni;
+                                ?>">0</span></h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pertumbuhan Bulanan Pengeluaran -->
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div class="font-weight-bold">Pertumbuhan Bulanan</div>
+                                <div><i class="fas fa-percentage fa-2x text-white"></i></div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <h5><span class="counter" data-count="<?php 
+                                    $pertumbuhanPengeluaran = 5; 
+                                    echo $pertumbuhanPengeluaran;
+                                ?>">0</span>%</h5>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- Script animasi counter -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $('.counter').each(function () {
+                        var $this = $(this),
+                            countTo = parseFloat($this.attr('data-count'));
+
+                        $({ countNum: 0 }).animate({
+                            countNum: countTo
+                        },
+                        {
+                            duration: 1500,
+                            easing: 'swing',
+                            step: function () {
+                                $this.text(new Intl.NumberFormat('id-ID').format(Math.floor(this.countNum)));
+                            },
+                            complete: function () {
+                                $this.text(new Intl.NumberFormat('id-ID').format(this.countNum));
+                            }
+                        });
+                    });
+                </script>
+
+
+                <!-- Grafik Bar + Pie -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white font-weight-bold d-flex justify-content-between align-items-center">
+                        <div><i class="fas fa-chart-bar mr-2"></i> Grafik Pengeluaran Bulanan</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8" style="height: 300px;">
+                                <canvas id="pengeluaranChart"></canvas>
+                            </div>
+                            <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                <div style="width: 100%; height: 300px;">
+                                    <canvas id="piePengeluaranChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Breakdown Table -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white font-weight-bold">
+                        <i class="fas fa-table mr-2"></i> Breakdown Pengeluaran
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered text-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Detail</th>
+                                <th>Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Obat & Alkes</td><td>Pengadaan Stok</td><td>Rp 100.000.000</td></tr>
+                                <tr><td>Gaji Karyawan</td><td>Dokter, Apoteker, Admin</td><td>Rp 60.000.000</td></tr>
+                                <tr><td>Operasional</td><td>Listrik, Air, Internet</td><td>Rp 20.000.000</td></tr>
+                                <tr><td>Peralatan & Maintenance</td><td>Servis alat medis</td><td>Rp 10.000.000</td></tr>
+                                <tr><td>Promosi</td><td>Marketing & Event</td><td>Rp 5.000.000</td></tr>
+                                <tr><td>Lain-lain</td><td>Tak terduga</td><td>Rp 5.000.000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <!-- JS Chart -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            <script>
+                // Data Bar Chart
+                const barData = [15, 20, 18, 17, 19, 16, 14, 20, 22, 19, 18, 22];
+                const barLabels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                const barColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40',
+                                '#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'];
+
+                const ctxBar = document.getElementById("pengeluaranChart").getContext('2d');
+                const pengeluaranChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: barLabels,
+                        datasets: [{
+                            label: 'Pengeluaran (Juta)',
+                            data: barData,
+                            backgroundColor: barColors,
+                            borderRadius: 10
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return 'Rp ' + value + 'jt'; }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Data Pie Chart
+                const pieLabels = ["Obat & Alkes", "Gaji", "Operasional", "Peralatan", "Promosi", "Lain-lain"];
+                const pieData = [100, 60, 20, 10, 5, 5];
+                const pieColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'];
+
+                const ctxPie = document.getElementById("piePengeluaranChart").getContext('2d');
+                const pieChart = new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            data: pieData,
+                            backgroundColor: pieColors,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        cutout: '60%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            </script>
+</div>
             </main>
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
