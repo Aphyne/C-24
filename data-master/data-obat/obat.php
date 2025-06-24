@@ -112,6 +112,310 @@ if (!isset($_SESSION["jabatan"])) {
                         <li class="breadcrumb-item active">Data Master</li>
                         <li class="breadcrumb-item active">Data Obat</li>
                     </ol>
+                    <?php
+                    // Data hardcode sementara MIS Obat
+                    $totalObat = 152;
+                    $totalKategoriPenyakit = 7;
+                    $totalKategoriBentuk = 6;
+                    $totalJenisUnik = 45;
+                    ?>
+
+                    <!-- Ringkasan Data Obat -->
+                    <h4 class="mb-4 font-weight-bold text-secondary">Ringkasan Data Obat</h4>
+                    <div class="row">
+
+                    <!-- Total Obat -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white bg-primary shadow h-100 py-2">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                            <div class="text-white-50 small">Total Obat</div>
+                            <h5 class="mb-0 counter" data-count="<?php echo $totalObat; ?>">0</h5>
+                            </div>
+                            <i class="fas fa-pills fa-2x"></i>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Kategori Penyakit -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white bg-success shadow h-100 py-2">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                            <div class="text-white-50 small">Kategori Obat Berdasarkan Penyakit</div>
+                            <h5 class="mb-0 counter" data-count="<?php echo $totalKategoriPenyakit; ?>">0</h5>
+                            </div>
+                            <i class="fas fa-stethoscope fa-2x"></i>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Kategori Bentuk Obat -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white bg-info shadow h-100 py-2">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                            <div class="text-white-50 small">Kategori Bentuk Obat</div>
+                            <h5 class="mb-0 counter" data-count="<?php echo $totalKategoriBentuk; ?>">0</h5>
+                            </div>
+                            <i class="fas fa-capsules fa-2x"></i>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Jenis Unik -->
+                    <div class="col-md-3 mb-4">
+                        <div class="card text-white bg-warning shadow h-100 py-2">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                            <div class="text-white-50 small">Total Jenis Unik</div>
+                            <h5 class="mb-0 counter" data-count="<?php echo $totalJenisUnik; ?>">0</h5>
+                            </div>
+                            <i class="fas fa-boxes fa-2x"></i>
+                        </div>
+                        </div>
+                    </div>
+
+                    </div>
+
+                    <!-- Script animasi counter -->
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script>
+                    $('.counter').each(function () {
+                        var $this = $(this),
+                        countTo = $this.attr('data-count');
+
+                        $({ countNum: 0 }).animate({
+                            countNum: countTo
+                        },
+                        {
+                            duration: 1500,
+                            easing: 'swing',
+                            step: function () {
+                            $this.text(new Intl.NumberFormat('id-ID').format(Math.floor(this.countNum)));
+                            },
+                            complete: function () {
+                            $this.text(new Intl.NumberFormat('id-ID').format(this.countNum));
+                            }
+                        });
+                    });
+                    </script>
+
+
+                    <!-- Distribusi Obat -->
+                    <h4 class="mb-4 font-weight-bold text-secondary">Distribusi Obat</h4>
+                    <div class="row">
+                        <!-- Pie Chart Bentuk Obat -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-warning text-white">
+                                    <i class="fas fa-chart-pie mr-2"></i> Distribusi Bentuk Obat (%)
+                                </div>
+                                <div class="card-body d-flex justify-content-center align-items-center" style="height: 400px;">
+                                    <canvas id="pieBentukObat"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bar Chart Kategori Penyakit -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-danger text-white">
+                                    <i class="fas fa-chart-bar mr-2"></i> Distribusi Kategori Penyakit
+                                </div>
+                                <div class="card-body d-flex justify-content-center align-items-center" style="height: 400px;">
+                                    <canvas id="barKategoriPenyakit"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Script Chart.js -->
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <!-- Tambahkan plugin datalabels -->
+                    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+                    <script>
+                    // Hardcode Data Array
+                    const totalObat = 152;
+                    const kategoriBentuk = [
+                        { nama: 'Tablet', jumlah: 60 },
+                        { nama: 'Syrup', jumlah: 30 },
+                        { nama: 'Kapsul', jumlah: 25 },
+                        { nama: 'Salep', jumlah: 15 },
+                        { nama: 'Injeksi', jumlah: 12 },
+                        { nama: 'Lainnya', jumlah: 10 }
+                    ];
+
+                    const kategoriPenyakit = [
+                        { nama: 'Demam', jumlah: 40 },
+                        { nama: 'Batuk', jumlah: 35 },
+                        { nama: 'Asma', jumlah: 25 },
+                        { nama: 'Hipertensi', jumlah: 20 },
+                        { nama: 'Alergi', jumlah: 15 },
+                        { nama: 'Kolesterol', jumlah: 10 },
+                        { nama: 'Lainnya', jumlah: 7 }
+                    ];
+
+                    // Pie Chart
+                    var ctxPie = document.getElementById('pieBentukObat').getContext('2d');
+                    var totalBentuk = kategoriBentuk.reduce((acc, item) => acc + item.jumlah, 0);
+                    new Chart(ctxPie, {
+                        type: 'pie',
+                        data: {
+                            labels: kategoriBentuk.map(item => item.nama),
+                            datasets: [{
+                                data: kategoriBentuk.map(item => item.jumlah),
+                                backgroundColor: ['#007bff', '#17a2b8', '#ffc107', '#28a745', '#dc3545', '#6c757d']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                datalabels: {
+                                    formatter: (value, context) => {
+                                        let percent = (value / totalBentuk * 100).toFixed(1);
+                                        return `${context.chart.data.labels[context.dataIndex]} \n${percent}%`;
+                                    },
+                                    color: '#fff',
+                                    font: {
+                                        weight: 'bold',
+                                        size: 12
+                                    }
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        },
+                        plugins: [ChartDataLabels]
+                    });
+
+                    // Bar Chart
+                    var ctxBar = document.getElementById('barKategoriPenyakit').getContext('2d');
+                    new Chart(ctxBar, {
+                        type: 'bar',
+                        data: {
+                            labels: kategoriPenyakit.map(item => item.nama),
+                            datasets: [{
+                                label: 'Jumlah Jenis Obat',
+                                data: kategoriPenyakit.map(item => item.jumlah),
+                                backgroundColor: [
+                                    '#007bff', '#17a2b8', '#ffc107', '#28a745', '#dc3545', '#6c757d', '#8e44ad'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 5
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    </script>
+
+                    <!-- Row Ketiga: Monitoring Kritis -->
+                    <h4 class="mb-4 font-weight-bold text-secondary">Monitoring Stok & Pergerakan Obat</h4>
+                    <div class="row">
+
+                        <!-- Top 5 Obat Paling Cepat Habis -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-success text-white">
+                                    <i class="fas fa-bolt mr-2"></i> Top 5 Obat Paling Cepat Habis
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Paracetamol <span class="badge badge-danger badge-pill">120 Box</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Amoxicillin <span class="badge badge-warning badge-pill">80 Box</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Ibuprofen <span class="badge badge-warning badge-pill">70 Box</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Ambroxol Syrup <span class="badge badge-info badge-pill">50 Botol</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Salep Miconazole <span class="badge badge-secondary badge-pill">30 Tube</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Monitoring Stok Kritis & Kadaluarsa -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-danger text-white">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i> Monitoring Stok Kritis & Kadaluarsa
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Paracetamol 
+                                            <span class="badge badge-danger badge-pill">Stok: 8 - Hampir Habis</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Salep Miconazole 
+                                            <span class="badge badge-danger badge-pill">Stok: 5 - Hampir Habis</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Ibuprofen 
+                                            <span class="badge badge-warning badge-pill">Kadaluarsa 20 Hari Lagi</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Row Keempat: Smart Supply Suggestion -->
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <div class="card shadow-sm border-left-warning">
+                                <div class="card-body d-flex align-items-center">
+                                    <i class="fas fa-lightbulb fa-2x text-warning mr-3"></i>
+                                    <div>
+                                        <h5 class="font-weight-bold mb-1 text-warning">Saran Pengadaan Cerdas</h5>
+                                        <p class="mb-0">Lakukan pengadaan ulang untuk <b>12 jenis obat</b> yang diperkirakan habis dalam <b>14 hari ke depan</b>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Array Hardcode -->
+                    <script>
+                    // Data Top 5 Habis
+                    const topHabis = [
+                    {nama: 'Paracetamol', jumlah: 120, satuan: 'Box'},
+                    {nama: 'Amoxicillin', jumlah: 80, satuan: 'Box'},
+                    {nama: 'Ibuprofen', jumlah: 70, satuan: 'Box'},
+                    {nama: 'Ambroxol Syrup', jumlah: 50, satuan: 'Botol'},
+                    {nama: 'Salep Miconazole', jumlah: 30, satuan: 'Tube'},
+                    ];
+
+                    // Data Stok Kritis & Kadaluarsa
+                    const stokKritis = [
+                    {nama: 'Paracetamol', sisa: 8, keterangan: 'Hampir Habis'},
+                    {nama: 'Salep Miconazole', sisa: 5, keterangan: 'Hampir Habis'},
+                    {nama: 'Ibuprofen', sisa: 4, keterangan: 'Kadaluarsa 20 Hari Lagi'},
+                    ];
+                    </script>
+
+
                     <div class="card mb-4">
                         <div class="card-header">
                             <i class="fas fa-table mr-1"></i>

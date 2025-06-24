@@ -21,7 +21,20 @@ if (!isset($_SESSION["jabatan"])) {
     <title>Poli Klinik | Data Master - Dokter</title>
     <link href="../../assets/css/styles.css" rel="stylesheet" />
     <link href="../../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .progress {
+            background-color: #e9ecef;
+        }
+        .progress-bar {
+            width: 0%; /* Penting! Mulai dari 0 */
+            transition: width 1.5s ease;
+        }
+    </style>
     <script src="../../assets/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body class="sb-nav-fixed">
@@ -104,86 +117,414 @@ if (!isset($_SESSION["jabatan"])) {
             </nav>
         </div>
         <div id="layoutSidenav_content" class="bg-white text-dark">
-            <main>
-                <div class="container-fluid">
-                    <h1 class="mt-4">Data Dokter</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item"><a href="../../index.php" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Data Master</li>
-                        <li class="breadcrumb-item active">Data Dokter</li>
-                    </ol>
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <i class="fas fa-table mr-1"></i>
-                            Tabel Data Dokter
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Kode Dokter</th>
-                                            <th>Dokter</th>
-                                            <th>Spesialis</th>
-                                            <th>Poli</th>
-                                            <th>Tarif</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $nomor = 1; ?>
-                                        <?php $ambil = $koneksi->query("SELECT * FROM tb_dokter JOIN tb_poli ON tb_dokter.id_poli = tb_poli.id_poli"); ?>
-                                        <?php while ($pecah = $ambil->fetch_assoc()) { ?>
-                                            <tr>
-                                                <td><?php echo $nomor; ?></td>
-                                                <td><?php echo $pecah['kd_dokter']; ?></td>
-                                                <td><?php echo $pecah['nm_dokter']; ?></td>
-                                                <td><?php echo $pecah['spesialis_dokter']; ?></td>
-                                                <td><?php echo $pecah['nm_poli']; ?></td>
-                                                <td>Rp. <?php echo number_format($pecah['tarif_dokter']); ?></td>
-                                                <td>
-                                                    <a href="dokter_view.php?&id_dokter=<?php echo $pecah['id_dokter']; ?>" class="btn-primary btn-sm btn">
-                                                        <i class="fas fa-eye"></i></i>
-                                                    </a>
-                                                    <a href="dokter_ubah.php?&id_dokter=<?php echo $pecah['id_dokter']; ?>" class="btn-warning btn-sm btn">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a href="dokter_hapus.php?&id_dokter=<?php echo $pecah['id_dokter']; ?>" class="btn-danger btn-sm btn">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <?php $nomor++; ?>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+    <main>
+    <div class="container-fluid">
+        <h1 class="mt-4">Data Dokter</h1>
+             <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item"><a href="../../index.php" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">Data Master</li>
+                <li class="breadcrumb-item active">Data Dokter</li>
+            </ol>
+
+            <?php
+            // Data hardcode sementara MIS Dokter
+            $totalDokterAktif = 12;
+            $rataKehadiran = 93; // persen
+            $dokterNonaktif = 2;
+            $totalPasienBulanIni = 1440; // total pasien klinik bulan ini
+            $rataPasienPerDokter = $totalPasienBulanIni / $totalDokterAktif; // otomatis dihitung
+            ?>
+
+            <!-- Summary Box -->
+            <div class="row">
+                <!-- Total Dokter -->
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body d-flex justify-content-between">
+                            <div class="font-weight-bold">Total Dokter</div>
+                            <div><i class="fas fa-user-md fa-2x"></i></div>
                         </div>
                         <div class="card-footer">
-                            <a href="dokter_tambah.php" class="btn-success btn px-3 font-weight-bold"><i class="fas fa-plus "></i> Tambah Data Dokter</a>
+                            <h5><span class="counter" data-count="<?php echo $totalDokterAktif; ?>">0</span> Orang</h5>
                         </div>
                     </div>
                 </div>
-            </main>
-            <footer class="py-4 bg-dark mt-auto">
-                <div class="container-fluid">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Poli Klinik 2021</div>
+
+                <!-- Rata-rata Kehadiran -->
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body d-flex justify-content-between">
+                            <div class="font-weight-bold">Rata Rata Kehadiran (Bulan)</div>
+                            <div><i class="fas fa-calendar-check fa-2x"></i></div>
+                        </div>
+                        <div class="card-footer">
+                            <h5><span class="counter" data-count="<?php echo $rataKehadiran; ?>">0</span>%</h5>
+                        </div>
                     </div>
                 </div>
-            </footer>
+
+                <!-- Dokter Nonaktif -->
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body d-flex justify-content-between">
+                            <div class="font-weight-bold">Dokter Nonaktif</div>
+                            <div><i class="fas fa-user-slash fa-2x"></i></div>
+                        </div>
+                        <div class="card-footer">
+                            <h5><span class="counter" data-count="<?php echo $dokterNonaktif; ?>">0</span> Orang</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rata-rata Pasien per Dokter per Bulan -->
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body d-flex justify-content-between">
+                            <div class="font-weight-bold">Rata Pasien/Dokter (Bulan)</div>
+                            <div><i class="fas fa-users fa-2x"></i></div>
+                        </div>
+                        <div class="card-footer">
+                            <h5><span class="counter" data-count="<?php echo round($rataPasienPerDokter); ?>">0</span> Pasien</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Script animasi counter -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                $('.counter').each(function () {
+                    var $this = $(this),
+                        countTo = $this.attr('data-count');
+
+                    $({ countNum: 0 }).animate({
+                        countNum: countTo
+                    },
+                    {
+                        duration: 1500,
+                        easing: 'swing',
+                        step: function () {
+                            $this.text(new Intl.NumberFormat('id-ID').format(Math.floor(this.countNum)));
+                        },
+                        complete: function () {
+                            $this.text(new Intl.NumberFormat('id-ID').format(this.countNum));
+                        }
+                    });
+                });
+            </script>
+
+           <!-- Performance Review Dokter (Hardcode Array Version) -->
+            <?php
+            $dokterPerformance = [
+                [
+                    "nama" => "Dr. Andi",
+                    "spesialis" => "Spesialis Umum",
+                    "total_jam" => 450,
+                    "target_jam" => 500,
+                    "kehadiran" => 95,
+                    "pertumbuhan_pasien" => 12,
+                    "total_pasien" => 120,
+                    "rating" => 5.0,
+                    "rating_bintang" => "★★★★★",
+                    "kinerja" => "Sangat Baik",
+                    "badge" => "success",
+                    "progress_color" => "success"
+                ],
+                [
+                    "nama" => "Dr. Budi",
+                    "spesialis" => "Spesialis Anak",
+                    "total_jam" => 380,
+                    "target_jam" => 500,
+                    "kehadiran" => 85,
+                    "pertumbuhan_pasien" => 5,
+                    "total_pasien" => 150,
+                    "rating" => 4.0,
+                    "rating_bintang" => "★★★★☆",
+                    "kinerja" => "Perlu Monitoring",
+                    "badge" => "warning",
+                    "progress_color" => "warning"
+                ],
+                [
+                    "nama" => "Dr. Citra",
+                    "spesialis" => "Spesialis Gigi",
+                    "total_jam" => 520,
+                    "target_jam" => 500,
+                    "kehadiran" => 98,
+                    "pertumbuhan_pasien" => 18,
+                    "total_pasien" => 140,
+                    "rating" => 4.8,
+                    "rating_bintang" => "★★★★★",
+                    "kinerja" => "Top Performer",
+                    "badge" => "primary",
+                    "progress_color" => "success"
+                ]
+            ];
+            ?>
+
+            <h4 class="mb-4 font-weight-bold text-secondary">Performance Review Dokter</h4>
+            <div class="row">
+            <?php foreach ($dokterPerformance as $dokter) { ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div><?= $dokter['nama'] ?> (<?= $dokter['spesialis'] ?>)</div>
+                                <i class="fas fa-user-md fa-lg"></i>
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                            <p><b>Total Jam Praktik:</b> 
+                                <span class="counter" data-count="<?= $dokter['total_jam'] ?>">0</span> Jam / Target <?= $dokter['target_jam'] ?> Jam
+                            </p>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div class="progress-bar bg-<?= $dokter['progress_color'] ?>" data-width="<?= round(($dokter['total_jam'] / $dokter['target_jam']) * 100) ?>"></div>
+                            </div>
+
+                            <p><b>Kehadiran:</b> 
+                                <span class="counter" data-count="<?= $dokter['kehadiran'] ?>">0</span>%
+                            </p>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div class="progress-bar bg-info" data-width="<?= $dokter['kehadiran'] ?>"></div>
+                            </div>
+
+                            <p><b>Pertumbuhan Pasien:</b> +<span class="counter" data-count="<?= $dokter['pertumbuhan_pasien'] ?>">0</span>%</p>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div class="progress-bar bg-warning" data-width="<?= $dokter['pertumbuhan_pasien'] ?>"></div>
+                            </div>
+
+                            <p><b>Total Pasien:</b> <span class="counter" data-count="<?= $dokter['total_pasien'] ?>">0</span> Pasien</p>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div class="progress-bar bg-primary" data-width="100"></div>
+                            </div>
+
+                            <p><b>Rating Pasien:</b> 
+                                <span class="text-warning"><?= $dokter['rating_bintang'] ?></span> (<?= $dokter['rating'] ?>)
+                            </p>
+
+                        </div>
+                        <div class="card-footer text-center">
+                            <span class="badge badge-<?= $dokter['badge'] ?>">Kinerja <?= $dokter['kinerja'] ?></span>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+            </div>
+
+            <!-- Load jQuery -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+            <script>
+            // Counter animasi
+            $('.counter').each(function () {
+                var $this = $(this);
+                var countTo = parseInt($this.attr('data-count'));
+                $({ countNum: 0 }).animate(
+                    { countNum: countTo },
+                    {
+                        duration: 1500,
+                        easing: 'swing',
+                        step: function () {
+                            $this.text(Math.floor(this.countNum));
+                        },
+                        complete: function () {
+                            $this.text(this.countNum);
+                        }
+                    }
+                );
+            });
+
+            // Progress bar animasi
+            $('.progress-bar').each(function () {
+                var $this = $(this);
+                var targetWidth = $this.data('width');
+                $this.animate({ width: targetWidth + '%' }, 1500);
+            });
+            </script>
+
+            <!-- Jadwal & Ketidakhadiran Dokter (Hardcode Version) -->
+            <?php
+            $jadwalPraktik = [
+                ["hari" => "Senin", "dokter" => "Dr. Andi", "shift" => "Pagi", "jam" => "08:00 - 12:00", "badge" => "success"],
+                ["hari" => "Selasa", "dokter" => "Dr. Budi", "shift" => "Sore", "jam" => "13:00 - 17:00", "badge" => "warning"],
+                ["hari" => "Rabu", "dokter" => "Dr. Citra", "shift" => "Pagi", "jam" => "08:00 - 12:00", "badge" => "primary"],
+                ["hari" => "Kamis", "dokter" => "Dr. Andi", "shift" => "Overload", "jam" => "Double Shift", "badge" => "danger"],
+                ["hari" => "Jumat", "dokter" => "Dr. Budi", "shift" => "Pagi", "jam" => "08:00 - 12:00", "badge" => "success"],
+            ];
+
+            $riwayatKehadiran = [
+                "Dr. Andi" => ["hadir" => 24, "izin" => 2, "sakit" => 1],
+                "Dr. Budi" => ["hadir" => 22, "izin" => 3, "sakit" => 2],
+                "Dr. Citra" => ["hadir" => 26, "izin" => 1, "sakit" => 0],
+            ];
+            ?>
+
+            <h4 class="mb-4 font-weight-bold text-secondary">Jadwal & Ketidakhadiran Dokter</h4>
+            <div class="row">
+                <!-- Jadwal Praktik Dokter -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <i class="fas fa-calendar-alt mr-2"></i> Jadwal Praktik Mingguan
+                        </div>
+                        <div class="card-body" style="min-height: 320px;">
+                            <ul class="list-group list-group-flush">
+                                <?php foreach ($jadwalPraktik as $jadwal): ?>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <?= $jadwal['hari'] ?> (<?= $jadwal['dokter'] ?>)
+                                        <span class="badge badge-<?= $jadwal['badge'] ?>">
+                                            <?= $jadwal['shift'] ?> (<?= $jadwal['jam'] ?>)
+                                        </span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Riwayat Ketidakhadiran -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-danger text-white">
+                            <i class="fas fa-user-times mr-2"></i> Riwayat Ketidakhadiran Bulan Ini
+                        </div>
+                        <div class="card-body" style="min-height: 320px;">
+                            <ul class="list-group list-group-flush">
+                                <?php foreach ($riwayatKehadiran as $dokter => $data): ?>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <?= $dokter ?>
+                                        <div>
+                                            <span class="badge badge-success mr-1">Hadir: <?= $data['hadir'] ?></span>
+                                            <span class="badge badge-warning mr-1">Izin: <?= $data['izin'] ?></span>
+                                            <span class="badge badge-danger">Sakit: <?= $data['sakit'] ?></span>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End Jadwal & Ketidakhadiran Dokter -->
+        </div>
+    
+            <!-- Tabel Master Data Dokter - Compact MIS Klinik -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fas fa-user-md fa-lg mr-2"></i> 
+                    <h5 class="mb-0 font-weight-bold">Master Data Dokter</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-hover" id="dataTable" style="font-size: 14px;">
+                            <thead class="thead-dark">
+                                <tr class="text-center">
+                                    <th style="width: 40px;">No</th>
+                                    <th style="width: 80px;">Kode</th>
+                                    <th style="min-width: 80px;">Nama</th>
+                                    <th style="width: 110px;">Spesialis</th>
+                                    <th style="width: 110px;">No. STR</th>
+                                    <th style="width: 110px;">No. SIP</th>
+                                    <th style="width: 110px;">Kontak</th>
+                                    <th style="min-width: 100px;">Alamat</th>
+                                    <th style="width: 80px;">Status</th>
+                                    <th style="width: 120px;">Tarif</th>
+                                    <th style="width: 120px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $nomor = 1; ?>
+                                <?php 
+                                $dataDokter = [
+                                    [
+                                        'kd_dokter' => 'D001',
+                                        'nm_dokter' => 'Dr. Andi',
+                                        'spesialis_dokter' => 'Umum',
+                                        'str_dokter' => 'STR123456',
+                                        'sip_dokter' => 'SIP654321',
+                                        'kontak_dokter' => '081234567890',
+                                        'alamat_dokter' => 'Jl. Melati No.10',
+                                        'status_dokter' => 'Aktif',
+                                        'tarif_dokter' => 75000
+                                    ],
+                                    [
+                                        'kd_dokter' => 'D002',
+                                        'nm_dokter' => 'Dr. Budi',
+                                        'spesialis_dokter' => 'Gigi',
+                                        'str_dokter' => 'STR223344',
+                                        'sip_dokter' => 'SIP445566',
+                                        'kontak_dokter' => '081298765432',
+                                        'alamat_dokter' => 'Jl. Kenanga No.5',
+                                        'status_dokter' => 'Nonaktif',
+                                        'tarif_dokter' => 80000
+                                    ],
+                                    [
+                                        'kd_dokter' => 'D003',
+                                        'nm_dokter' => 'Dr. Citra',
+                                        'spesialis_dokter' => 'Anak',
+                                        'str_dokter' => 'STR334455',
+                                        'sip_dokter' => 'SIP556677',
+                                        'kontak_dokter' => '081356789012',
+                                        'alamat_dokter' => 'Jl. Mawar No.20',
+                                        'status_dokter' => 'Aktif',
+                                        'tarif_dokter' => 90000
+                                    ]
+                                ];
+
+                                foreach ($dataDokter as $pecah) { ?>
+                                    <tr>
+                                        <td class="text-center"><?php echo $nomor; ?></td>
+                                        <td class="text-center"><?php echo $pecah['kd_dokter']; ?></td>
+                                        <td><?php echo $pecah['nm_dokter']; ?></td>
+                                        <td class="text-center"><?php echo $pecah['spesialis_dokter']; ?></td>
+                                        <td class="text-center"><?php echo $pecah['str_dokter']; ?></td>
+                                        <td class="text-center"><?php echo $pecah['sip_dokter']; ?></td>
+                                        <td class="text-center"><?php echo $pecah['kontak_dokter']; ?></td>
+                                        <td><?php echo $pecah['alamat_dokter']; ?></td>
+                                        <td class="text-center">
+                                            <?php if($pecah['status_dokter'] == 'Aktif') { ?>
+                                                <span class="badge badge-success px-2 py-1">Aktif</span>
+                                            <?php } else { ?>
+                                                <span class="badge badge-danger px-2 py-1">Nonaktif</span>
+                                            <?php } ?>
+                                        </td>
+                                        <td class="text-right">Rp. <?php echo number_format($pecah['tarif_dokter'], 0, ',', '.'); ?></td>
+                                        <td class="text-center">
+                                            <a href="#" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
+                                            <a href="#" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                <?php $nomor++; } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <a href="dokter_tambah.php" class="btn-success btn px-3 font-weight-bold"><i class="fas fa-plus"></i> Tambah Data Dokter</a>
+            </div>
+            <footer class="py-4 bg-dark mt-auto">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between small">
+                    <div class="text-muted font-weight-bold">Copyright &copy; Poli Klinik 2021</div>
+                </div>
+            </div>
+        </footer>
         </div>
     </div>
-    <script src="../../assets/js/jquery-3.5.1.slim.min.js"></script>
-    <script src="../../assets/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/scripts.js"></script>
-    <script src="../../assets/js/Chart.min.js"></script>
-    <script src="../../assets/demo/chart-area-demo.js"></script>
-    <script src="../../assets/demo/chart-bar-demo.js"></script>
-    <script src="../../assets/js/jquery.dataTables.min.js"></script>
-    <script src="../../assets/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../../assets/demo/datatables-demo.js"></script>
-</body>
+    </main>
+</div>
 
+
+<script src="../../assets/js/jquery-3.5.1.slim.min.js"></script>
+<script src="../../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/js/scripts.js"></script>
+<script src="../../assets/js/jquery.dataTables.min.js"></script>
+<script src="../../assets/js/dataTables.bootstrap4.min.js"></script>
+<script src="../../assets/demo/datatables-demo.js"></script>
+</body>
 </html>
