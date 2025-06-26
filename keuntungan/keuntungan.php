@@ -70,7 +70,7 @@ if (!isset($_SESSION["jabatan"])) {
                                     <a class="nav-link" href="../data-master/data-pasien/pasien.php">Data Pasien</a>
                                     <a class="nav-link" href="../data-master/data-dokter/dokter.php">Data Dokter</a>
                                     <a class="nav-link" href="../data-master/data-obat/obat.php">Data Obat</a>
-                                    <a class="nav-link" href="../data-master/data-poli/poli.php">Data Poli</a>
+                                    <a class="nav-link" href="../data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
                             <a class="nav-link" href="../data-pendaftaran/pendaftaran.php">

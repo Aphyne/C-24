@@ -72,7 +72,7 @@ if (!isset($_SESSION["jabatan"])) {
                                     <a class="nav-link" href="data-master/data-pasien/pasien.php">Data Pasien</a>
                                     <a class="nav-link" href="data-master/data-dokter/dokter.php">Data Dokter</a>
                                     <a class="nav-link" href="data-master/data-obat/obat.php">Data Obat</a>
-                                    <a class="nav-link" href="data-master/data-poli/poli.php">Data Poli</a>
+                                    <a class="nav-link" href="data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
                             <a class="nav-link" href="data-pendaftaran/pendaftaran.php">
@@ -167,7 +167,7 @@ if (!isset($_SESSION["jabatan"])) {
 
                         <!-- Earnings (Monthly) Card Example - PENGELUARAN -->
                         <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="pengeluaran/pengeluaran.php" style="text-decoration: none;">
+                            <a href="data-pembayaran/pembayaran.php" style="text-decoration: none;">
                                 <div class="card border-left-success h-100 py-2 bg-success">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">
