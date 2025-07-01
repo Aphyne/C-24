@@ -63,8 +63,26 @@ if (!isset($_SESSION["jabatan"])) {
   }
 
   .summary-change {
-    font-size: 13px;
-    color: #5459AC !important; /* gunakan warna sesuai background icon untuk SEMUA tulisan di summary box */
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 4px 10px;
+  margin-top: 10px;
+  font-weight: 500;
+  display: inline-block;      /* hanya selebar tulisan */
+  min-width: unset;           /* pastikan tidak ada lebar minimum */
+  width: auto;                /* pastikan selebar konten */
+  max-width: 100%;
+  text-align: left;
+  box-shadow: 0 1px 4px rgba(8,131,149,0.08);
+  color: #5459AC !important;
+  vertical-align: top;
+  background: transparent;    /* pastikan default transparan */
+}
+  .custom-bg-success {
+    background: rgba(40, 167, 69, 0.18) !important;   /* hijau transparan hanya di belakang teks */
+  }
+  .custom-bg-danger {
+    background: rgba(220, 53, 69, 0.18) !important;   /* merah transparan hanya di belakang teks */
   }
 
   .summary-icon {
@@ -125,6 +143,37 @@ if (!isset($_SESSION["jabatan"])) {
   margin-right: 10px !important;
 }
 
+.row-aktivitas-hari-ini .card {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+
+.row-aktivitas-hari-ini .card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(180deg, #6fc3d0 0%, #5459AC 100%);
+  border-radius: 15px 0 0 15px;
+  transition: width 0.25s;
+  z-index: 1;
+}
+
+.row-aktivitas-hari-ini .card:hover::before {
+  width: 8px;
+}
+
+.row-aktivitas-hari-ini .card .card-body {
+  position: relative;
+  z-index: 2;
+}
+
+.card,
+.note-shadow,
+.summary-box,
 .row-aktivitas-hari-ini .card {
   box-shadow: 0 2px 16px rgba(111,195,208,0.18) !important;
 }
@@ -236,59 +285,51 @@ if (!isset($_SESSION["jabatan"])) {
         <div id="layoutSidenav_content" class="bg-white text-dark">
             <main>
                 <div class="container-fluid">
-                    <h1 class="mt-4">Dashboard</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
-                    <!-- Content Row -->
-
-                
                      <!-- 4 KOLOM -->
                     <div class="row g-4 mt-4">
   <div class="col-md-3">
     <div class="dash count summary-box">
-      <div class="summary-title">Total Sales Today</div>
+      <div class="summary-title">Keuntugan Tahun Ini</div>
       <div class="summary-value">
-        $<span class="counter" data-count="2845">0</span>
-        <span class="summary-icon">💰</span>
+        $<span class="counter" data-count="6219384">0</span>
+        <span class="summary-icon"><i class="fas fa-dollar-sign"></i></span>
       </div>
-      <div class="summary-change text-success">+12% from yesterday</div>
+      <div class="summary-change custom-bg-success">+12% from yesterday</div>
     </div>
   </div>
 
   <div class="col-md-3">
     <div class="dash count summary-box">
-      <div class="summary-title">Prescriptions Today</div>
+      <div class="summary-title">Pengeluaran Tahun ini</div>
       <div class="summary-value">
-        <span class="counter" data-count="42">0</span>
-        <span class="summary-icon">📄</span>
+        $<span class="counter" data-count="4231216">0</span>
+        <span class="summary-icon"><i class="fas fa-prescription-bottle-alt"></i></span>
       </div>
-      <div class="summary-change text-success">+7% from last week</div>
+      <div class="summary-change custom-bg-success">+7% from last week</div>
     </div>
   </div>
 
   <div class="col-md-3">
     <div class="dash count summary-box">
-      <div class="summary-title">Low Stock Items</div>
+      <div class="summary-title">Stok Obat Kriris</div>
       <div class="summary-value">
         <span class="counter" data-count="8">0</span>
-        <span class="summary-icon">📦</span>
+        <span class="summary-icon"><i class="fas fa-box-open"></i></span>
       </div>
-      <div class="summary-change text-danger">+2 from yesterday</div>
+      <div class="summary-change custom-bg-danger">-2 from yesterday</div>
     </div>
   </div>
 
   <div class="col-md-3">
     <div class="dash count summary-box">
-      <div class="summary-title">Total Patients</div>
+      <div class="summary-title">Total Pasien</div>
       <div class="summary-value">
-        <span class="counter" data-count="1284">0</span>
-        <span class="summary-icon">👥</span>
+        <span class="counter" data-count="73">0</span>
+        <span class="summary-icon"><i class="fas fa-users"></i></span>
       </div>
-      <div class="summary-change text-success">+22 new this month</div>
+      <div class="summary-change custom-bg-success">+22 new this month</div>
     </div>
   </div>
-</div>
 <!-- Script animasi counter -->
                     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                     <script>
@@ -417,10 +458,10 @@ if (!isset($_SESSION["jabatan"])) {
 
 
                     <!-- ROW: Dashboard Keuangan Klinik & Notes -->
-<div class="row mt-4">
+<div class="row mt-4 align-items-stretch"> <!-- TAMBAHKAN align-items-stretch -->
   <!-- Kiri: Dashboard Keuangan Klinik (judul, filter, chart dalam satu container) -->
-  <div class="col-lg-9 mb-3">
-    <div class="card shadow-sm border-0" style="border-radius:15px; background:#fff;">
+  <div class="col-lg-9 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
+    <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px; background:#fff;">
       <div class="card-body">
         <!-- Judul dengan background gradasi hijau -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 p-3 rounded"
@@ -444,8 +485,8 @@ if (!isset($_SESSION["jabatan"])) {
     </div>
   </div>
   <!-- Kanan: Notes -->
-  <div class="col-lg-3 mb-3">
-    <div class="card note-shadow border-0" style="border-radius:15px; background:#fff;">
+  <div class="col-lg-3 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
+    <div class="card note-shadow border-0 flex-fill" style="border-radius:15px; background:#fff;">
       <!-- Judul Note: background ungu, teks putih -->
       <div id="noteHeader" class="px-4 py-2"
            style="background: #5459AC; border-radius:12px 12px 0 0; width:fit-content; margin:18px auto 10px auto;">
@@ -627,10 +668,25 @@ document.getElementById('yearSelect').addEventListener('change', () => {
 createChart(tahunAktif, 0);
 </script>
 
-            <!-- ROW 3: Alert & Notifikasi Strategis -->
-<div class="row mt-4">
-  <div class="col-lg-12 mb-3">
-    <div class="card shadow-sm border-0" style="border-radius:15px;">
+            <!-- ROW 3: Kalender Mini dan Alert & Notifikasi Strategis -->
+<div class="row mt-4 align-items-stretch"> <!-- TAMBAHKAN align-items-stretch -->
+  <div class="col-md-6 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
+    <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
+      <div class="card-header px-4 py-3" style="background: #3dbfd3; border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
+        <i class="fas fa-calendar-alt me-2"></i> Kalender Mini (Agenda Hari Ini)
+      </div>
+      <div class="card-body" style="background:#f8fcff; border-radius:0 0 15px 15px;">
+        <ul class="mb-0" style="list-style:none;padding-left:0;">
+          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-user-md"></i></span> <span style="color:#5459AC;">08:00 - Shift Pagi Dokter A</span></li>
+          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-syringe"></i></span> <span style="color:#5459AC;">10:00 - Penyuluhan Imunisasi</span></li>
+          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-file-invoice"></i></span> <span style="color:#5459AC;">13:00 - Audit Internal</span></li>
+          <li><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-pills"></i></span> <span style="color:#5459AC;">15:00 - Pengadaan Obat Mingguan</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
+    <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
       <div class="card-header px-4 py-3" style="background: #05BFDB; border-radius: 15px 15px 0 0;">
         <h5 class="mb-0" style="color:#fff;font-weight:700;">
           <i class="fas fa-bell" style="margin-right:8px;"></i> Insight & Notifikasi Strategis
@@ -700,18 +756,33 @@ createChart(tahunAktif, 0);
   </div>
 </div>
 
-<!-- ROW 5: Grafik Tren 7 Hari -->
-<div class="row mt-4">
-  <div class="col-lg-12 mb-3">
-    <div class="card shadow-sm border-0" style="border-radius:15px;">
+<!-- ROW 5: Grafik Tren 7 Hari & Tindakan Cepat -->
+<div class="row mt-4 align-items-stretch">
+  <!-- Grafik Tren 7 Hari (perkecil lebar, misal col-lg-8) -->
+  <div class="col-lg-8 mb-3 d-flex">
+    <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
       <!-- Judul dengan gradasi -->
       <div class="card-header px-4 py-3" style="background: linear-gradient(90deg, rgb(61,191,211) 0%, #5459AC 60%, #088395 100%); border-radius: 15px 15px 0 0;">
         <h5 class="mb-0" style="color:#fff;font-weight:700;">
           <i class="fas fa-chart-area" style="margin-right:8px;"></i> Tren 7 Hari Terakhir: Pasien, Pemeriksaan, Pengeluaran
         </h5>
       </div>
-      <div class="card-body" style="min-height:400px;">
-        <canvas id="chartTren7Hari" height="120"></canvas>
+      <div class="card-body" style="min-height:340px; display:flex; align-items:center; justify-content:center;">
+        <canvas id="chartTren7Hari" style="width:100% !important; max-width:100% !important; height:260px !important; max-height:100% !important; display:block;"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Tindakan Cepat -->
+  <div class="col-lg-4 mb-3 d-flex">
+    <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
+      <div class="card-header px-4 py-3" style="background: #088395; border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
+        <i class="fas fa-bolt me-2"></i> Tindakan Cepat
+      </div>
+      <div class="card-body d-flex flex-wrap gap-3" style="background:#f8fcff; border-radius:0 0 15px 15px;">
+        <a href="data-pemeriksaan/pemeriksaan.php" class="btn btn-outline-primary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-plus me-1"></i> Diagnosa Tertinggi</a>
+        <a href="data-master/data-pasien/pasien.php" class="btn btn-outline-secondary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-file-alt me-1"></i> Lihat Ulasan Pasien</a>
+        <a href="data-master/data-obat/obat.php" class="btn btn-outline-danger flex-fill mb-2" style="min-width:180px;"><i class="fas fa-box-open me-1"></i> Total Jumlah Obat</a>
+        <a href="keuntungan/keuntungan.php" class="btn btn-outline-success flex-fill" style="min-width:180px;"><i class="fas fa-chart-line me-1"></i> Keuntungan Bulanan</a>
       </div>
     </div>
   </div>
@@ -791,39 +862,6 @@ const chartTren7Hari = new Chart(ctxTren, {
   }
 });
 </script>
-
-<!-- ROW 6: Kalender Mini & Tindakan Cepat -->
-<div class="row mt-4">
-  <div class="col-md-6 mb-3">
-    <div class="card shadow-sm border-0" style="border-radius:15px;">
-      <div class="card-header px-4 py-3" style="background: #3dbfd3; border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
-        <i class="fas fa-calendar-alt me-2"></i> Kalender Mini (Agenda Hari Ini)
-      </div>
-      <div class="card-body" style="background:#f8fcff; border-radius:0 0 15px 15px;">
-        <ul class="mb-0" style="list-style:none;padding-left:0;">
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-user-md"></i></span> <span style="color:#5459AC;">08:00 - Shift Pagi Dokter A</span></li>
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-syringe"></i></span> <span style="color:#5459AC;">10:00 - Penyuluhan Imunisasi</span></li>
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-file-invoice"></i></span> <span style="color:#5459AC;">13:00 - Audit Internal</span></li>
-          <li><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-pills"></i></span> <span style="color:#5459AC;">15:00 - Pengadaan Obat Mingguan</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6 mb-3">
-    <div class="card shadow-sm border-0" style="border-radius:15px;">
-      <div class="card-header px-4 py-3" style="background: #088395; border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
-        <i class="fas fa-bolt me-2"></i> Tindakan Cepat
-      </div>
-      <div class="card-body d-flex flex-wrap gap-3" style="background:#f8fcff; border-radius:0 0 15px 15px;">
-        <a href="pemeriksaan/tambah.php" class="btn btn-outline-primary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-plus me-1"></i> Tambah Pemeriksaan</a>
-        <a href="data-pasien/ulasan.php" class="btn btn-outline-secondary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-file-alt me-1"></i> Lihat Ulasan Pasien</a>
-        <a href="data-obat/stok_kritis.php" class="btn btn-outline-danger flex-fill mb-2" style="min-width:180px;"><i class="fas fa-box-open me-1"></i> Obat Stok Kritis</a>
-        <a href="keuntungan/keuntungan.php" class="btn btn-outline-success flex-fill" style="min-width:180px;"><i class="fas fa-chart-line me-1"></i> Keuntungan Bulanan</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 
             </main>
             <footer class="py-4 bg-light mt-auto">
