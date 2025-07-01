@@ -262,10 +262,86 @@ if (!isset($_SESSION["jabatan"])) {
             ];
             ?>
 
-            <h4 class="mb-4 font-weight-bold text-secondary">Performance Review Dokter</h4>
-            <div class="row">
+           <div class="d-flex justify-content-between mb-3">
+    <div>
+                <h4 class="font-weight-bold text-secondary mb-2">Performance Review Dokter</h4>
+                <!-- Form pencarian dan filter -->
+                <input type="text" id="searchDokter" class="form-control d-inline-block mr-2 mb-2" style="width: 200px;" placeholder="Cari nama atau spesialis">
+                <select id="filterKinerja" class="form-control d-inline-block mr-2 mb-2" style="width: 150px;">
+                <option value="">Semua Kinerja</option>
+                <option value="Sangat Baik">Sangat Baik</option>
+                <option value="Top Performer">Top Performer</option>
+                <option value="Perlu Monitoring">Perlu Monitoring</option>
+                </select>
+                <select id="filterSpesialis" class="form-control d-inline-block mr-2 mb-2" style="width: 150px;">
+                <option value="">Semua Spesialis</option>
+                <option value="Spesialis Umum">Spesialis Umum</option>
+                <option value="Spesialis Anak">Spesialis Anak</option>
+                <option value="Spesialis Gigi">Spesialis Gigi</option>
+                </select>
+                <button class="btn btn-secondary btn-sm mb-2" id="resetDokterFilter">Reset</button>
+            </div>
+            <div class="align-self-end">
+                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#topDokterModal">
+                <i class="fas fa-trophy mr-2"></i>Lihat Top 3 Dokter Terbaik
+                </button>
+            </div>
+            </div>
+
+
+
+            <!-- Modal - Top 3 Dokter -->
+            <div class="modal fade" id="topDokterModal" tabindex="-1" role="dialog" aria-labelledby="topDokterModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="topDokterModalLabel"><i class="fas fa-trophy mr-2"></i>Top 3 Dokter Terbaik</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <?php
+                    // Ambil 3 dokter terbaik berdasarkan rating tertinggi
+                    $topDokter = $dokterPerformance;
+                    usort($topDokter, function ($a, $b) {
+                        return $b['rating'] <=> $a['rating']; // descending
+                    });
+                    $topDokter = array_slice($topDokter, 0, 3);
+                    ?>
+                    <div class="row">
+                    <?php foreach ($topDokter as $i => $dok) { ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0"><i class="fas fa-trophy mr-1"></i> Peringkat <?= $i + 1 ?></h5>
+                        </div>
+                        <div class="card-body">
+                            <h6><strong><?= $dok['nama'] ?></strong></h6>
+                            <p class="text-muted mb-1">Spesialis: <?= $dok['spesialis'] ?></p>
+                            <p class="mb-1"><i class="fas fa-clock mr-1"></i> Jam Praktik: <?= $dok['total_jam'] ?> jam</p>
+                            <p class="mb-1"><i class="fas fa-calendar-check mr-1"></i> Kehadiran: <?= $dok['kehadiran'] ?>%</p>
+                            <p class="mb-1"><i class="fas fa-star text-warning mr-1"></i> Rating: <?= $dok['rating'] ?>/5.0</p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <span class="badge badge-success px-3 py-1"><?= $dok['kinerja'] ?></span>
+                        </div>
+                        </div>
+                    </div>
+                    <?php } ?>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="row" id="dokterCards">
             <?php foreach ($dokterPerformance as $dokter) { ?>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4 dokter-card"
+                    data-nama="<?= strtolower($dokter['nama']) ?>"
+                    data-spesialis="<?= strtolower($dokter['spesialis']) ?>"
+                    data-kinerja="<?= strtolower($dokter['kinerja']) ?>">
+
                     <div class="card shadow-sm">
                         <div class="card-header bg-primary text-white">
                             <div class="d-flex justify-content-between align-items-center">
@@ -311,6 +387,15 @@ if (!isset($_SESSION["jabatan"])) {
                 </div>
             <?php } ?>
             </div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+    <button id="prevDokter" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-angle-left mr-1"></i> Previous
+    </button>
+    <button id="nextDokter" class="btn btn-outline-secondary btn-sm">
+        Next <i class="fas fa-angle-right ml-1"></i>
+    </button>
+</div>
+
 
             <!-- Load jQuery -->
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -342,6 +427,81 @@ if (!isset($_SESSION["jabatan"])) {
                 $this.animate({ width: targetWidth + '%' }, 1500);
             });
             </script>
+            
+            <script>
+            $('#searchDokter, #filterKinerja, #filterSpesialis').on('input change', function () {
+                const keyword = $('#searchDokter').val().toLowerCase();
+                const kinerja = $('#filterKinerja').val().toLowerCase();
+                const spesialis = $('#filterSpesialis').val().toLowerCase();
+
+                $('.dokter-card').each(function () {
+                const nama = $(this).data('nama');
+                const spesialisCard = $(this).data('spesialis');
+                const kinerjaCard = $(this).data('kinerja');
+
+                let match = true;
+                if (keyword && !(nama.includes(keyword) || spesialisCard.includes(keyword))) match = false;
+                if (kinerja && kinerjaCard !== kinerja) match = false;
+                if (spesialis && spesialisCard !== spesialis) match = false;
+
+                $(this).toggle(match);
+                });
+
+                // Reset ke halaman pertama setelah filter
+                showDokterPage(1);
+            });
+
+            $('#resetDokterFilter').on('click', function () {
+                $('#searchDokter').val('');
+                $('#filterKinerja').val('');
+                $('#filterSpesialis').val('');
+                $('.dokter-card').show();
+                showDokterPage(1);
+            });
+            </script>
+
+            <?php
+// Insight Dokter Otomatis
+$lowKehadiran = 0;
+$jamBerlebih = 0;
+$rendahRating = 0;
+
+foreach ($dokterPerformance as $d) {
+    if ($d['kehadiran'] < 90) $lowKehadiran++;
+    if ($d['total_jam'] > $d['target_jam']) $jamBerlebih++;
+    if ($d['rating'] < 4.5) $rendahRating++;
+}
+
+$saranDokter = [];
+if ($lowKehadiran > 0) $saranDokter[] = "$lowKehadiran dokter dengan kehadiran < 90%";
+if ($jamBerlebih > 0) $saranDokter[] = "$jamBerlebih dokter bekerja melebihi target jam";
+if ($rendahRating > 0) $saranDokter[] = "$rendahRating dokter memiliki rating di bawah 4.5";
+if (empty($saranDokter)) $saranDokter[] = "Semua dokter memenuhi indikator performa yang baik.";
+else $saranDokter[] = "Saran: Pertimbangkan evaluasi, distribusi beban kerja, atau pelatihan layanan.";
+?>
+<!-- Insight Saran Cerdas -->
+<h4 class="mb-3 font-weight-bold text-secondary">💡 Insight Saran Cerdas</h4>
+<div class="row">
+  <div class="col-md-12 mb-3">
+    <div class="card shadow-sm border-left-info">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-lightbulb fa-2x text-info mr-3"></i>
+          <div>
+            <h6 class="text-info font-weight-bold mb-2">Insight Otomatis</h6>
+            <ul class="mb-0">
+              <?php foreach ($saranDokter as $item) { ?>
+                <li><?= $item ?></li>
+              <?php } ?>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
             <!-- Jadwal & Ketidakhadiran Dokter (Hardcode Version) -->
             <?php

@@ -350,6 +350,65 @@ if (!isset($_SESSION["jabatan"])) {
                             });
                         </script>
 
+                        <!-- // ROW Insight Keuangan Otomatis -->
+                        <!-- Insight Keuangan Otomatis -->
+                        <h4 class="mb-3 font-weight-bold text-secondary">💡 Insight Saran Cerdas Keuangan</h4>
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                <div class="card shadow-sm border-left-primary">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start">
+                                            <i class="fas fa-lightbulb fa-2x text-primary mr-3"></i>
+                                            <div>
+                                                <h6 class="text-primary font-weight-bold mb-2">Kesimpulan Otomatis Berdasarkan Data Grafik</h6>
+                                                <ul class="mb-0">
+                                                    <?php
+                                                    // Ambil data pie chart (penyumbang keuntungan)
+                                                    $pieLabels = [
+                                                        "Penjualan Obat",
+                                                        "Pemeriksaan Cepat",
+                                                        "Vaksinasi",
+                                                        "Konsultasi Dokter",
+                                                        "Kesehatan Korporat",
+                                                        "Alat Kesehatan & Vitamin"
+                                                    ];
+                                                    $pieData = [180, 40, 25, 60, 35, 20]; // total per sektor
+
+                                                    // Cari sektor penyumbang tertinggi
+                                                    $maxPieIndex = array_keys($pieData, max($pieData))[0];
+                                                    $topSumber = $pieLabels[$maxPieIndex];
+                                                    $topSumberValue = $pieData[$maxPieIndex];
+
+                                                    echo "<li><strong>$topSumber</strong> merupakan sumber keuntungan terbesar dengan kontribusi <strong>$topSumberValue juta</strong>.</li>";
+
+                                                    // Ambil data bar chart keuntungan per bulan (tahun 2025)
+                                                    $bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                                                    $data2025 = [40, 45, 50, 55, 52, 60, 65, 70, 68, 72, 75, 80];
+                                                    $maxValue = max($data2025);
+                                                    $maxIndex = array_search($maxValue, $data2025);
+                                                    $bulanTertinggi = $bulan[$maxIndex];
+
+                                                    echo "<li>Bulan <strong>$bulanTertinggi</strong> mencatatkan keuntungan tertinggi sebesar <strong>$maxValue juta</strong>.</li>";
+
+                                                    // Insight tambahan
+                                                    $avgKeuntungan = array_sum($data2025) / count($data2025);
+                                                    if ($maxValue > $avgKeuntungan * 1.2) {
+                                                        echo "<li>Terdapat lonjakan keuntungan pada bulan <strong>$bulanTertinggi</strong>, disarankan evaluasi strategi promosi atau layanan saat itu.</li>";
+                                                    }
+
+                                                    if ($pieData[2] < 30) {
+                                                        echo "<li>Sektor <strong>Vaksinasi</strong> memiliki kontribusi kecil, pertimbangkan peningkatan promosi atau bundling layanan.</li>";
+                                                    }
+                                                    ?>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
 
                         <!-- Tabel Keuntungan -->
                         <div class="card mb-4">

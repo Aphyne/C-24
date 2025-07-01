@@ -209,6 +209,104 @@ if (!isset($_SESSION["jabatan"])) {
                             "status" => "Perlu Monitoring",
                             "badge" => "danger",
                             "catatan" => "Kehadiran dan jam kerja di bawah rata-rata."
+                        ],
+                        [
+                            "nama" => "Sinta",
+                            "posisi" => "Suster",
+                            "jam_kerja" => 170,
+                            "target_jam" => 176,
+                            "kehadiran" => 98,
+                            "shift" => 24,
+                            "lembur" => 5,
+                            "rating" => 4.7,
+                            "rating_bintang" => "★★★★☆",
+                            "status" => "Sangat Baik",
+                            "badge" => "success",
+                            "catatan" => "Performa sangat baik, selalu tepat waktu."
+                        ],
+                        [
+                            "nama" => "Budi",
+                            "posisi" => "Cleaning Service",
+                            "jam_kerja" => 160,
+                            "target_jam" => 176,
+                            "kehadiran" => 90,
+                            "shift" => 20,
+                            "lembur" => 3,
+                            "rating" => 4.0,
+                            "rating_bintang" => "★★★☆☆",
+                            "status" => "Cukup",
+                            "badge" => "warning",
+                            "catatan" => "Kehadiran baik, perlu peningkatan jam kerja."
+                        ],
+                        [
+                            "nama" => "Rina",
+                            "posisi" => "Admin",
+                            "jam_kerja" => 155,
+                            "target_jam" => 176,
+                            "kehadiran" => 85,
+                            "shift" => 21,
+                            "lembur" => 2,
+                            "rating" => 4.1,
+                            "rating_bintang" => "★★★★☆",
+                            "status" => "Cukup",
+                            "badge" => "warning",
+                            "catatan" => "Perlu peningkatan disiplin."
+                        ],
+                        [
+                            "nama" => "Fajar",
+                            "posisi" => "Kasir",
+                            "jam_kerja" => 145,
+                            "target_jam" => 176,
+                            "kehadiran" => 78,
+                            "shift" => 19,
+                            "lembur" => 1,
+                            "rating" => 3.5,
+                            "rating_bintang" => "★★★☆☆",
+                            "status" => "Perlu Monitoring",
+                            "badge" => "danger",
+                            "catatan" => "Kehadiran dan jam kerja di bawah standar."
+                        ],
+                        [
+                            "nama" => "Dewi",
+                            "posisi" => "Apoteker",
+                            "jam_kerja" => 180,
+                            "target_jam" => 176,
+                            "kehadiran" => 100,
+                            "shift" => 25,
+                            "lembur" => 6,
+                            "rating" => 5.0,
+                            "rating_bintang" => "★★★★★",
+                            "status" => "Sangat Baik",
+                            "badge" => "success",
+                            "catatan" => "Performa luar biasa, selalu melebihi target."
+                        ],
+                        [
+                            "nama" => "Yusuf",
+                            "posisi" => "Suster",
+                            "jam_kerja" => 175,
+                            "target_jam" => 176,
+                            "kehadiran" => 95,
+                            "shift" => 23,
+                            "lembur" => 4,
+                            "rating" => 4.8,
+                            "rating_bintang" => "★★★★☆",
+                            "status" => "Baik",
+                            "badge" => "success",
+                            "catatan" => "Performa baik, selalu tepat waktu."
+                        ],
+                        [
+                            "nama" => "Lina",
+                            "posisi" => "Admin",
+                            "jam_kerja" => 165,
+                            "target_jam" => 176,
+                            "kehadiran" => 90,
+                            "shift" => 22,
+                            "lembur" => 3,
+                            "rating" => 4.2,
+                            "rating_bintang" => "★★★★☆",
+                            "status" => "Baik",
+                            "badge" => "success",
+                            "catatan" => "Performa baik, selalu tepat waktu."
                         ]
                     ];
                     ?>
@@ -409,221 +507,221 @@ if (!isset($_SESSION["jabatan"])) {
                     </script>
 
                     <!-- Visualisasi Staff Row 3 - Versi Modern (Donut + Bar per Staff) -->
-<h4 class="mt-5 mb-3 font-weight-bold text-secondary">Visualisasi Tenaga Kerja Berdasarkan Posisi</h4>
-<div class="row">
-  <!-- Donut Chart Komposisi Staff -->
-  <div class="col-md-6 mb-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-primary text-white">
-        <h6 class="mb-0">📊 Distribusi Jumlah Staff per Posisi</h6>
-      </div>
-      <div class="card-body d-flex justify-content-center align-items-center" style="height: 350px;">
-        <canvas id="donutChart"></canvas>
-      </div>
-    </div>
-  </div>
+                    <h4 class="mt-5 mb-3 font-weight-bold text-secondary">Visualisasi Tenaga Kerja Berdasarkan Posisi</h4>
+                    <div class="row">
+                    <!-- Donut Chart Komposisi Staff -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">📊 Distribusi Jumlah Staff per Posisi</h6>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center" style="height: 350px;">
+                            <canvas id="donutChart"></canvas>
+                        </div>
+                        </div>
+                    </div>
 
-  <!-- Bar Chart Rata-rata Kehadiran per Staff dengan Filter Posisi -->
-  <div class="col-md-6 mb-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">📉 Rata-rata Kehadiran per Staff</h6>
-        <select id="posisiFilter" class="form-control form-control-sm w-auto">
-          <option value="all">Semua Posisi</option>
-          <option value="Admin">Admin</option>
-          <option value="Apoteker">Apoteker</option>
-          <option value="Kasir">Kasir</option>
-          <option value="Suster">Suster</option>
-          <option value="Cleaning Service">Cleaning Service</option>
-        </select>
-      </div>
-      <div class="card-body" style="height: 350px;">
-        <canvas id="barChartStaff"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
+                    <!-- Bar Chart Rata-rata Kehadiran per Staff dengan Filter Posisi -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">📉 Rata-rata Kehadiran per Staff</h6>
+                            <select id="posisiFilter" class="form-control form-control-sm w-auto">
+                            <option value="all">Semua Posisi</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Apoteker">Apoteker</option>
+                            <option value="Kasir">Kasir</option>
+                            <option value="Suster">Suster</option>
+                            <option value="Cleaning Service">Cleaning Service</option>
+                            </select>
+                        </div>
+                        <div class="card-body" style="height: 350px;">
+                            <canvas id="barChartStaff"></canvas>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // Donut Chart Data
-  const posisiLabels = ["Admin", "Apoteker", "Kasir", "Suster", "Cleaning Service"];
-  const posisiJumlah = [5, 2, 3, 4, 2];
-  const donutColors = ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545'];
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                    // Donut Chart Data
+                    const posisiLabels = ["Admin", "Apoteker", "Kasir", "Suster", "Cleaning Service"];
+                    const posisiJumlah = [5, 2, 3, 4, 2];
+                    const donutColors = ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545'];
 
-  const donutChart = new Chart(document.getElementById('donutChart'), {
-    type: 'doughnut',
-    data: {
-      labels: posisiLabels,
-      datasets: [{
-        data: posisiJumlah,
-        backgroundColor: donutColors
-      }]
-    },
-    options: {
-      cutout: '70%',
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: {
-          callbacks: {
-            label: function (ctx) {
-              const total = posisiJumlah.reduce((a, b) => a + b);
-              const val = posisiJumlah[ctx.dataIndex];
-              const percent = ((val / total) * 100).toFixed(1);
-              return `${ctx.label}: ${val} staff (${percent}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
+                    const donutChart = new Chart(document.getElementById('donutChart'), {
+                        type: 'doughnut',
+                        data: {
+                        labels: posisiLabels,
+                        datasets: [{
+                            data: posisiJumlah,
+                            backgroundColor: donutColors
+                        }]
+                        },
+                        options: {
+                        cutout: '70%',
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                const total = posisiJumlah.reduce((a, b) => a + b);
+                                const val = posisiJumlah[ctx.dataIndex];
+                                const percent = ((val / total) * 100).toFixed(1);
+                                return `${ctx.label}: ${val} staff (${percent}%)`;
+                                }
+                            }
+                            }
+                        }
+                        }
+                    });
 
-  // Data Kehadiran per Staff
-  const staffData = [
-    { nama: "Suster Ayu", posisi: "Admin", hadir: 92 },
-    { nama: "Dita", posisi: "Kasir", hadir: 80 },
-    { nama: "Andre", posisi: "Apoteker", hadir: 88 },
-    { nama: "Budi", posisi: "Apoteker", hadir: 90 },
-    { nama: "Sinta", posisi: "Kasir", hadir: 83 },
-    { nama: "Rina", posisi: "Suster", hadir: 95 },
-    { nama: "Maya", posisi: "Cleaning Service", hadir: 89 },
-    { nama: "Lina", posisi: "Admin", hadir: 91 }
-  ];
+                    // Data Kehadiran per Staff
+                    const staffData = [
+                        { nama: "Suster Ayu", posisi: "Admin", hadir: 92 },
+                        { nama: "Dita", posisi: "Kasir", hadir: 80 },
+                        { nama: "Andre", posisi: "Apoteker", hadir: 88 },
+                        { nama: "Budi", posisi: "Apoteker", hadir: 90 },
+                        { nama: "Sinta", posisi: "Kasir", hadir: 83 },
+                        { nama: "Rina", posisi: "Suster", hadir: 95 },
+                        { nama: "Maya", posisi: "Cleaning Service", hadir: 89 },
+                        { nama: "Lina", posisi: "Admin", hadir: 91 }
+                    ];
 
-  let barChart;
+                    let barChart;
 
-  function renderBarChart(posisi) {
-    const filtered = posisi === 'all' ? staffData : staffData.filter(s => s.posisi === posisi);
-    const labels = filtered.map(s => s.nama);
-    const data = filtered.map(s => s.hadir);
+                    function renderBarChart(posisi) {
+                        const filtered = posisi === 'all' ? staffData : staffData.filter(s => s.posisi === posisi);
+                        const labels = filtered.map(s => s.nama);
+                        const data = filtered.map(s => s.hadir);
 
-    if (barChart) barChart.destroy();
+                        if (barChart) barChart.destroy();
 
-    barChart = new Chart(document.getElementById('barChartStaff'), {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Kehadiran (%)',
-          data: data,
-          backgroundColor: '#17a2b8'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            title: { display: true, text: 'Persentase (%)' }
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `Kehadiran: ${ctx.raw}%`
-            }
-          }
-        }
-      }
-    });
-  }
+                        barChart = new Chart(document.getElementById('barChartStaff'), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                            label: 'Kehadiran (%)',
+                            data: data,
+                            backgroundColor: '#17a2b8'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Persentase (%)' }
+                            }
+                            },
+                            plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                label: (ctx) => `Kehadiran: ${ctx.raw}%`
+                                }
+                            }
+                            }
+                        }
+                        });
+                    }
 
-  document.getElementById('posisiFilter').addEventListener('change', function () {
-    renderBarChart(this.value);
-  });
+                    document.getElementById('posisiFilter').addEventListener('change', function () {
+                        renderBarChart(this.value);
+                    });
 
-  // Initial render
-  renderBarChart('all');
-</script>
+                    // Initial render
+                    renderBarChart('all');
+                    </script>
 
-<!-- ROW 5 – SMART SUGGESTION (INSIGHT) -->
-<h4 class="mb-4 font-weight-bold text-secondary">💡 Insight Saran Cerdas</h4>
-<div class="row">
-  <div class="col-md-12 mb-3">
-    <div class="card shadow-sm border-left-info">
-      <div class="card-body">
-        <div class="d-flex align-items-center">
-          <i class="fas fa-lightbulb fa-2x text-info mr-3"></i>
-          <div>
-            <h6 class="text-info font-weight-bold">Insight Otomatis</h6>
-            <ul class="mb-0">
-              <li>3 staff dengan kehadiran kurang dari 85%</li>
-              <li>2 staff bekerja lebih dari 180 jam dalam sebulan</li>
-              <li>Saran: Evaluasi beban kerja & pertimbangkan rekrut part-time</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                    <!-- ROW 5 – SMART SUGGESTION (INSIGHT) -->
+                    <h4 class="mb-4 font-weight-bold text-secondary">💡 Insight Saran Cerdas</h4>
+                    <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="card shadow-sm border-left-info">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                            <i class="fas fa-lightbulb fa-2x text-info mr-3"></i>
+                            <div>
+                                <h6 class="text-info font-weight-bold">Insight Otomatis</h6>
+                                <ul class="mb-0">
+                                <li>3 staff dengan kehadiran kurang dari 85%</li>
+                                <li>2 staff bekerja lebih dari 180 jam dalam sebulan</li>
+                                <li>Saran: Evaluasi beban kerja & pertimbangkan rekrut part-time</li>
+                                </ul>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
 
-<!-- ROW 6 – TABEL DETAIL STAFF (PAGINASI) -->
-<h4 class="mt-5 mb-4 font-weight-bold text-secondary">📋 Tabel Detail Staff</h4>
-<table id="staffTable" class="table table-bordered table-hover">
-  <thead class="thead-light">
-    <tr>
-      <th>No</th>
-      <th>Nama</th>
-      <th>Posisi</th>
-      <th>Jam Kerja</th>
-      <th>Kehadiran</th>
-      <th>Izin</th>
-      <th>Terlambat</th>
-      <th>Sakit</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php
-    $staffDetail = [
-      ["nama" => "Suster Ayu", "posisi" => "Admin Apotik", "jam" => 160, "kehadiran" => 20, "izin" => 2, "terlambat" => 1, "sakit" => 1, "status" => "Sangat Baik"],
-      ["nama" => "Dita", "posisi" => "Kasir", "jam" => 150, "kehadiran" => 18, "izin" => 3, "terlambat" => 2, "sakit" => 1, "status" => "Cukup"],
-      ["nama" => "Andre", "posisi" => "Apoteker", "jam" => 140, "kehadiran" => 16, "izin" => 4, "terlambat" => 3, "sakit" => 2, "status" => "Perlu Monitoring"],
-      ["nama" => "Sinta", "posisi" => "Suster", "jam" => 170, "kehadiran" => 21, "izin" => 1, "terlambat" => 0, "sakit" => 1, "status" => "Sangat Baik"],
-      ["nama" => "Budi", "posisi" => "Cleaning Service", "jam" => 160, "kehadiran" => 19, "izin" => 2, "terlambat" => 2, "sakit" => 1, "status" => "Cukup"],
-      ["nama" => "Rina", "posisi" => "Admin", "jam" => 155, "kehadiran" => 18, "izin" => 2, "terlambat" => 1, "sakit" => 1, "status" => "Cukup"],
-      ["nama" => "Fajar", "posisi" => "Kasir", "jam" => 145, "kehadiran" => 17, "izin" => 3, "terlambat" => 2, "sakit" => 1, "status" => "Perlu Monitoring"],
-      ["nama" => "Dewi", "posisi" => "Apoteker", "jam" => 180, "kehadiran" => 22, "izin" => 0, "terlambat" => 0, "sakit" => 0, "status" => "Sangat Baik"],
-      ["nama" => "Yusuf", "posisi" => "Suster", "jam" => 175, "kehadiran" => 20, "izin" => 1, "terlambat" => 1, "sakit" => 1, "status" => "Baik"],
-      ["nama" => "Lina", "posisi" => "Admin", "jam" => 165, "kehadiran" => 19, "izin" => 1, "terlambat" => 1, "sakit" => 1, "status" => "Baik"]
-    ];
-    $no = 1;
-    foreach ($staffDetail as $staff) {
-      echo "<tr>
-        <td>{$no}</td>
-        <td>{$staff['nama']}</td>
-        <td>{$staff['posisi']}</td>
-        <td>{$staff['jam']} Jam</td>
-        <td>{$staff['kehadiran']} Hari</td>
-        <td>{$staff['izin']}</td>
-        <td>{$staff['terlambat']}</td>
-        <td>{$staff['sakit']}</td>
-        <td>{$staff['status']}</td>
-      </tr>";
-      $no++;
-    }
-    ?>
-  </tbody>
-</table>
+                    <!-- ROW 6 – TABEL DETAIL STAFF (PAGINASI) -->
+                    <h4 class="mt-5 mb-4 font-weight-bold text-secondary">📋 Tabel Detail Staff</h4>
+                    <table id="staffTable" class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Posisi</th>
+                        <th>Jam Kerja</th>
+                        <th>Kehadiran</th>
+                        <th>Izin</th>
+                        <th>Terlambat</th>
+                        <th>Sakit</th>
+                        <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $staffDetail = [
+                        ["nama" => "Suster Ayu", "posisi" => "Admin Apotik", "jam" => 160, "kehadiran" => 20, "izin" => 2, "terlambat" => 1, "sakit" => 1, "status" => "Sangat Baik"],
+                        ["nama" => "Dita", "posisi" => "Kasir", "jam" => 150, "kehadiran" => 18, "izin" => 3, "terlambat" => 2, "sakit" => 1, "status" => "Cukup"],
+                        ["nama" => "Andre", "posisi" => "Apoteker", "jam" => 140, "kehadiran" => 16, "izin" => 4, "terlambat" => 3, "sakit" => 2, "status" => "Perlu Monitoring"],
+                        ["nama" => "Sinta", "posisi" => "Suster", "jam" => 170, "kehadiran" => 21, "izin" => 1, "terlambat" => 0, "sakit" => 1, "status" => "Sangat Baik"],
+                        ["nama" => "Budi", "posisi" => "Cleaning Service", "jam" => 160, "kehadiran" => 19, "izin" => 2, "terlambat" => 2, "sakit" => 1, "status" => "Cukup"],
+                        ["nama" => "Rina", "posisi" => "Admin", "jam" => 155, "kehadiran" => 18, "izin" => 2, "terlambat" => 1, "sakit" => 1, "status" => "Cukup"],
+                        ["nama" => "Fajar", "posisi" => "Kasir", "jam" => 145, "kehadiran" => 17, "izin" => 3, "terlambat" => 2, "sakit" => 1, "status" => "Perlu Monitoring"],
+                        ["nama" => "Dewi", "posisi" => "Apoteker", "jam" => 180, "kehadiran" => 22, "izin" => 0, "terlambat" => 0, "sakit" => 0, "status" => "Sangat Baik"],
+                        ["nama" => "Yusuf", "posisi" => "Suster", "jam" => 175, "kehadiran" => 20, "izin" => 1, "terlambat" => 1, "sakit" => 1, "status" => "Baik"],
+                        ["nama" => "Lina", "posisi" => "Admin", "jam" => 165, "kehadiran" => 19, "izin" => 1, "terlambat" => 1, "sakit" => 1, "status" => "Baik"]
+                        ];
+                        $no = 1;
+                        foreach ($staffDetail as $staff) {
+                        echo "<tr>
+                            <td>{$no}</td>
+                            <td>{$staff['nama']}</td>
+                            <td>{$staff['posisi']}</td>
+                            <td>{$staff['jam']} Jam</td>
+                            <td>{$staff['kehadiran']} Hari</td>
+                            <td>{$staff['izin']}</td>
+                            <td>{$staff['terlambat']}</td>
+                            <td>{$staff['sakit']}</td>
+                            <td>{$staff['status']}</td>
+                        </tr>";
+                        $no++;
+                        }
+                        ?>
+                    </tbody>
+                    </table>
 
-<!-- DataTables Script -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-<script>
-  $(document).ready(function() {
-    $('#staffTable').DataTable({
-      "pageLength": 10,
-      "lengthChange": false,
-      "ordering": true,
-      "info": false
-    });
-  });
-</script>
+                    <!-- DataTables Script -->
+                    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+                    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+                    <script>
+                    $(document).ready(function() {
+                        $('#staffTable').DataTable({
+                        "pageLength": 10,
+                        "lengthChange": false,
+                        "ordering": true,
+                        "info": false
+                        });
+                    });
+                    </script>
 
 
 

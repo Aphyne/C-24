@@ -23,6 +23,52 @@ if (!isset($_SESSION["jabatan"])) {
     <link href="assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="assets/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  .summary-box {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: 0.3s;
+    height: 100%;
+  }
+
+  .summary-box:hover {
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+
+  .summary-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #777;
+  }
+
+  .summary-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 5px;
+  }
+
+  .summary-change {
+    font-size: 13px;
+    color: green;
+  }
+
+  .summary-icon {
+    font-size: 24px;
+    float: right;
+    color: #ccc;
+  }
+  .dash.count {
+    transition: 0.3s ease-in-out;
+  }
+
+  .dash.count:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+</style>
 
 </head>
 
@@ -139,109 +185,42 @@ if (!isset($_SESSION["jabatan"])) {
                 
                      <!-- 4 KOLOM -->
                     <div class="row">
-                        <!-- Earnings (Monthly) Card Example - KEUNTUNGAN -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="keuntungan/keuntungan.php" style="text-decoration: none;">
-                                <div class="card border-left-primary h-100 py-2 bg-primary">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
-                                                    Keuntungan</div>
-                                                <div class="h5 mb-0 font-weight-bold text-dark">
-                                                    <span class="counter" data-count="<?php 
-                                                        $ambil = mysqli_query($koneksi, "SELECT * FROM tb_pasien"); 
-                                                        $count = mysqli_num_rows($ambil); 
-                                                        echo $count;
-                                                    ?>">0</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-user-alt fa-2x text-dark"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+                       <div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-md-3 mb-4">
+      <div class="dash count bg-white p-3 rounded shadow-sm">
+        <div class="text-muted">Total Sales Today</div>
+        <h3 class="font-weight-bold">$2,845</h3>
+        <small class="text-success">+12% from yesterday</small>
+      </div>
+    </div>
 
-                        <!-- Earnings (Monthly) Card Example - PENGELUARAN -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="data-pembayaran/pembayaran.php" style="text-decoration: none;">
-                                <div class="card border-left-success h-100 py-2 bg-success">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
-                                                    Pengeluaran</div>
-                                                <div class="h5 mb-0 font-weight-bold text-dark">
-                                                    <span class="counter" data-count="<?php 
-                                                        $ambil = mysqli_query($koneksi, "SELECT * FROM tb_obat"); 
-                                                        $count = mysqli_num_rows($ambil); 
-                                                        echo $count;
-                                                    ?>">0</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-capsules fa-2x text-dark"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+    <div class="col-md-3 mb-4">
+      <div class="dash count bg-white p-3 rounded shadow-sm">
+        <div class="text-muted">Prescriptions Today</div>
+        <h3 class="font-weight-bold">42</h3>
+        <small class="text-success">+7% from last week</small>
+      </div>
+    </div>
 
-                        <!-- Earnings (Monthly) Card Example - TOTAL KATEGORI OBAT -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="data-master/data-obat/obat.php" style="text-decoration: none;">
-                                <div class="card border-left-info h-100 py-2 bg-info">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
-                                                    Total Kategori Obat</div>
-                                                <div class="h5 mb-0 font-weight-bold text-dark">
-                                                    <span class="counter" data-count="<?php 
-                                                        $ambil = mysqli_query($koneksi, "SELECT * FROM tb_pendaftaran WHERE status = '0'"); 
-                                                        $count = mysqli_num_rows($ambil); 
-                                                        echo $count;
-                                                    ?>">0</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-clipboard-list fa-2x text-dark"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+    <div class="col-md-3 mb-4">
+      <div class="dash count bg-white p-3 rounded shadow-sm">
+        <div class="text-muted">Low Stock Items</div>
+        <h3 class="font-weight-bold">8</h3>
+        <small class="text-danger">+2 from yesterday</small>
+      </div>
+    </div>
 
-                        <!-- Pending Requests Card Example - TOTAL DOKTER -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <a href="data-master/data-dokter/dokter.php" style="text-decoration: none;">
-                                <div class="card border-left-warning h-100 py-2 bg-warning">
-                                    <div class="card-body">
-                                        <div class="row no-gutters align-items-center">
-                                            <div class="col mr-2">
-                                                <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
-                                                    Total Dokter</div>
-                                                <div class="h5 mb-0 font-weight-bold text-dark">
-                                                    <span class="counter" data-count="<?php 
-                                                        $ambil = mysqli_query($koneksi, "SELECT * FROM tb_resep WHERE status_rsp = '0'"); 
-                                                        $count = mysqli_num_rows($ambil); 
-                                                        echo $count;
-                                                    ?>">0</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <i class="fas fa-shopping-cart fa-2x text-dark"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+    <div class="col-md-3 mb-4">
+      <div class="dash count bg-white p-3 rounded shadow-sm">
+        <div class="text-muted">Total Patients</div>
+        <h3 class="font-weight-bold">1,284</h3>
+        <small class="text-success">+22 new this month</small>
+      </div>
+    </div>
+  </div>
+</div>
+
                     </div>
 
                     <!-- Script animasi counter -->

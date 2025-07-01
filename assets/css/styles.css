@@ -10032,7 +10032,7 @@ body {
   display: flex;
 }
 #layoutSidenav #layoutSidenav_nav {
-  flex-basis: 225px;
+  flex-basis: 200px;
   flex-shrink: 0;
   transition: transform 0.15s ease-in-out;
   z-index: 1038;
@@ -10127,9 +10127,9 @@ body {
 }
 
 .sb-topnav {
-  padding-left: 0;
+  padding-left: 10px;
   height: 56px;
-  z-index: 1039;
+  z-index: 10;
 }
 .sb-topnav .navbar-brand {
   width: 225px;

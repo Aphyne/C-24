@@ -217,6 +217,31 @@ if (!isset($_SESSION["jabatan"])) {
                     </div>
                 </div>
 
+                <!-- ROW Insight Pengeluaran -->
+                 <!-- INSIGHT – Saran Cerdas dari Pengeluaran -->
+                <h4 class="mb-4 font-weight-bold text-secondary">💡 Insight Saran Cerdas</h4>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="card shadow-sm border-left-danger">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-lightbulb fa-2x text-danger mr-3"></i>
+                                    <div>
+                                        <h6 class="text-danger font-weight-bold">Insight Otomatis</h6>
+                                        <ul class="mb-0">
+                                            <li>Pertumbuhan pengeluaran bulanan sebesar <strong><?= $pertumbuhanPengeluaran ?>%</strong>.</li>
+                                            <li>Kategori pengeluaran terbesar: <strong>Gaji Karyawan</strong> dan <strong>Obat-obatan</strong>.</li>
+                                            <li>Pengeluaran bulan ini sebesar <strong>Rp <?= number_format($pengeluaranBulanIni, 0, ',', '.') ?></strong>, sedikit di bawah rata-rata bulanan.</li>
+                                            <li><strong>Saran:</strong> Evaluasi efisiensi penggunaan obat-obatan dan pertimbangkan optimalisasi tenaga kerja pada bulan mendatang.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Breakdown Table -->
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white font-weight-bold">
