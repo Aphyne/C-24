@@ -25,6 +25,125 @@ if (!isset($_SESSION["jabatan"])) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
+/* --- NAVBAR ATAS (HEADBAR) --- */
+.sb-topnav.navbar {
+  background: linear-gradient(90deg, #5459AC 70%, #6fc3d0 100%) !important;
+  box-shadow: 0 4px 18px rgba(84,89,172,0.12);
+  border-bottom: none;
+  min-height: 62px;
+}
+.sb-topnav .navbar-brand {
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(84,89,172,0.10);
+}
+.sb-topnav .navbar-nav .nav-link,
+.sb-topnav .navbar-nav .dropdown-toggle {
+  color: #fff !important;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: color 0.2s;
+}
+.sb-topnav .navbar-nav .nav-link:hover,
+.sb-topnav .navbar-nav .dropdown-toggle:hover {
+  color:rgb(255, 255, 255) !important;
+}
+.sb-topnav .form-control {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(84,89,172,0.08);
+}
+.sb-topnav .btn-light {
+  background: #fff;
+  color: #5459AC;
+  border-radius: 8px;
+  border: none;
+  transition: background 0.2s, color 0.2s;
+}
+.sb-topnav .btn-light:hover {
+  background:rgb(255, 255, 255);
+  color: #222;
+}
+
+/* --- SIDEBAR --- */
+.sb-sidenav {
+  background: linear-gradient(135deg, #5459AC 50%, rgb(111,195,208) 100%) !important; /* gradasi terbalik, dominan ungu */
+  color: #fff;
+  box-shadow: 2px 0 18px rgba(84,89,172,0.10);
+}
+.sb-sidenav .sb-sidenav-menu-heading {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 18px;
+  margin-bottom: 8px;
+}
+.sb-sidenav .nav-link {
+  color: #fff !important;
+  font-weight: 500;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+  padding: 10px 18px;
+  position: relative;
+}
+.sb-sidenav .nav-link.active,
+.sb-sidenav .nav-link:hover,
+.sb-sidenav .nav-link:focus {
+  background: rgba(255,255,255,0.13) !important;
+  color: #fff !important; /* tetap putih saat hover/active */
+  transform: translateX(4px) scale(1.04);
+  box-shadow: 0 2px 12px rgba(84,89,172,0.10);
+}
+.sb-sidenav .sb-nav-link-icon {
+  color: #fff !important;
+  margin-right: 10px;
+  font-size: 1.1rem;
+  transition: color 0.18s;
+}
+.sb-sidenav .nav-link.active .sb-nav-link-icon,
+.sb-sidenav .nav-link:hover .sb-nav-link-icon {
+  color:rgb(255, 255, 255) !important;
+}
+.sb-sidenav .sb-sidenav-collapse-arrow {
+  color: #fff;
+}
+.sb-sidenav .collapse .nav-link {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+  margin-left: 12px;
+}
+.sb-sidenav .collapse .nav-link:hover {
+  background: rgba(0,255,202,0.13) !important;
+  color: #fff !important;
+}
+.sb-sidenav .sb-sidenav-menu-nested .nav-link {
+  font-size: 1rem;
+  padding-left: 32px;
+}
+.sb-sidenav .sb-sidenav-menu-heading {
+  margin-left: 8px;
+}
+
+/* Scrollbar sidebar */
+.sb-sidenav::-webkit-scrollbar {
+  width: 7px;
+  background: transparent;
+}
+.sb-sidenav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 8px;
+}
+
+/* Responsive sidebar */
+@media (max-width: 991px) {
+  .sb-sidenav {
+    background:linear-gradient(135deg, #5459AC 30%, rgb(111,195,208) 100%) !important; 
+  }
+}
+
   .summary-box {
     background-color: #fff;
     border-radius: 14px;
@@ -177,13 +296,90 @@ if (!isset($_SESSION["jabatan"])) {
 .row-aktivitas-hari-ini .card {
   box-shadow: 0 2px 16px rgba(111,195,208,0.18) !important;
 }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #fff !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.container-fluid {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+#noteHeader {
+  background: #5459AC;
+  border-radius: 12px 12px 0 0;
+  width: 100%;
+  margin: 18px auto 10px auto;
+  padding: 14px 12px 12px 12px; /* Tambah padding atas agar lebih tinggi */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+  box-sizing: border-box;
+  min-height: 70px; /* Tambah tinggi minimum */
+}
+
+#noteHeader h2 {
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  word-break: break-word;
+  flex-wrap: wrap;
+}
+
+#noteHeader .fa-sticky-note {
+  font-size: 1.3em;
+}
+
+#noteYear {
+  margin-left: 8px;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+  #noteHeader {
+    padding: 8px 4px;
+    margin: 10px auto 8px auto;
+  }
+  #noteHeader h2 {
+    flex-direction: column;
+    font-size: 15px;
+    gap: 2px;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+  #noteYear {
+    margin-left: 0 !important;
+    margin-top: 2px;
+    font-size: 14px;
+    display: block;
+  }
+}
 </style>
 
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="index.php">Poli Klinik</a>
+        <a class="navbar-brand font-weight-bold text-center" href="index.php">Clinic 24</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -210,7 +406,7 @@ if (!isset($_SESSION["jabatan"])) {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Poli Klinik</div>
+                        <div class="sb-sidenav-menu-heading">C24</div>
                         <a class="nav-link active" href="index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -224,10 +420,18 @@ if (!isset($_SESSION["jabatan"])) {
                             </a>
                             <div class="collapse" id="data-master" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="data-master/data-pasien/pasien.php">Data Pasien</a>
-                                    <a class="nav-link" href="data-master/data-dokter/dokter.php">Data Dokter</a>
-                                    <a class="nav-link" href="data-master/data-obat/obat.php">Data Obat</a>
-                                    <a class="nav-link" href="data-master/data-staff/staff.php">Data Staff</a>
+                                    <a class="nav-link" href="data-master/data-pasien/pasien.php">
+                                        <i class="fas fa-user-injured sb-nav-link-icon"></i> Data Pasien
+                                    </a>
+                                    <a class="nav-link" href="data-master/data-dokter/dokter.php">
+                                        <i class="fas fa-user-md sb-nav-link-icon"></i> Data Dokter
+                                    </a>
+                                    <a class="nav-link" href="data-master/data-obat/obat.php">
+                                        <i class="fas fa-capsules sb-nav-link-icon"></i> Data Obat
+                                    </a>
+                                    <a class="nav-link" href="data-master/data-staff/staff.php">
+                                        <i class="fas fa-users-cog sb-nav-link-icon"></i> Data Staff
+                                    </a>
                                 </nav>
                             </div>
                             <a class="nav-link" href="data-pendaftaran/pendaftaran.php">
@@ -488,12 +692,11 @@ if (!isset($_SESSION["jabatan"])) {
   <div class="col-lg-3 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
     <div class="card note-shadow border-0 flex-fill" style="border-radius:15px; background:#fff;">
       <!-- Judul Note: background ungu, teks putih -->
-      <div id="noteHeader" class="px-4 py-2"
-           style="background: #5459AC; border-radius:12px 12px 0 0; width:fit-content; margin:18px auto 10px auto;">
-        <h2 class="mb-0" style="color:#fff;font-weight:700;font-size:20px;display:flex;align-items:center;">
-          <i class="fas fa-sticky-note me-2" style="color:#fff;"></i> Catatan Keuangan <span id="noteYear" style="margin-left:8px;">2025</span>
-        </h2>
-      </div>
+      <div id="noteHeader">
+  <h2>
+    <i class="fas fa-sticky-note"></i> Catatan Keuangan <span id="noteYear">2025</span>
+  </h2>
+</div>
       <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height:320px; padding:12px 8px 8px 8px;">
         <div id="noteCard" class="w-100"></div>
         <div id="summaryCard" class="w-100 mt-3"></div>
