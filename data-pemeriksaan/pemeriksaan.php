@@ -1067,7 +1067,7 @@ if (!isset($_SESSION["jabatan"])) {
                         </div>
                     </div>
 
-                    <!-- Tabel Database Pemeriksaan -->
+                    <!-- Tabel Database Pemeriksaan
                     <div class="modern-table-wrapper">
                         <div class="modern-table-header">
                             <h6 class="modern-table-title">
@@ -1130,7 +1130,7 @@ if (!isset($_SESSION["jabatan"])) {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </main>
             <footer class="py-4 bg-dark mt-auto">

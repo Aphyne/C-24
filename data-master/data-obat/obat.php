@@ -466,6 +466,46 @@ body, .summary-box, .summary-box * {
     gap: 16px;
 }
 
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .inventory-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .inventory-search-container {
+        max-width: 100%;
+        order: 1;
+    }
+    
+    .inventory-filter-tabs {
+        order: 2;
+        justify-content: center;
+        margin: 8px 0;
+    }
+    
+    .inventory-actions {
+        order: 3;
+        justify-content: center;
+    }
+    
+    .inventory-management-header {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .inventory-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    .inventory-subtitle {
+        text-align: center;
+        margin-bottom: 16px;
+    }
+}
+
 .inventory-search-container {
     position: relative;
     flex: 1;
@@ -574,6 +614,43 @@ body, .summary-box, .summary-box * {
 }
 
 /* Medicine Categories Styles */
+.category-scroll-container {
+    overflow-x: auto;
+    padding: 10px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(84,89,172,0.3) transparent;
+}
+
+.category-scroll-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.category-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.category-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(84,89,172,0.3);
+    border-radius: 3px;
+}
+
+.category-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(84,89,172,0.5);
+}
+
+.category-cards-wrapper {
+    display: flex;
+    gap: 20px;
+    padding: 0 5px;
+    min-width: fit-content;
+}
+
+.category-card-item {
+    flex: 0 0 auto;
+    width: 200px;
+}
+
 .category-card {
     background: #fff;
     border-radius: 16px;
@@ -669,6 +746,27 @@ body, .summary-box, .summary-box * {
 .scrollable-container {
     max-height: 400px;
     overflow-y: auto;
+}
+
+/* Responsive adjustments for scrollable containers */
+@media (max-width: 992px) {
+    .scrollable-container {
+        max-height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .scrollable-container {
+        max-height: 300px;
+    }
+    
+    .modern-inventory-card {
+        margin-bottom: 16px;
+    }
+    
+    .inventory-item {
+        padding: 12px 16px;
+    }
 }
 
 .scrollable-container::-webkit-scrollbar {
@@ -811,6 +909,16 @@ body, .summary-box, .summary-box * {
 .status-expiring {
     border: 2px solid #ffc107;
     background: rgba(255,193,7,0.05);
+}
+
+.status-expired {
+    border: 2px solid #dc3545;
+    background: rgba(220,53,69,0.05);
+}
+
+.status-warning {
+    border: 2px solid #fd7e14;
+    background: rgba(253,126,20,0.05);
 }
 
 .status-text {
@@ -988,25 +1096,36 @@ body, .summary-box, .summary-box * {
 
 .pagination-controls {
     display: flex;
-    gap: 8px;
+    gap: 15px;
+    align-items: center;
 }
 
-.pagination-controls .btn {
+/* BUTTON OUTLINE GRADIENT - Style dari dokter.php */
+.btn-gradient-outline {
+    background: #fff;
+    color: #5459AC !important;
+    border: 2px solid #6fc3d0;
+    border-radius: 8px;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
+}
+.btn-gradient-outline:hover, .btn-gradient-outline:focus {
+    background: linear-gradient(90deg, #6fc3d0 0%, #5459AC 100%);
+    color: #fff !important;
     border-color: #5459AC;
-    color: #5459AC;
-    font-weight: 500;
-    transition: all 0.18s;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 32px rgba(8,131,149,0.13) !important;
 }
-
-.pagination-controls .btn:hover:not(:disabled) {
-    background: #5459AC;
-    color: #fff;
-    border-color: #5459AC;
-}
-
-.pagination-controls .btn:disabled {
-    opacity: 0.5;
+.btn-gradient-outline:disabled {
+    background: #f2f2f2;
+    color: #aaa !important;
+    border: 2px solid #e0e6ed;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none !important;
+}
+
+.shadow-custom {
+    box-shadow: 0 2px 8px rgba(84,89,172,0.08) !important;
 }
 
 /* Modal Styles */
@@ -1093,6 +1212,10 @@ body, .summary-box, .summary-box * {
 
 /* Responsive adjustments */
 @media (max-width: 1199px) {
+    .category-card-item {
+        width: 180px;
+    }
+    
     .category-icon-wrapper {
         width: 70px;
         height: 70px;
@@ -1128,6 +1251,10 @@ body, .summary-box, .summary-box * {
     
     .inventory-actions {
         justify-content: center;
+    }
+    
+    .category-card-item {
+        width: 160px;
     }
     
     .category-card {
@@ -1181,9 +1308,13 @@ body, .summary-box, .summary-box * {
     .inventory-table-row {
         grid-template-columns: 1fr;
         gap: 8px;
+        padding: 12px 16px;
     }
     
-    .header-cell,
+    .header-cell {
+        display: none; /* Hide headers on mobile, use labels instead */
+    }
+    
     .medicine-cell,
     .category-cell,
     .stock-cell,
@@ -1191,7 +1322,22 @@ body, .summary-box, .summary-box * {
     .expiry-cell,
     .supplier-cell,
     .actions-cell {
-        padding: 4px 0;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    /* Add labels for mobile view */
+    .category-cell::before { content: "Category: "; font-weight: bold; color: #5459AC; }
+    .stock-cell::before { content: "Stock: "; font-weight: bold; color: #5459AC; }
+    .price-cell::before { content: "Price: "; font-weight: bold; color: #5459AC; }
+    .expiry-cell::before { content: "Expiry: "; font-weight: bold; color: #5459AC; }
+    .supplier-cell::before { content: "Supplier: "; font-weight: bold; color: #5459AC; }
+    .actions-cell::before { content: "Actions: "; font-weight: bold; color: #5459AC; }
+    
+    .inventory-table-body {
+        max-height: 500px;
     }
 }
 
@@ -1206,6 +1352,46 @@ body, .summary-box, .summary-box * {
 #layoutSidenav_content main > .container-fluid,
 #layoutSidenav_content main > .container {
     padding-top: 1.5rem;
+}
+
+/* Additional responsive improvements */
+@media (max-width: 1200px) {
+    .modern-inventory-card {
+        margin-bottom: 20px;
+    }
+    
+    .inventory-management-header {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    .col-lg-6 {
+        margin-bottom: 20px;
+    }
+    
+    .inventory-title {
+        font-size: 1.6rem;
+    }
+    
+    .modern-card-header,
+    .modern-card-header-danger {
+        padding: 14px 18px;
+        font-size: 1rem;
+    }
+}
+
+/* Improve container spacing */
+.container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 }
     </style>
 </head>
@@ -1293,13 +1479,24 @@ body, .summary-box, .summary-box * {
             <main>
                 <div class="container-fluid">
                     <?php
-                    // Data hardcode sementara MIS Obat
-                    $totalObat = 152;
-                    $totalKategoriPenyakit = 7;
-                    $totalKategoriBentuk = 6;
-                    $totalJenisUnik = 45;
-                    $obatKritis = 12;
-                    $obatKadaluarsa = 3;
+                    // Query data obat dari database clinic
+                    $queryTotalObat = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM tb_obat WHERE status_obat = 'aktif'");
+                    $totalObat = mysqli_fetch_assoc($queryTotalObat)['total'];
+
+                    $queryKategori = mysqli_query($koneksi, "SELECT COUNT(DISTINCT kategori) as total FROM tb_obat WHERE status_obat = 'aktif'");
+                    $totalKategoriPenyakit = mysqli_fetch_assoc($queryKategori)['total'];
+
+                    $queryBentuk = mysqli_query($koneksi, "SELECT COUNT(DISTINCT bentuk_obat) as total FROM tb_obat WHERE status_obat = 'aktif'");
+                    $totalKategoriBentuk = mysqli_fetch_assoc($queryBentuk)['total'];
+
+                    $queryJenisUnik = mysqli_query($koneksi, "SELECT COUNT(DISTINCT nama_obat) as total FROM tb_obat WHERE status_obat = 'aktif'");
+                    $totalJenisUnik = mysqli_fetch_assoc($queryJenisUnik)['total'];
+
+                    $queryObatKritis = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM tb_obat WHERE stok <= stok_minimum AND status_obat = 'aktif'");
+                    $obatKritis = mysqli_fetch_assoc($queryObatKritis)['total'];
+
+                    $queryObatKadaluarsa = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM tb_obat WHERE expired_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND status_obat = 'aktif'");
+                    $obatKadaluarsa = mysqli_fetch_assoc($queryObatKadaluarsa)['total'];
                     ?>
 
                     <!-- 🔵 Row 1: Ringkasan Data Obat -->
@@ -1377,7 +1574,15 @@ body, .summary-box, .summary-box * {
                                     <div class="chart-wrapper">
                                         <canvas id="pieBentukObat" class="demografi-chart-canvas"></canvas>
                                     </div>
-                                    <div class="chart-caption">📌 <strong>Tablet & Syrup</strong> mendominasi inventory. Fokuskan supplier relationship untuk kategori ini.</div>
+                                    <div class="chart-caption">📌 <strong><?php 
+                                        // Ambil 2 bentuk obat terbanyak untuk caption
+                                        $queryTopBentuk = mysqli_query($koneksi, "SELECT bentuk_obat, COUNT(*) as total FROM tb_obat WHERE status_obat = 'aktif' GROUP BY bentuk_obat ORDER BY total DESC LIMIT 2");
+                                        $bentukData = [];
+                                        while($bentuk = mysqli_fetch_assoc($queryTopBentuk)) {
+                                            $bentukData[] = $bentuk['bentuk_obat'];
+                                        }
+                                        echo implode(' & ', $bentukData);
+                                    ?></strong> mendominasi inventory. Fokuskan supplier relationship untuk kategori ini.</div>
                                 </div>
                             </div>
                         </div>
@@ -1386,11 +1591,16 @@ body, .summary-box, .summary-box * {
                         <div class="col-md-6 mb-4">
                             <div class="card shadow demografi-card h-100">
                                 <div class="card-body pb-2">
-                                    <h6 class="font-weight-bold text-primary">Distribusi Kategori Penyakit</h6>
+                                    <h6 class="font-weight-bold text-primary">Distribusi Kategori Obat</h6>
                                     <div class="chart-wrapper">
                                         <canvas id="barKategoriPenyakit" class="demografi-chart-canvas"></canvas>
                                     </div>
-                                    <div class="chart-caption">📊 Kategori <strong>Demam & Batuk</strong> memiliki demand tertinggi. Pastikan stok selalu optimal.</div>
+                                    <div class="chart-caption">📊 Kategori <strong><?php 
+                                        // Ambil kategori terbanyak untuk caption
+                                        $queryTopKat = mysqli_query($koneksi, "SELECT kategori, COUNT(*) as total FROM tb_obat WHERE status_obat = 'aktif' GROUP BY kategori ORDER BY total DESC LIMIT 1");
+                                        $topKat = mysqli_fetch_assoc($queryTopKat);
+                                        echo $topKat['kategori'];
+                                    ?></strong> memiliki stok terbanyak. Pastikan supplier selalu optimal.</div>
                                 </div>
                             </div>
                         </div>
@@ -1399,37 +1609,38 @@ body, .summary-box, .summary-box * {
                     <!-- Script Chart.js -->
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script>
-                    // Hardcode Data Array
-                    const totalObat = 152;
-                    const kategoriBentuk = [
-                        { nama: 'Tablet', jumlah: 60 },
-                        { nama: 'Syrup', jumlah: 30 },
-                        { nama: 'Kapsul', jumlah: 25 },
-                        { nama: 'Salep', jumlah: 15 },
-                        { nama: 'Injeksi', jumlah: 12 },
-                        { nama: 'Lainnya', jumlah: 10 }
-                    ];
+                    // Query data untuk chart dari database
+                    <?php
+                    // Data untuk chart bentuk obat
+                    $queryBentukObat = mysqli_query($koneksi, "SELECT bentuk_obat, COUNT(*) as jumlah FROM tb_obat WHERE status_obat = 'aktif' GROUP BY bentuk_obat ORDER BY jumlah DESC");
+                    $kategoriBentukData = [];
+                    while($row = mysqli_fetch_assoc($queryBentukObat)) {
+                        $kategoriBentukData[] = $row;
+                    }
 
-                    const kategoriPenyakit = [
-                        { nama: 'Demam', jumlah: 40 },
-                        { nama: 'Batuk', jumlah: 35 },
-                        { nama: 'Asma', jumlah: 25 },
-                        { nama: 'Hipertensi', jumlah: 20 },
-                        { nama: 'Alergi', jumlah: 15 },
-                        { nama: 'Kolesterol', jumlah: 10 },
-                        { nama: 'Lainnya', jumlah: 7 }
-                    ];
+                    // Data untuk chart kategori penyakit
+                    $queryKategoriPenyakit = mysqli_query($koneksi, "SELECT kategori, COUNT(*) as jumlah FROM tb_obat WHERE status_obat = 'aktif' GROUP BY kategori ORDER BY jumlah DESC");
+                    $kategoriPenyakitData = [];
+                    while($row = mysqli_fetch_assoc($queryKategoriPenyakit)) {
+                        $kategoriPenyakitData[] = $row;
+                    }
+                    ?>
+
+                    const totalObat = <?= $totalObat ?>;
+                    const kategoriBentuk = <?= json_encode($kategoriBentukData) ?>;
+                    const kategoriPenyakit = <?= json_encode($kategoriPenyakitData) ?>;
 
                     const donutColors = [
                       'rgba(84,89,172,0.92)', 'rgba(111,195,208,0.92)', 'rgba(8,131,149,0.92)',
-                      'rgba(111,195,208,0.65)', 'rgba(84,89,172,0.65)', 'rgba(8,131,149,0.65)'
+                      'rgba(111,195,208,0.65)', 'rgba(84,89,172,0.65)', 'rgba(8,131,149,0.65)',
+                      'rgba(255,193,7,0.8)', 'rgba(220,53,69,0.8)'
                     ];
 
                     // Pie Chart
                     new Chart(document.getElementById('pieBentukObat'), {
                         type: 'doughnut',
                         data: {
-                            labels: kategoriBentuk.map(item => item.nama),
+                            labels: kategoriBentuk.map(item => item.bentuk_obat),
                             datasets: [{
                                 data: kategoriBentuk.map(item => item.jumlah),
                                 backgroundColor: donutColors,
@@ -1474,7 +1685,7 @@ body, .summary-box, .summary-box * {
                     new Chart(document.getElementById('barKategoriPenyakit'), {
                         type: 'bar',
                         data: {
-                            labels: kategoriPenyakit.map(item => item.nama),
+                            labels: kategoriPenyakit.map(item => item.kategori),
                             datasets: [{
                                 label: 'Jumlah Jenis Obat',
                                 data: kategoriPenyakit.map(item => item.jumlah),
@@ -1535,10 +1746,24 @@ body, .summary-box, .summary-box * {
                                         Pertimbangkan optimasi <em>inventory management</em> untuk efisiensi stok.
                                     </p>
                                     <ul class="insight-list mb-0">
-                                        <li>💊 <strong>Paracetamol & Amoxicillin</strong> adalah obat dengan perputaran tercepat.</li>
+                                        <?php
+                                        // Query untuk obat dengan kategori terlaris
+                                        $queryTopKategori = mysqli_query($koneksi, "SELECT kategori, COUNT(*) as total FROM tb_obat WHERE status_obat = 'aktif' GROUP BY kategori ORDER BY total DESC LIMIT 2");
+                                        $kategoriData = [];
+                                        while($kat = mysqli_fetch_assoc($queryTopKategori)) {
+                                            $kategoriData[] = $kat['kategori'];
+                                        }
+                                        $topKategori = implode(' & ', $kategoriData);
+                                        ?>
+                                        <li>💊 <strong><?= $topKategori ?></strong> adalah kategori obat dengan stok terbanyak.</li>
                                         <li>⚠️ <strong><?= $obatKritis ?> obat</strong> memiliki stok di bawah batas minimum, perlu <strong>pengadaan segera</strong>.</li>
                                         <li>📅 <strong><?= $obatKadaluarsa ?> obat</strong> akan kadaluarsa dalam 30 hari, pertimbangkan <strong>promosi atau diskon</strong>.</li>
-                                        <li>📈 Kategori <strong>Demam & Batuk</strong> memiliki demand tertinggi, pastikan stok selalu tersedia.</li>
+                                        <li>📈 Kategori <strong><?php 
+                                            // Ambil kategori dengan stok tertinggi berdasarkan total stok
+                                            $queryHighDemand = mysqli_query($koneksi, "SELECT kategori, SUM(stok) as total_stok FROM tb_obat WHERE status_obat = 'aktif' GROUP BY kategori ORDER BY total_stok DESC LIMIT 1");
+                                            $highDemandCategory = mysqli_fetch_assoc($queryHighDemand);
+                                            echo $highDemandCategory['kategori'] ?? 'Analgesik';
+                                        ?></strong> memiliki demand tertinggi, pastikan stok selalu tersedia.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1549,401 +1774,178 @@ body, .summary-box, .summary-box * {
                     <h4 class="mb-4 font-weight-bold text-secondary">Monitoring Stok & Pergerakan Obat</h4>
 
                     <?php
-                    // Hardcode Data Arrays - Extended with more items
-                    $topObatTerlaris = [
-                        [
-                            'nama' => 'Paracetamol 500mg',
-                            'sku' => 'MED-PAR-500',
-                            'kategori' => 'Pain Relief',
-                            'terjual_bulan_ini' => 120,
-                            'satuan' => 'Box',
-                            'stok_tersisa' => 45,
-                            'harga' => 15000,
-                            'supplier' => 'MediPharm Inc.',
-                            'trend' => 'up',
-                            'persentase_trend' => 15,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#e74c3c'
-                        ],
-                        [
-                            'nama' => 'Amoxicillin 500mg',
-                            'sku' => 'MED-AMX-500',
-                            'kategori' => 'Antibiotics',
-                            'terjual_bulan_ini' => 95,
-                            'satuan' => 'Box',
-                            'stok_tersisa' => 28,
-                            'harga' => 25000,
-                            'supplier' => 'HealthCare Distributors',
-                            'trend' => 'up',
-                            'persentase_trend' => 8,
-                            'icon' => 'fas fa-pills',
-                            'color' => '#3498db'
-                        ],
-                        [
-                            'nama' => 'Ibuprofen 400mg',
-                            'sku' => 'MED-IBU-400',
-                            'kategori' => 'Pain Relief',
-                            'terjual_bulan_ini' => 78,
-                            'satuan' => 'Box',
-                            'stok_tersisa' => 52,
-                            'harga' => 18000,
-                            'supplier' => 'MediPharm Inc.',
-                            'trend' => 'stable',
-                            'persentase_trend' => 2,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#e74c3c'
-                        ],
-                        [
-                            'nama' => 'Ambroxol Syrup',
-                            'sku' => 'MED-AMB-SYR',
-                            'kategori' => 'Respiratory',
-                            'terjual_bulan_ini' => 65,
-                            'satuan' => 'Botol',
-                            'stok_tersisa' => 33,
-                            'harga' => 22000,
-                            'supplier' => 'PharmaCorp Ltd.',
-                            'trend' => 'up',
-                            'persentase_trend' => 12,
-                            'icon' => 'fas fa-prescription-bottle',
-                            'color' => '#f39c12'
-                        ],
-                        [
-                            'nama' => 'Salep Miconazole',
-                            'sku' => 'MED-MIC-SAL',
-                            'kategori' => 'Dermatology',
-                            'terjual_bulan_ini' => 42,
-                            'satuan' => 'Tube',
-                            'stok_tersisa' => 18,
-                            'harga' => 35000,
-                            'supplier' => 'DermaCare Solutions',
-                            'trend' => 'down',
-                            'persentase_trend' => -5,
-                            'icon' => 'fas fa-pump-medical',
-                            'color' => '#9b59b6'
-                        ],
-                        [
-                            'nama' => 'Vitamin C 1000mg',
-                            'sku' => 'MED-VTC-1000',
-                            'kategori' => 'Vitamins',
-                            'terjual_bulan_ini' => 38,
-                            'satuan' => 'Box',
-                            'stok_tersisa' => 67,
-                            'harga' => 45000,
-                            'supplier' => 'VitaHealth Corp.',
-                            'trend' => 'up',
-                            'persentase_trend' => 6,
-                            'icon' => 'fas fa-capsules',
-                            'color' => '#27ae60'
-                        ],
-                        [
-                            'nama' => 'Omeprazole 20mg',
-                            'sku' => 'MED-OME-20',
-                            'kategori' => 'Gastric',
-                            'terjual_bulan_ini' => 35,
-                            'satuan' => 'Box',
-                            'stok_tersisa' => 41,
-                            'harga' => 28000,
-                            'supplier' => 'GastroMed Inc.',
-                            'trend' => 'stable',
-                            'persentase_trend' => 1,
-                            'icon' => 'fas fa-pills',
-                            'color' => '#16a085'
-                        ],
-                        [
-                            'nama' => 'Cetirizine 10mg',
-                            'sku' => 'MED-CET-10',
-                            'kategori' => 'Allergy',
-                            'terjual_bulan_ini' => 32,
-                            'satuan' => 'Box',
-                            'stok_tersisa' => 29,
-                            'harga' => 12000,
-                            'supplier' => 'AllergyFree Ltd.',
-                            'trend' => 'up',
-                            'persentase_trend' => 4,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#f1c40f'
-                        ]
+                    // Query untuk Top Obat Terlaris menggunakan data real dari database dengan simulasi penjualan
+                    $queryTopObat = mysqli_query($koneksi, "
+                        SELECT 
+                            nama_obat as nama,
+                            kode_obat as sku,
+                            kategori,
+                            stok,
+                            harga_satuan as harga,
+                            produsen as supplier,
+                            bentuk_obat,
+                            satuan,
+                            CASE 
+                                WHEN kategori IN ('Analgesik', 'Antibiotik') THEN ROUND(120 + (stok/10))
+                                WHEN kategori IN ('Antitusif', 'Anti-inflamasi') THEN ROUND(85 + (stok/15))
+                                WHEN kategori IN ('Vitamin', 'PPI') THEN ROUND(65 + (stok/8))
+                                ELSE ROUND(45 + (stok/12))
+                            END as terjual_bulan_ini,
+                            CASE 
+                                WHEN stok > 100 THEN 'up'
+                                WHEN stok > 50 THEN 'stable' 
+                                ELSE 'down'
+                            END as trend,
+                            CASE 
+                                WHEN stok > 100 THEN ROUND(8 + (RAND() * 12), 1)
+                                WHEN stok > 50 THEN ROUND(-2 + (RAND() * 8), 1)
+                                ELSE ROUND(-12 + (RAND() * 8), 1)
+                            END as persentase_trend
+                        FROM tb_obat 
+                        WHERE status_obat = 'aktif' 
+                        ORDER BY 
+                            CASE 
+                                WHEN kategori IN ('Analgesik', 'Antibiotik') THEN 1
+                                WHEN kategori IN ('Antitusif', 'Anti-inflamasi') THEN 2
+                                ELSE 3
+                            END,
+                            stok DESC 
+                        LIMIT 8
+                    ");
+                    
+                    $topObatTerlaris = [];
+                    $colorPalette = ['#e74c3c', '#3498db', '#f39c12', '#9b59b6', '#27ae60', '#16a085', '#f1c40f', '#e91e63'];
+                    $iconMapping = [
+                        'Tablet' => 'fas fa-tablets',
+                        'Kapsul' => 'fas fa-pills', 
+                        'Sirup' => 'fas fa-prescription-bottle',
+                        'Salep' => 'fas fa-pump-medical',
+                        'Suntik' => 'fas fa-syringe',
+                        'Tetes' => 'fas fa-eye-dropper',
+                        'Inhaler' => 'fas fa-wind',
+                        'Suppositoria' => 'fas fa-capsules'
                     ];
+                    
+                    $index = 0;
+                    while($row = mysqli_fetch_assoc($queryTopObat)) {
+                        $row['color'] = $colorPalette[$index % count($colorPalette)];
+                        $row['icon'] = $iconMapping[$row['bentuk_obat']] ?? 'fas fa-pills';
+                        $row['stok_tersisa'] = $row['stok'];
+                        $topObatTerlaris[] = $row;
+                        $index++;
+                    }
+                    
+                    // Query untuk Obat Kritis (stok di bawah minimum atau akan expired dalam 90 hari)
+                    $queryObatKritis = mysqli_query($koneksi, "
+                        SELECT 
+                            nama_obat as nama,
+                            kode_obat as sku,
+                            kategori,
+                            stok as stok_tersisa,
+                            stok_minimum,
+                            harga_satuan as harga,
+                            expired_date as exp_date,
+                            produsen as supplier,
+                            bentuk_obat,
+                            created_at as last_restock,
+                            CASE 
+                                WHEN stok <= stok_minimum THEN 'critical'
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 90 AND DATEDIFF(expired_date, CURDATE()) > 0 THEN 'expiring'
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 0 THEN 'expired'
+                                ELSE 'warning'
+                            END as status
+                        FROM tb_obat 
+                        WHERE (stok <= stok_minimum OR DATEDIFF(expired_date, CURDATE()) <= 90) 
+                              AND status_obat = 'aktif'
+                        ORDER BY 
+                            CASE 
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 0 THEN 1
+                                WHEN stok <= stok_minimum THEN 2
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 90 THEN 3
+                                ELSE 4
+                            END,
+                            (stok/stok_minimum) ASC,
+                            expired_date ASC
+                        LIMIT 10
+                    ");
+                    
+                    $obatKritis = [];
+                    $colorPalette = ['#e74c3c', '#3498db', '#f39c12', '#9b59b6', '#27ae60', '#16a085', '#f1c40f', '#e91e63', '#34495e', '#ff5722'];
+                    $iconMapping = [
+                        'Tablet' => 'fas fa-tablets',
+                        'Kapsul' => 'fas fa-pills', 
+                        'Sirup' => 'fas fa-prescription-bottle',
+                        'Salep' => 'fas fa-pump-medical',
+                        'Suntik' => 'fas fa-syringe',
+                        'Tetes' => 'fas fa-eye-dropper',
+                        'Inhaler' => 'fas fa-wind',
+                        'Suppositoria' => 'fas fa-capsules'
+                    ];
+                    
+                    $index = 0;
+                    while($row = mysqli_fetch_assoc($queryObatKritis)) {
+                        $row['color'] = $colorPalette[$index % count($colorPalette)];
+                        $row['icon'] = $iconMapping[$row['bentuk_obat']] ?? 'fas fa-pills';
+                        $obatKritis[] = $row;
+                        $index++;
+                    }
 
-                    $obatKritis = [
-                        [
-                            'nama' => 'Paracetamol 500mg',
-                            'sku' => 'MED-PAR-500',
-                            'kategori' => 'Pain Relief',
-                            'stok_tersisa' => 8,
-                            'stok_minimum' => 20,
-                            'status' => 'critical',
-                            'exp_date' => '2024-08-15',
-                            'supplier' => 'MediPharm Inc.',
-                            'last_restock' => '2024-01-10',
-                            'harga' => 15000,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#e74c3c'
-                        ],
-                        [
-                            'nama' => 'Salep Miconazole',
-                            'sku' => 'MED-MIC-SAL',
-                            'kategori' => 'Dermatology',
-                            'stok_tersisa' => 5,
-                            'stok_minimum' => 15,
-                            'status' => 'critical',
-                            'exp_date' => '2024-09-20',
-                            'supplier' => 'DermaCare Solutions',
-                            'last_restock' => '2023-12-05',
-                            'harga' => 35000,
-                            'icon' => 'fas fa-pump-medical',
-                            'color' => '#9b59b6'
-                        ],
-                        [
-                            'nama' => 'Ibuprofen 400mg',
-                            'sku' => 'MED-IBU-400',
-                            'kategori' => 'Pain Relief',
-                            'stok_tersisa' => 12,
-                            'stok_minimum' => 25,
-                            'status' => 'expiring',
-                            'exp_date' => '2024-02-28',
-                            'supplier' => 'MediPharm Inc.',
-                            'last_restock' => '2024-01-15',
-                            'harga' => 18000,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#e74c3c'
-                        ],
-                        [
-                            'nama' => 'Vitamin C 1000mg',
-                            'sku' => 'MED-VTC-1000',
-                            'kategori' => 'Vitamins',
-                            'stok_tersisa' => 7,
-                            'stok_minimum' => 30,
-                            'status' => 'critical',
-                            'exp_date' => '2024-12-31',
-                            'supplier' => 'VitaHealth Corp.',
-                            'last_restock' => '2023-11-20',
-                            'harga' => 45000,
-                            'icon' => 'fas fa-capsules',
-                            'color' => '#27ae60'
-                        ],
-                        [
-                            'nama' => 'Ambroxol Syrup',
-                            'sku' => 'MED-AMB-SYR',
-                            'kategori' => 'Respiratory',
-                            'stok_tersisa' => 3,
-                            'stok_minimum' => 20,
-                            'status' => 'critical',
-                            'exp_date' => '2024-07-10',
-                            'supplier' => 'PharmaCorp Ltd.',
-                            'last_restock' => '2023-10-15',
-                            'harga' => 22000,
-                            'icon' => 'fas fa-prescription-bottle',
-                            'color' => '#f39c12'
-                        ],
-                        [
-                            'nama' => 'Cetirizine 10mg',
-                            'sku' => 'MED-CET-10',
-                            'kategori' => 'Allergy',
-                            'stok_tersisa' => 9,
-                            'stok_minimum' => 25,
-                            'status' => 'expiring',
-                            'exp_date' => '2024-03-15',
-                            'supplier' => 'AllergyFree Ltd.',
-                            'last_restock' => '2024-01-05',
-                            'harga' => 12000,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#f1c40f'
-                        ],
-                        [
-                            'nama' => 'Metformin 500mg',
-                            'sku' => 'MED-MET-500',
-                            'kategori' => 'Diabetes',
-                            'stok_tersisa' => 6,
-                            'stok_minimum' => 30,
-                            'status' => 'critical',
-                            'exp_date' => '2024-11-20',
-                            'supplier' => 'DiabetesCare Inc.',
-                            'last_restock' => '2023-09-10',
-                            'harga' => 32000,
-                            'icon' => 'fas fa-pills',
-                            'color' => '#34495e'
-                        ],
-                        [
-                            'nama' => 'Loratadine 10mg',
-                            'sku' => 'MED-LOR-10',
-                            'kategori' => 'Allergy',
-                            'stok_tersisa' => 4,
-                            'stok_minimum' => 20,
-                            'status' => 'critical',
-                            'exp_date' => '2024-06-30',
-                            'supplier' => 'AllergyFree Ltd.',
-                            'last_restock' => '2023-11-01',
-                            'harga' => 18000,
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#f1c40f'
-                        ]
-                    ];
-
-                    // Extended inventory data for table
-                    $inventoryObat = [
-                        [
-                            'nama' => 'Paracetamol 500mg',
-                            'sku' => 'MED-PAR-500',
-                            'kategori' => 'Pain Relief',
-                            'stok' => 45,
-                            'status_stok' => 'Low: 45 boxes',
-                            'harga' => 15000,
-                            'exp_date' => '2024-08-15',
-                            'supplier' => 'MediPharm Inc.',
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#e74c3c',
-                            'status_color' => 'danger'
-                        ],
-                        [
-                            'nama' => 'Amoxicillin 500mg',
-                            'sku' => 'MED-AMX-500',
-                            'kategori' => 'Antibiotics',
-                            'stok' => 28,
-                            'status_stok' => 'Low: 28 boxes',
-                            'harga' => 25000,
-                            'exp_date' => '2024-10-20',
-                            'supplier' => 'HealthCare Distributors',
-                            'icon' => 'fas fa-pills',
-                            'color' => '#3498db',
-                            'status_color' => 'danger'
-                        ],
-                        [
-                            'nama' => 'Ibuprofen 400mg',
-                            'sku' => 'MED-IBU-400',
-                            'kategori' => 'Pain Relief',
-                            'stok' => 52,
-                            'status_stok' => 'Good: 52 boxes',
-                            'harga' => 18000,
-                            'exp_date' => '2024-02-28',
-                            'supplier' => 'MediPharm Inc.',
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#e74c3c',
-                            'status_color' => 'success'
-                        ],
-                        [
-                            'nama' => 'Ambroxol Syrup',
-                            'sku' => 'MED-AMB-SYR',
-                            'kategori' => 'Respiratory',
-                            'stok' => 33,
-                            'status_stok' => 'Medium: 33 bottles',
-                            'harga' => 22000,
-                            'exp_date' => '2024-07-10',
-                            'supplier' => 'PharmaCorp Ltd.',
-                            'icon' => 'fas fa-prescription-bottle',
-                            'color' => '#f39c12',
-                            'status_color' => 'warning'
-                        ],
-                        [
-                            'nama' => 'Salep Miconazole',
-                            'sku' => 'MED-MIC-SAL',
-                            'kategori' => 'Dermatology',
-                            'stok' => 18,
-                            'status_stok' => 'Low: 18 tubes',
-                            'harga' => 35000,
-                            'exp_date' => '2024-09-20',
-                            'supplier' => 'DermaCare Solutions',
-                            'icon' => 'fas fa-pump-medical',
-                            'color' => '#9b59b6',
-                            'status_color' => 'danger'
-                        ],
-                        [
-                            'nama' => 'Vitamin C 1000mg',
-                            'sku' => 'MED-VTC-1000',
-                            'kategori' => 'Vitamins',
-                            'stok' => 67,
-                            'status_stok' => 'Good: 67 boxes',
-                            'harga' => 45000,
-                            'exp_date' => '2024-12-31',
-                            'supplier' => 'VitaHealth Corp.',
-                            'icon' => 'fas fa-capsules',
-                            'color' => '#27ae60',
-                            'status_color' => 'success'
-                        ],
-                        [
-                            'nama' => 'Omeprazole 20mg',
-                            'sku' => 'MED-OME-20',
-                            'kategori' => 'Gastric',
-                            'stok' => 41,
-                            'status_stok' => 'Medium: 41 boxes',
-                            'harga' => 28000,
-                            'exp_date' => '2024-11-15',
-                            'supplier' => 'GastroMed Inc.',
-                            'icon' => 'fas fa-pills',
-                            'color' => '#16a085',
-                            'status_color' => 'warning'
-                        ],
-                        [
-                            'nama' => 'Cetirizine 10mg',
-                            'sku' => 'MED-CET-10',
-                            'kategori' => 'Allergy',
-                            'stok' => 29,
-                            'status_stok' => 'Low: 29 boxes',
-                            'harga' => 12000,
-                            'exp_date' => '2024-03-15',
-                            'supplier' => 'AllergyFree Ltd.',
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#f1c40f',
-                            'status_color' => 'danger'
-                        ],
-                        [
-                            'nama' => 'Metformin 500mg',
-                            'sku' => 'MED-MET-500',
-                            'kategori' => 'Diabetes',
-                            'stok' => 85,
-                            'status_stok' => 'Good: 85 boxes',
-                            'harga' => 32000,
-                            'exp_date' => '2024-11-20',
-                            'supplier' => 'DiabetesCare Inc.',
-                            'icon' => 'fas fa-pills',
-                            'color' => '#34495e',
-                            'status_color' => 'success'
-                        ],
-                        [
-                            'nama' => 'Loratadine 10mg',
-                            'sku' => 'MED-LOR-10',
-                            'kategori' => 'Allergy',
-                            'stok' => 15,
-                            'status_stok' => 'Low: 15 boxes',
-                            'harga' => 18000,
-                            'exp_date' => '2024-06-30',
-                            'supplier' => 'AllergyFree Ltd.',
-                            'icon' => 'fas fa-tablets',
-                            'color' => '#f1c40f',
-                            'status_color' => 'danger'
-                        ],
-                        [
-                            'nama' => 'Simvastatin 20mg',
-                            'sku' => 'MED-SIM-20',
-                            'kategori' => 'Cardiac',
-                            'stok' => 73,
-                            'status_stok' => 'Good: 73 boxes',
-                            'harga' => 38000,
-                            'exp_date' => '2024-10-05',
-                            'supplier' => 'CardioHealth Ltd.',
-                            'icon' => 'fas fa-heart',
-                            'color' => '#e91e63',
-                            'status_color' => 'success'
-                        ],
-                        [
-                            'nama' => 'Dexamethasone 0.5mg',
-                            'sku' => 'MED-DEX-05',
-                            'kategori' => 'Anti-inflammatory',
-                            'stok' => 22,
-                            'status_stok' => 'Low: 22 boxes',
-                            'harga' => 25000,
-                            'exp_date' => '2024-05-18',
-                            'supplier' => 'InflamCare Corp.',
-                            'icon' => 'fas fa-pills',
-                            'color' => '#ff5722',
-                            'status_color' => 'danger'
-                        ]
-                    ];
+                    // Extended inventory data for table - Query ALL obat data from database
+                    $queryInventoryObat = mysqli_query($koneksi, "
+                        SELECT 
+                            nama_obat as nama,
+                            kode_obat as sku,
+                            kategori,
+                            stok,
+                            stok_minimum,
+                            harga_satuan as harga,
+                            expired_date as exp_date,
+                            produsen as supplier,
+                            bentuk_obat,
+                            satuan,
+                            status_obat,
+                            CASE 
+                                WHEN stok <= stok_minimum THEN CONCAT('Critical: ', stok, ' ', satuan)
+                                WHEN stok <= (stok_minimum * 2) THEN CONCAT('Low: ', stok, ' ', satuan)
+                                WHEN stok <= (stok_minimum * 5) THEN CONCAT('Medium: ', stok, ' ', satuan)
+                                ELSE CONCAT('Good: ', stok, ' ', satuan)
+                            END as status_stok,
+                            CASE 
+                                WHEN stok <= stok_minimum THEN 'danger'
+                                WHEN stok <= (stok_minimum * 2) THEN 'warning'
+                                ELSE 'success'
+                            END as status_color,
+                            CASE 
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 0 THEN 'Expired'
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 30 THEN 'Expiring Soon'
+                                WHEN DATEDIFF(expired_date, CURDATE()) <= 90 THEN 'Expires in 3 months'
+                                ELSE 'Good'
+                            END as expiry_status
+                        FROM tb_obat 
+                        WHERE status_obat = 'aktif'
+                        ORDER BY 
+                            CASE 
+                                WHEN stok <= stok_minimum THEN 1
+                                WHEN stok <= (stok_minimum * 2) THEN 2
+                                ELSE 3
+                            END,
+                            kategori,
+                            nama_obat
+                    ");
+                    
+                    $inventoryObat = [];
+                    $index = 0;
+                    while($row = mysqli_fetch_assoc($queryInventoryObat)) {
+                        $row['color'] = $colorPalette[$index % count($colorPalette)];
+                        $row['icon'] = $iconMapping[$row['bentuk_obat']] ?? 'fas fa-pills';
+                        $inventoryObat[] = $row;
+                        $index++;
+                    }
                     ?>
 
                     <div class="row">
                         <!-- Top Obat Terlaris -->
-                        <div class="col-md-6 mb-4">
+                        <div class="col-lg-6 col-md-12 mb-4">
                             <div class="card modern-inventory-card shadow-sm h-100">
                                 <div class="card-header modern-card-header">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -2001,7 +2003,7 @@ body, .summary-box, .summary-box * {
                         </div>
 
                         <!-- Monitoring Stok Kritis & Kadaluarsa -->
-                        <div class="col-md-6 mb-4">
+                        <div class="col-lg-6 col-md-12 mb-4">
                             <div class="card modern-inventory-card shadow-sm h-100">
                                 <div class="card-header modern-card-header-danger">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -2033,10 +2035,20 @@ body, .summary-box, .summary-box * {
                                                             <span class="status-text">Stok: <?= $obat['stok_tersisa'] ?></span>
                                                             <span class="status-label">Kritis</span>
                                                         </div>
-                                                    <?php else: ?>
+                                                    <?php elseif($obat['status'] == 'expired'): ?>
+                                                        <div class="status-badge status-expired">
+                                                            <span class="status-text">Exp: <?= date('d M Y', strtotime($obat['exp_date'])) ?></span>
+                                                            <span class="status-label">Kadaluarsa</span>
+                                                        </div>
+                                                    <?php elseif($obat['status'] == 'expiring'): ?>
                                                         <div class="status-badge status-expiring">
                                                             <span class="status-text">Exp: <?= date('d M Y', strtotime($obat['exp_date'])) ?></span>
                                                             <span class="status-label">Segera Kadaluarsa</span>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="status-badge status-warning">
+                                                            <span class="status-text">Stok: <?= $obat['stok_tersisa'] ?></span>
+                                                            <span class="status-label">Perhatian</span>
                                                         </div>
                                                     <?php endif; ?>
                                                     <button class="btn btn-sm btn-outline-primary mt-1 reorder-btn">
@@ -2083,68 +2095,101 @@ body, .summary-box, .summary-box * {
                     </div>
 
                     <!-- Medicine Categories Section -->
-                    <div class="row mb-5">
-                        <?php
-                        // Calculate category counts from existing data
-                        $categoryData = [
-                            [
-                                'name' => 'Antibiotics',
-                                'count' => 48,
-                                'icon' => 'fas fa-flask',
-                                'color' => '#17a2b8',
-                                'bg_color' => 'rgba(23, 162, 184, 0.1)'
-                            ],
-                            [
-                                'name' => 'Pain Relief', 
-                                'count' => 36,
-                                'icon' => 'fas fa-clock',
-                                'color' => '#6f42c1',
-                                'bg_color' => 'rgba(111, 66, 193, 0.1)'
-                            ],
-                            [
-                                'name' => 'Cardiac',
-                                'count' => 29,
-                                'icon' => 'fas fa-heart',
-                                'color' => '#e83e8c',
-                                'bg_color' => 'rgba(232, 62, 140, 0.1)'
-                            ],
-                            [
-                                'name' => 'Vitamins',
-                                'count' => 52,
-                                'icon' => 'fas fa-shield-alt',
-                                'color' => '#20c997',
-                                'bg_color' => 'rgba(32, 201, 151, 0.1)'
-                            ],
-                            [
-                                'name' => 'Allergy',
-                                'count' => 18,
-                                'icon' => 'fas fa-envelope',
-                                'color' => '#fd7e14',
-                                'bg_color' => 'rgba(253, 126, 20, 0.1)'
-                            ],
-                            [
-                                'name' => 'Others',
-                                'count' => 43,
-                                'icon' => 'fas fa-comments',
-                                'color' => '#6610f2',
-                                'bg_color' => 'rgba(102, 16, 242, 0.1)'
-                            ]
-                        ];
-                        ?>
-                        
-                        <?php foreach($categoryData as $category): ?>
-                        <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                            <div class="category-card" onclick="filterByCategory('<?= $category['name'] ?>')">
-                                <div class="category-icon-wrapper" style="background-color: <?= $category['bg_color'] ?>;">
-                                    <i class="<?= $category['icon'] ?>" style="color: <?= $category['color'] ?>;"></i>
+                    <div class="mb-5">
+                        <div class="category-scroll-container">
+                            <?php
+                            // Query kategori yang benar-benar ada di database clinic.sql
+                            $queryCategoryData = mysqli_query($koneksi, "
+                                SELECT 
+                                    kategori,
+                                    COUNT(*) as count
+                                FROM tb_obat 
+                                WHERE status_obat = 'aktif' 
+                                GROUP BY kategori
+                                ORDER BY count DESC
+                            ");
+                            
+                            // Default icon mapping untuk berbagai jenis kategori obat
+                            $iconMapping = [
+                                'Antibiotik' => 'fas fa-flask',
+                                'Analgesik' => 'fas fa-tablets', 
+                                'Antitusif' => 'fas fa-prescription-bottle',
+                                'Anti-inflamasi' => 'fas fa-shield-alt',
+                                'Vitamin' => 'fas fa-capsules',
+                                'PPI' => 'fas fa-pills',
+                                'Antihistamin' => 'fas fa-leaf',
+                                'Antidiare' => 'fas fa-heartbeat',
+                                'Antijamur' => 'fas fa-bug',
+                                'Dekongestan' => 'fas fa-wind',
+                                'Antasida' => 'fas fa-stomach',
+                                'Antiseptik' => 'fas fa-shield-virus',
+                                'Bronkodilator' => 'fas fa-lungs',
+                                'ACE Inhibitor' => 'fas fa-heart',
+                                'Kortikosteroid' => 'fas fa-syringe',
+                                'Statin' => 'fas fa-chart-line',
+                                'Antidiabetik' => 'fas fa-tint',
+                                'CCB' => 'fas fa-circle',
+                                'H2 Blocker' => 'fas fa-square',
+                                'NSAID' => 'fas fa-fire',
+                                'Prokinetik' => 'fas fa-arrows-alt',
+                                'Antifungi' => 'fas fa-microscope',
+                                'Diuretik' => 'fas fa-droplet',
+                                'Keratolitik' => 'fas fa-hand-sparkles'
+                            ];
+                            
+                            // Color palette untuk kategori berdasarkan urutan
+                            $colorPalette = [
+                                ['color' => '#17a2b8', 'bg_color' => 'rgba(23, 162, 184, 0.15)'],
+                                ['color' => '#6f42c1', 'bg_color' => 'rgba(111, 66, 193, 0.15)'],
+                                ['color' => '#e83e8c', 'bg_color' => 'rgba(232, 62, 140, 0.15)'],
+                                ['color' => '#20c997', 'bg_color' => 'rgba(32, 201, 151, 0.15)'],
+                                ['color' => '#fd7e14', 'bg_color' => 'rgba(253, 126, 20, 0.15)'],
+                                ['color' => '#6610f2', 'bg_color' => 'rgba(102, 16, 242, 0.15)'],
+                                ['color' => '#28a745', 'bg_color' => 'rgba(40, 167, 69, 0.15)'],
+                                ['color' => '#dc3545', 'bg_color' => 'rgba(220, 53, 69, 0.15)'],
+                                ['color' => '#007bff', 'bg_color' => 'rgba(0, 123, 255, 0.15)'],
+                                ['color' => '#6c757d', 'bg_color' => 'rgba(108, 117, 125, 0.15)'],
+                                ['color' => '#795548', 'bg_color' => 'rgba(121, 85, 72, 0.15)'],
+                                ['color' => '#ff5722', 'bg_color' => 'rgba(255, 87, 34, 0.15)'],
+                                ['color' => '#00bcd4', 'bg_color' => 'rgba(0, 188, 212, 0.15)'],
+                                ['color' => '#f44336', 'bg_color' => 'rgba(244, 67, 54, 0.15)'],
+                                ['color' => '#9c27b0', 'bg_color' => 'rgba(156, 39, 176, 0.15)']
+                            ];
+                            
+                            // Build categories array dari data database real
+                            $categories = [];
+                            $index = 0;
+                            while($category = mysqli_fetch_assoc($queryCategoryData)) {
+                                $categoryName = $category['kategori'];
+                                $colorIndex = $index % count($colorPalette);
+                                
+                                $categories[] = [
+                                    'name' => $categoryName,
+                                    'count' => $category['count'],
+                                    'icon' => $iconMapping[$categoryName] ?? 'fas fa-pills', // Default icon jika tidak ada mapping
+                                    'color' => $colorPalette[$colorIndex]['color'],
+                                    'bg_color' => $colorPalette[$colorIndex]['bg_color']
+                                ];
+                                $index++;
+                            }
+                            ?>
+                            
+                            <div class="category-cards-wrapper">
+                                <?php foreach($categories as $category): ?>
+                                <div class="category-card-item">
+                                    <div class="category-card" onclick="filterByCategory('<?= $category['name'] ?>')">
+                                        <div class="category-icon-wrapper" style="background-color: <?= $category['bg_color'] ?>;">
+                                            <i class="<?= $category['icon'] ?>" style="color: <?= $category['color'] ?>;"></i>
+                                        </div>
+                                        <div class="category-info">
+                                            <h6 class="category-name"><?= $category['name'] ?></h6>
+                                            <p class="category-count"><?= $category['count'] ?> items</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="category-info">
-                                    <h6 class="category-name"><?= $category['name'] ?></h6>
-                                    <p class="category-count"><?= $category['count'] ?> items</p>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-                        <?php endforeach; ?>
                     </div>
 
 
@@ -2171,14 +2216,14 @@ body, .summary-box, .summary-box * {
                                     </div>
                                     <div class="inventory-pagination">
                                         <div class="pagination-info">
-                                            <span id="paginationInfo">Showing 1-10 of <?= count($inventoryObat) ?> items</span>
+                                            <span id="paginationInfo">Loading...</span>
                                         </div>
                                         <div class="pagination-controls">
-                                            <button class="btn btn-outline-secondary btn-sm" id="prevBtn" disabled>
-                                                <i class="fas fa-chevron-left mr-1"></i>Previous
+                                            <button class="btn btn-gradient-outline btn-sm px-3 font-weight-bold shadow-custom" id="prevBtn" disabled>
+                                                <i class="fas fa-angle-left mr-1"></i>Previous
                                             </button>
-                                            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
-                                                Next<i class="fas fa-chevron-right ml-1"></i>
+                                            <button class="btn btn-gradient-outline btn-sm px-3 font-weight-bold shadow-custom" id="nextBtn">
+                                                Next<i class="fas fa-angle-right ml-1"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -2325,20 +2370,18 @@ body, .summary-box, .summary-box * {
                 function applyFilter(filter) {
                     switch(filter) {
                         case 'low-stock':
-                            filteredData = inventoryData.filter(item => item.status_color === 'danger');
+                            filteredData = inventoryData.filter(item => item.status_color === 'danger' || item.status_color === 'warning');
                             break;
                         case 'expiring':
-                            filteredData = inventoryData.filter(item => {
-                                const expDate = new Date(item.exp_date);
-                                const today = new Date();
-                                const diffTime = expDate - today;
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                return diffDays <= 90; // Expiring within 90 days
-                            });
+                            filteredData = inventoryData.filter(item => 
+                                item.expiry_status === 'Expired' || 
+                                item.expiry_status === 'Expiring Soon' || 
+                                item.expiry_status === 'Expires in 3 months'
+                            );
                             break;
                         case 'recent':
-                            // For demo purposes, show last 5 items as "recently added"
-                            filteredData = inventoryData.slice(-5);
+                            // Sort by newest and take last 20 items
+                            filteredData = [...inventoryData].slice(-20);
                             break;
                         default:
                             filteredData = [...inventoryData];
@@ -2346,6 +2389,12 @@ body, .summary-box, .summary-box * {
                     currentPage = 1;
                     renderInventoryTable();
                     updatePaginationInfo();
+                }
+
+                // Function to handle reorder medicine
+                function reorderMedicine(sku) {
+                    alert(`Reorder functionality for SKU: ${sku} will be implemented.`);
+                    // TODO: Implement actual reorder functionality
                 }
 
                 function renderInventoryTable() {
@@ -2360,6 +2409,17 @@ body, .summary-box, .summary-box * {
                         const row = document.createElement('div');
                         row.className = 'inventory-table-row';
                         
+                        // Format expiry date and status
+                        const expDate = new Date(item.exp_date);
+                        const formattedExpDate = expDate.toLocaleDateString('id-ID', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric' 
+                        });
+                        
+                        // Format price
+                        const formattedPrice = new Intl.NumberFormat('id-ID').format(item.harga);
+                        
                         row.innerHTML = `
                             <div class="medicine-cell">
                                 <div class="medicine-icon" style="background-color: ${item.color}20;">
@@ -2371,12 +2431,18 @@ body, .summary-box, .summary-box * {
                                 </div>
                             </div>
                             <div class="category-cell">${item.kategori}</div>
-                            <div class="stock-cell stock-${item.status_color}">${item.status_stok}</div>
-                            <div class="price-cell">Rp ${item.harga.toLocaleString()}</div>
-                            <div class="expiry-cell">${new Date(item.exp_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                            <div class="stock-cell stock-${item.status_color}">
+                                ${item.stok} ${item.satuan} 
+                                <small class="d-block text-muted">Min: ${item.stok_minimum}</small>
+                            </div>
+                            <div class="price-cell">Rp ${formattedPrice}</div>
+                            <div class="expiry-cell">
+                                ${formattedExpDate}
+                                <small class="d-block text-muted">${item.expiry_status}</small>
+                            </div>
                             <div class="supplier-cell">${item.supplier}</div>
                             <div class="actions-cell">
-                                <button class="btn action-btn reorder-action">
+                                <button class="btn action-btn reorder-action" onclick="reorderMedicine('${item.sku}')">
                                     <i class="fas fa-shopping-cart mr-1"></i>Reorder
                                 </button>
                             </div>
