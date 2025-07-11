@@ -7,6 +7,155 @@ if (!isset($_SESSION["jabatan"])) {
     exit();
 }
 
+// Get current year and month
+$currentYear = date('Y');
+$currentMonth = date('n');
+
+// STEP 1: Tentukan tahun data yang akan digunakan secara konsisten
+$tahunData = $currentYear;
+
+// Cek apakah ada data untuk tahun ini
+$queryCheckTahun = "SELECT COUNT(*) as count_data FROM pengeluaran WHERE YEAR(tanggal) = $currentYear";
+$resultCheckTahun = mysqli_query($koneksi, $queryCheckTahun);
+$checkTahunData = mysqli_fetch_assoc($resultCheckTahun);
+
+// Jika tidak ada data tahun ini, gunakan 2024 untuk SEMUA perhitungan
+if ($checkTahunData['count_data'] == 0) {
+    $tahunData = 2024;
+    echo "<!-- Debug: Menggunakan data tahun 2024 untuk SEMUA perhitungan -->";
+} else {
+    echo "<!-- Debug: Menggunakan data tahun $currentYear untuk SEMUA perhitungan -->";
+}
+
+// STEP 2: Get total pengeluaran untuk tahun yang sudah ditentukan
+$queryTotalTahun = "SELECT SUM(jumlah) as total_tahun FROM pengeluaran WHERE YEAR(tanggal) = $tahunData";
+$resultTotalTahun = mysqli_query($koneksi, $queryTotalTahun);
+
+// Debug: Cek jika query error
+if (!$resultTotalTahun) {
+    echo "<!-- Error Query Total: " . mysqli_error($koneksi) . " -->";
+}
+
+$totalTahunData = mysqli_fetch_assoc($resultTotalTahun);
+$totalPengeluaranTahun = $totalTahunData['total_tahun'] ? $totalTahunData['total_tahun'] : 0;
+
+// Debug: Tampilkan nilai untuk testing
+echo "<!-- Debug: Total Pengeluaran = " . $totalPengeluaranTahun . " -->";
+echo "<!-- Debug: Tahun Data Konsisten = " . $tahunData . " -->";
+
+// Get rata-rata pengeluaran bulanan
+$rataPengeluaranBulanan = $totalPengeluaranTahun > 0 ? $totalPengeluaranTahun / 12 : 0;
+
+// Get pengeluaran bulan ini (gunakan tahun data yang konsisten)
+$queryBulanIni = "SELECT SUM(jumlah) as total_bulan FROM pengeluaran WHERE YEAR(tanggal) = $tahunData AND MONTH(tanggal) = $currentMonth";
+$resultBulanIni = mysqli_query($koneksi, $queryBulanIni);
+$bulanIniData = mysqli_fetch_assoc($resultBulanIni);
+$pengeluaranBulanIni = $bulanIniData['total_bulan'] ? $bulanIniData['total_bulan'] : 0;
+
+// Get pengeluaran bulan lalu untuk menghitung pertumbuhan (gunakan tahun data yang konsisten)
+$bulanLalu = ($currentMonth == 1) ? 12 : $currentMonth - 1;
+$tahunBulanLalu = ($currentMonth == 1) ? $tahunData - 1 : $tahunData;
+$queryBulanLalu = "SELECT SUM(jumlah) as total_bulan_lalu FROM pengeluaran WHERE YEAR(tanggal) = $tahunBulanLalu AND MONTH(tanggal) = $bulanLalu";
+$resultBulanLalu = mysqli_query($koneksi, $queryBulanLalu);
+$bulanLaluData = mysqli_fetch_assoc($resultBulanLalu);
+$pengeluaranBulanLalu = $bulanLaluData['total_bulan_lalu'] ? $bulanLaluData['total_bulan_lalu'] : 1;
+
+// Hitung pertumbuhan bulanan (dengan validasi untuk menghindari pembagian dengan nol)
+if ($pengeluaranBulanLalu > 0) {
+    $pertumbuhanPengeluaran = (($pengeluaranBulanIni - $pengeluaranBulanLalu) / $pengeluaranBulanLalu) * 100;
+} else {
+    $pertumbuhanPengeluaran = 0;
+}
+
+// Get data pengeluaran bulanan untuk chart (gunakan tahun data yang konsisten)
+$dataPengeluaranBulanan = [];
+
+$queryBulanan = "SELECT MONTH(tanggal) as bulan, SUM(jumlah) as total 
+                 FROM pengeluaran 
+                 WHERE YEAR(tanggal) = $tahunData 
+                 GROUP BY MONTH(tanggal) 
+                 ORDER BY MONTH(tanggal)";
+$resultBulanan = mysqli_query($koneksi, $queryBulanan);
+$tempBulananData = [];
+while ($row = mysqli_fetch_assoc($resultBulanan)) {
+    $tempBulananData[$row['bulan']] = round($row['total'] / 1000000, 1); // Convert to millions
+}
+
+// Fill missing months with 0
+for ($i = 1; $i <= 12; $i++) {
+    $dataPengeluaranBulanan[] = isset($tempBulananData[$i]) ? $tempBulananData[$i] : 0;
+}
+
+echo "<!-- Debug: Data Bulanan = " . json_encode($dataPengeluaranBulanan) . " -->";
+
+// Get data pengeluaran per kategori untuk pie chart (gunakan tahun data yang konsisten)
+$piePengeluaranData = [];
+$queryKategori = "SELECT kategori, SUM(jumlah) as total 
+                  FROM pengeluaran 
+                  WHERE YEAR(tanggal) = $tahunData 
+                  GROUP BY kategori 
+                  ORDER BY total DESC";
+$resultKategori = mysqli_query($koneksi, $queryKategori);
+$kategoriColors = [
+    'Obat-obatan' => '#FF6384',
+    'Gaji Staff' => '#36A2EB', 
+    'Alat Medis' => '#FFCE56',
+    'Listrik & Air' => '#4BC0C0',
+    'Maintenance' => '#9966FF',
+    'Marketing' => '#FF9F40',
+    'Training' => '#FF638A',
+    'Renovasi' => '#36A2FF',
+    'Asuransi' => '#FFCE90',
+    'IT Support' => '#4BC0FF',
+    'Cleaning Service' => '#9966AA'
+];
+while ($row = mysqli_fetch_assoc($resultKategori)) {
+    $color = isset($kategoriColors[$row['kategori']]) ? $kategoriColors[$row['kategori']] : '#CCCCCC';
+    $piePengeluaranData[] = [
+        'nama' => $row['kategori'],
+        'nilai' => round($row['total'] / 1000000, 1), // Convert to millions
+        'color' => $color
+    ];
+}
+
+echo "<!-- Debug: Pie Data = " . json_encode($piePengeluaranData) . " -->";
+
+// Get breakdown pengeluaran untuk tabel (gunakan tahun data yang konsisten)
+$breakdownPengeluaran = [];
+$queryBreakdown = "SELECT kategori, COUNT(*) as jumlah_transaksi, SUM(jumlah) as total 
+                   FROM pengeluaran 
+                   WHERE YEAR(tanggal) = $tahunData 
+                   GROUP BY kategori 
+                   ORDER BY total DESC";
+$resultBreakdown = mysqli_query($koneksi, $queryBreakdown);
+
+// Gunakan total dari tahun data yang konsisten untuk perhitungan persentase
+$queryTotalBdwn = "SELECT SUM(jumlah) as total_breakdown FROM pengeluaran WHERE YEAR(tanggal) = $tahunData";
+$resultTotalBdwn = mysqli_query($koneksi, $queryTotalBdwn);
+$totalBdwnData = mysqli_fetch_assoc($resultTotalBdwn);
+$totalKeseluruhan = $totalBdwnData['total_breakdown'] > 0 ? $totalBdwnData['total_breakdown'] : 1;
+
+// VALIDASI: Pastikan total breakdown sama dengan total pengeluaran tahun
+echo "<!-- Debug: Total Pengeluaran Tahun = " . $totalPengeluaranTahun . " -->";
+echo "<!-- Debug: Total Breakdown = " . $totalKeseluruhan . " -->";
+echo "<!-- Debug: Konsistensi Data = " . ($totalPengeluaranTahun == $totalKeseluruhan ? 'KONSISTEN' : 'TIDAK KONSISTEN') . " -->";
+
+while ($row = mysqli_fetch_assoc($resultBreakdown)) {
+    $persentase = ($row['total'] / $totalKeseluruhan) * 100;
+    $color = isset($kategoriColors[$row['kategori']]) ? $kategoriColors[$row['kategori']] : '#CCCCCC';
+    
+    $breakdownPengeluaran[] = [
+        'kategori' => $row['kategori'],
+        'detail' => $row['jumlah_transaksi'] . ' transaksi',
+        'total' => $row['total'],
+        'persentase' => $persentase,
+        'color' => $color
+    ];
+}
+
+echo "<!-- Debug: Breakdown Count = " . count($breakdownPengeluaran) . " -->";
+echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
+
 ?>
 
 <!DOCTYPE html>
@@ -466,10 +615,7 @@ if (!isset($_SESSION["jabatan"])) {
                     <div class="col-md-3 mb-4">
                         <div class="summary-box">
                             <div class="summary-title">Total Pengeluaran Tahun Ini</div>
-                            <div class="summary-value"><span class="currency">Rp</span><span class="counter" data-count="<?php 
-                                $totalPengeluaran = 200000000; // ambil dari database
-                                echo $totalPengeluaran;
-                            ?>">0</span></div>
+                            <div class="summary-value"><span class="currency">Rp</span><span class="counter" data-count="<?php echo $totalPengeluaranTahun; ?>">0</span></div>
                             <div class="summary-icon"><i class="fas fa-coins"></i></div>
                             <span class="summary-badge badge-red">Perlu Monitoring</span>
                         </div>
@@ -479,10 +625,7 @@ if (!isset($_SESSION["jabatan"])) {
                     <div class="col-md-3 mb-4">
                         <div class="summary-box">
                             <div class="summary-title">Rata-rata / Bulan</div>
-                            <div class="summary-value"><span class="currency">Rp</span><span class="counter" data-count="<?php 
-                                $rataPengeluaran = 200000000 / 12;
-                                echo $rataPengeluaran;
-                            ?>">0</span></div>
+                            <div class="summary-value"><span class="currency">Rp</span><span class="counter" data-count="<?php echo $rataPengeluaranBulanan; ?>">0</span></div>
                             <div class="summary-icon"><i class="fas fa-chart-line"></i></div>
                             <span class="summary-badge badge-orange">Dalam Batas</span>
                         </div>
@@ -492,10 +635,7 @@ if (!isset($_SESSION["jabatan"])) {
                     <div class="col-md-3 mb-4">
                         <div class="summary-box">
                             <div class="summary-title">Pengeluaran Bulan Ini</div>
-                            <div class="summary-value"><span class="currency">Rp</span><span class="counter" data-count="<?php 
-                                $pengeluaranBulanIni = 17500000; 
-                                echo $pengeluaranBulanIni;
-                            ?>">0</span></div>
+                            <div class="summary-value"><span class="currency">Rp</span><span class="counter" data-count="<?php echo $pengeluaranBulanIni; ?>">0</span></div>
                             <div class="summary-icon"><i class="fas fa-calendar-alt"></i></div>
                             <span class="summary-badge badge-blue">Bulan Berjalan</span>
                         </div>
@@ -505,12 +645,9 @@ if (!isset($_SESSION["jabatan"])) {
                     <div class="col-md-3 mb-4">
                         <div class="summary-box">
                             <div class="summary-title">Pertumbuhan Bulanan</div>
-                            <div class="summary-value"><span class="counter" data-count="<?php 
-                                $pertumbuhanPengeluaran = 5; 
-                                echo $pertumbuhanPengeluaran;
-                            ?>">0</span>%</div>
+                            <div class="summary-value"><span class="counter" data-count="<?php echo round($pertumbuhanPengeluaran, 1); ?>">0</span>%</div>
                             <div class="summary-icon"><i class="fas fa-percentage"></i></div>
-                            <span class="summary-badge badge-green">Terkendali</span>
+                            <span class="summary-badge <?php echo $pertumbuhanPengeluaran > 10 ? 'badge-red' : 'badge-green'; ?>"><?php echo $pertumbuhanPengeluaran > 10 ? 'Tinggi' : 'Terkendali'; ?></span>
                         </div>
                     </div>
                 </div>
@@ -548,15 +685,23 @@ if (!isset($_SESSION["jabatan"])) {
                             <div>
                                 <h6 class="insight-title mb-2">Insight Saran Cerdas Pengeluaran</h6>
                                 <p class="insight-desc mb-2">
-                                    📊 Sistem mendeteksi pertumbuhan pengeluaran bulanan sebesar <strong><?= $pertumbuhanPengeluaran ?>%</strong>.
-                                    Kategori pengeluaran terbesar adalah <strong>Obat & Alkes</strong> dan <strong>Gaji Karyawan</strong>.
-                                    Pengeluaran bulan ini <strong>Rp <?= number_format($pengeluaranBulanIni, 0, ',', '.') ?></strong> masih dalam batas wajar.
+                                    📊 Sistem mendeteksi pertumbuhan pengeluaran bulanan sebesar <strong><?= round($pertumbuhanPengeluaran, 1) ?>%</strong>.
+                                    <?php if (!empty($piePengeluaranData)): ?>
+                                    Kategori pengeluaran terbesar adalah <strong><?= $piePengeluaranData[0]['nama'] ?></strong><?= isset($piePengeluaranData[1]) ? ' dan <strong>'.$piePengeluaranData[1]['nama'].'</strong>' : '' ?>.
+                                    <?php endif; ?>
+                                    Pengeluaran bulan ini <strong>Rp <?= number_format($pengeluaranBulanIni, 0, ',', '.') ?></strong> <?= $pertumbuhanPengeluaran > 10 ? 'perlu dipantau lebih ketat' : 'masih dalam batas wajar' ?>.
                                 </p>
                                 <ul class="insight-list mb-0">
-                                    <li>💊 <strong>Obat & Alkes</strong> adalah pengeluaran terbesar, optimalisasi pengadaan dapat mengurangi biaya.</li>
-                                    <li>👥 <strong>Gaji Karyawan</strong> stabil, evaluasi produktivitas untuk efisiensi maksimal.</li>
-                                    <li>⚡ <strong>Operasional</strong> relatif kecil, namun perlu monitoring konsumsi listrik dan air.</li>
-                                    <li>🎯 <strong>Saran:</strong> Evaluasi supplier obat dan pertimbangkan kontrak jangka panjang untuk harga lebih baik.</li>
+                                    <?php if (!empty($piePengeluaranData)): ?>
+                                    <li>💊 <strong><?= $piePengeluaranData[0]['nama'] ?></strong> adalah pengeluaran terbesar, optimalisasi pengadaan dapat mengurangi biaya.</li>
+                                    <?php if (isset($piePengeluaranData[1])): ?>
+                                    <li>👥 <strong><?= $piePengeluaranData[1]['nama'] ?></strong> <?= strpos(strtolower($piePengeluaranData[1]['nama']), 'gaji') !== false ? 'stabil, evaluasi produktivitas untuk efisiensi maksimal' : 'perlu monitoring untuk kontrol anggaran' ?>.</li>
+                                    <?php endif; ?>
+                                    <?php if (isset($piePengeluaranData[2])): ?>
+                                    <li>⚡ <strong><?= $piePengeluaranData[2]['nama'] ?></strong> relatif kecil, namun perlu monitoring berkelanjutan.</li>
+                                    <?php endif; ?>
+                                    <?php endif; ?>
+                                    <li>🎯 <strong>Saran:</strong> <?= $pertumbuhanPengeluaran > 15 ? 'Evaluasi mendesak diperlukan untuk mengendalikan pengeluaran' : 'Evaluasi supplier dan pertimbangkan kontrak jangka panjang untuk harga lebih baik' ?>.</li>
                                 </ul>
                             </div>
                         </div>
@@ -574,7 +719,17 @@ if (!isset($_SESSION["jabatan"])) {
                                 <div class="chart-wrapper">
                                     <canvas id="pengeluaranChart" class="demografi-chart-canvas"></canvas>
                                 </div>
-                                <div class="chart-caption">📈 <strong>Desember</strong> menunjukkan pengeluaran tertinggi. Monitor anggaran dengan ketat menjelang akhir tahun.</div>
+                                <div class="chart-caption">📈 <strong><?php 
+                                    $bulanNama = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                    if (!empty($dataPengeluaranBulanan) && max($dataPengeluaranBulanan) > 0) {
+                                        $maxValue = max($dataPengeluaranBulanan);
+                                        $maxIndex = array_search($maxValue, $dataPengeluaranBulanan);
+                                        echo $bulanNama[$maxIndex + 1];
+                                        echo '</strong> menunjukkan pengeluaran tertinggi. Monitor anggaran dengan ketat.';
+                                    } else {
+                                        echo 'Data</strong> pengeluaran belum tersedia. Mulai input data untuk analisis.';
+                                    }
+                                ?></div>
                             </div>
                         </div>
                     </div>
@@ -586,7 +741,7 @@ if (!isset($_SESSION["jabatan"])) {
                                 <div class="chart-wrapper">
                                     <canvas id="piePengeluaranChart" class="demografi-chart-canvas"></canvas>
                                 </div>
-                                <div class="chart-caption">💊 <strong>Obat & Alkes</strong> mendominasi pengeluaran. Evaluasi efisiensi pengadaan.</div>
+                                <div class="chart-caption">💊 <strong><?= !empty($piePengeluaranData) ? $piePengeluaranData[0]['nama'] : 'Belum ada data' ?></strong> <?= !empty($piePengeluaranData) ? 'mendominasi pengeluaran. Evaluasi efisiensi pengadaan.' : 'Mulai input data pengeluaran untuk analisis.' ?></div>
                             </div>
                         </div>
                     </div>
@@ -685,138 +840,59 @@ if (!isset($_SESSION["jabatan"])) {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <?php if (!empty($breakdownPengeluaran)): ?>
+                                    <?php 
+                                    $iconMapping = [
+                                        'Obat-obatan' => 'fas fa-pills',
+                                        'Gaji Staff' => 'fas fa-users', 
+                                        'Alat Medis' => 'fas fa-stethoscope',
+                                        'Listrik & Air' => 'fas fa-bolt',
+                                        'Maintenance' => 'fas fa-tools',
+                                        'Marketing' => 'fas fa-bullhorn',
+                                        'Training' => 'fas fa-graduation-cap',
+                                        'Renovasi' => 'fas fa-hammer',
+                                        'Asuransi' => 'fas fa-shield-alt',
+                                        'IT Support' => 'fas fa-laptop',
+                                        'Cleaning Service' => 'fas fa-broom'
+                                    ];
+                                    
+                                    foreach ($breakdownPengeluaran as $item): 
+                                        $icon = isset($iconMapping[$item['kategori']]) ? $iconMapping[$item['kategori']] : 'fas fa-ellipsis-h';
+                                        $bgColor = $item['color'] . '20';
+                                        $bgColorLight = $item['color'] . '10';
+                                    ?>
                                     <tr style="border-bottom: 1px solid #f1f3f4;">
                                         <td style="border: none; padding: 18px 20px;">
                                             <div class="d-flex align-items-center">
-                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #FF638420 0%, #FF638410 100%); display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-pills" style="color: #FF6384; font-size: 1.2rem;"></i>
+                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, <?= $bgColor ?> 0%, <?= $bgColorLight ?> 100%); display: flex; align-items: center; justify-content: center;">
+                                                    <i class="<?= $icon ?>" style="color: <?= $item['color'] ?>; font-size: 1.2rem;"></i>
                                                 </div>
-                                                <strong style="color: #2c3e50; font-size: 0.95rem;">Obat & Alkes</strong>
+                                                <strong style="color: #2c3e50; font-size: 0.95rem;"><?= $item['kategori'] ?></strong>
                                             </div>
                                         </td>
-                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;">Pengadaan Stok</td>
+                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;"><?= $item['detail'] ?></td>
                                         <td style="border: none; padding: 18px 20px;">
-                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp 100.000.000</strong>
+                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp <?= number_format($item['total'], 0, ',', '.') ?></strong>
                                         </td>
                                         <td style="border: none; padding: 18px 20px;">
                                             <div class="d-flex align-items-center">
                                                 <div class="progress mr-2" style="width: 60px; height: 6px; border-radius: 3px; background: #f1f3f4;">
-                                                    <div class="progress-bar" style="background: #FF6384; width: 50%; border-radius: 3px;"></div>
+                                                    <div class="progress-bar" style="background: <?= $item['color'] ?>; width: <?= min($item['persentase'], 100) ?>%; border-radius: 3px;"></div>
                                                 </div>
-                                                <span style="color: #FF6384; font-weight: 700; font-size: 0.85rem;">50%</span>
+                                                <span style="color: <?= $item['color'] ?>; font-weight: 700; font-size: 0.85rem;"><?= number_format($item['persentase'], 1) ?>%</span>
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr style="border-bottom: 1px solid #f1f3f4;">
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #36A2EB20 0%, #36A2EB10 100%); display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-users" style="color: #36A2EB; font-size: 1.2rem;"></i>
-                                                </div>
-                                                <strong style="color: #2c3e50; font-size: 0.95rem;">Gaji Karyawan</strong>
-                                            </div>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;">Dokter, Apoteker, Admin</td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp 60.000.000</strong>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress mr-2" style="width: 60px; height: 6px; border-radius: 3px; background: #f1f3f4;">
-                                                    <div class="progress-bar" style="background: #36A2EB; width: 30%; border-radius: 3px;"></div>
-                                                </div>
-                                                <span style="color: #36A2EB; font-weight: 700; font-size: 0.85rem;">30%</span>
-                                            </div>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" style="border: none; padding: 40px 20px; text-align: center; color: #6c757d;">
+                                            <i class="fas fa-database" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>
+                                            <strong>Belum ada data pengeluaran</strong><br>
+                                            <small>Mulai input data pengeluaran untuk melihat breakdown kategori</small>
                                         </td>
                                     </tr>
-                                    <tr style="border-bottom: 1px solid #f1f3f4;">
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #FFCE5620 0%, #FFCE5610 100%); display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-bolt" style="color: #FFCE56; font-size: 1.2rem;"></i>
-                                                </div>
-                                                <strong style="color: #2c3e50; font-size: 0.95rem;">Operasional</strong>
-                                            </div>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;">Listrik, Air, Internet</td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp 20.000.000</strong>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress mr-2" style="width: 60px; height: 6px; border-radius: 3px; background: #f1f3f4;">
-                                                    <div class="progress-bar" style="background: #FFCE56; width: 10%; border-radius: 3px;"></div>
-                                                </div>
-                                                <span style="color: #FFCE56; font-weight: 700; font-size: 0.85rem;">10%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid #f1f3f4;">
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #4BC0C020 0%, #4BC0C010 100%); display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-tools" style="color: #4BC0C0; font-size: 1.2rem;"></i>
-                                                </div>
-                                                <strong style="color: #2c3e50; font-size: 0.95rem;">Peralatan & Maintenance</strong>
-                                            </div>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;">Servis alat medis</td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp 10.000.000</strong>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress mr-2" style="width: 60px; height: 6px; border-radius: 3px; background: #f1f3f4;">
-                                                    <div class="progress-bar" style="background: #4BC0C0; width: 5%; border-radius: 3px;"></div>
-                                                </div>
-                                                <span style="color: #4BC0C0; font-weight: 700; font-size: 0.85rem;">5%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid #f1f3f4;">
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #9966FF20 0%, #9966FF10 100%); display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-bullhorn" style="color: #9966FF; font-size: 1.2rem;"></i>
-                                                </div>
-                                                <strong style="color: #2c3e50; font-size: 0.95rem;">Promosi</strong>
-                                            </div>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;">Marketing & Event</td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp 5.000.000</strong>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress mr-2" style="width: 60px; height: 6px; border-radius: 3px; background: #f1f3f4;">
-                                                    <div class="progress-bar" style="background: #9966FF; width: 2.5%; border-radius: 3px;"></div>
-                                                </div>
-                                                <span style="color: #9966FF; font-weight: 700; font-size: 0.85rem;">2.5%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr style="border-bottom: 1px solid #f1f3f4;">
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #FF9F4020 0%, #FF9F4010 100%); display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-ellipsis-h" style="color: #FF9F40; font-size: 1.2rem;"></i>
-                                                </div>
-                                                <strong style="color: #2c3e50; font-size: 0.95rem;">Lain-lain</strong>
-                                            </div>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px; color: #6c757d; font-size: 0.9rem;">Tak terduga</td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <strong style="color: #2c3e50; font-size: 0.95rem;">Rp 5.000.000</strong>
-                                        </td>
-                                        <td style="border: none; padding: 18px 20px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress mr-2" style="width: 60px; height: 6px; border-radius: 3px; background: #f1f3f4;">
-                                                    <div class="progress-bar" style="background: #FF9F40; width: 2.5%; border-radius: 3px;"></div>
-                                                </div>
-                                                <span style="color: #FF9F40; font-weight: 700; font-size: 0.85rem;">2.5%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -825,11 +901,14 @@ if (!isset($_SESSION["jabatan"])) {
             <!-- Script Chart.js -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
-                // Data Bar Chart
-                const barData = [15, 20, 18, 17, 19, 16, 14, 20, 22, 19, 18, 22];
+                // Data Bar Chart dari database
+                const barData = <?= json_encode($dataPengeluaranBulanan) ?>;
                 const barLabels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-                const barColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40',
-                                '#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'];
+                const barColors = [
+                    '#5A9BFF', '#5ACF85', '#4BBFC9', '#FFD350',
+                    '#E35B5B', '#8A5BFF', '#3ED1AA', '#FF9240',
+                    '#9356A3', '#FF70A6', '#FFB347', '#FF8F8F'
+                ];
 
                 const ctxBar = document.getElementById("pengeluaranChart").getContext('2d');
                 const pengeluaranChart = new Chart(ctxBar, {
@@ -883,12 +962,12 @@ if (!isset($_SESSION["jabatan"])) {
                     }
                 });
 
-                // Data Pie Chart
-                const pieLabels = ["Obat & Alkes", "Gaji", "Operasional", "Peralatan", "Promosi", "Lain-lain"];
-                const pieData = [100, 60, 20, 10, 5, 5];
+                // Data Pie Chart dari database
+                const pieLabels = <?= !empty($piePengeluaranData) ? json_encode(array_column($piePengeluaranData, 'nama')) : '["Belum ada data"]' ?>;
+                const pieData = <?= !empty($piePengeluaranData) ? json_encode(array_column($piePengeluaranData, 'nilai')) : '[0]' ?>;
                 const pieColors = [
-                    'rgba(84,89,172,0.92)', 'rgba(111,195,208,0.92)', 'rgba(8,131,149,0.92)',
-                    'rgba(111,195,208,0.65)', 'rgba(84,89,172,0.65)', 'rgba(8,131,149,0.65)'
+                  'rgba(84,89,172,0.92)', 'rgba(111,195,208,0.92)', 'rgba(8,131,149,0.92)',
+                  'rgba(111,195,208,0.65)', 'rgba(84,89,172,0.65)', 'rgba(8,131,149,0.65)'
                 ];
 
                 const ctxPie = document.getElementById("piePengeluaranChart").getContext('2d');

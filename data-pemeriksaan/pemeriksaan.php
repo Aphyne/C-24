@@ -286,8 +286,63 @@ if (!isset($_SESSION["jabatan"])) {
             .insight-card { padding: 16px 10px 12px 10px; }
             .insight-icon { width: 36px; height: 36px; font-size: 1.2rem; }
             .insight-title { font-size: 1rem; }
+            
+            /* Mobile chart adjustments */
+            .chart-container {
+                min-height: 450px;
+                margin-bottom: 20px;
+            }
+            .chart-wrapper {
+                height: 300px;
+            }
+            .chart-body {
+                padding: 12px 16px 20px 16px;
+                min-height: 350px;
+            }
+            .chart-header {
+                padding: 16px 20px 12px 20px;
+            }
+            .chart-title {
+                font-size: 1rem;
+            }
+            .chart-subtitle {
+                font-size: 0.8rem;
+            }
         }
 
+        /* ===== Style untuk Visualisasi Chart ===== */
+        .demografi-card {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .demografi-chart-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100%;
+        }
+        .chart-wrapper {
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            flex: 1;
+            margin-bottom: 16px;
+        }
+        
+        /* Responsive chart canvas */
+        .chart-wrapper canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+        }
+        .chart-caption {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
         /* ===== Modern Chart Container ===== */
         .chart-container {
             background: #fff;
@@ -296,7 +351,8 @@ if (!isset($_SESSION["jabatan"])) {
             box-shadow: 0 2px 20px rgba(0,0,0,0.06);
             padding: 0;
             margin-bottom: 24px;
-            overflow: hidden;
+            overflow: visible;
+            min-height: 520px;
         }
         .chart-header {
             padding: 20px 24px 16px 24px;
@@ -318,14 +374,11 @@ if (!isset($_SESSION["jabatan"])) {
         }
         .chart-body {
             padding: 16px 24px 24px 24px;
-        }
-        .chart-wrapper {
-            height: 280px;
+            min-height: 420px;
             position: relative;
-            margin-bottom: 16px;
-            background: #fafbfc;
-            border-radius: 8px;
-            padding: 16px;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Modern Filter Buttons */
@@ -366,14 +419,75 @@ if (!isset($_SESSION["jabatan"])) {
 
         /* Chart Insight */
         .chart-insight {
-            background: #f8f9fa;
-            border-left: 3px solid #6fc3d0;
-            border-radius: 4px;
-            padding: 10px 14px;
-            margin-top: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 4px solid #6fc3d0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 0;
             font-size: 0.85rem;
             color: #495057;
             font-weight: 500;
+            border: 1px solid #dee2e6;
+            margin-left: 0;
+            margin-right: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* Enhanced Chart Body */
+        .chart-body {
+            position: relative;
+            height: 280px;
+            padding: 15px;
+        }
+        
+        .chart-body canvas {
+            max-height: 100% !important;
+        }
+
+        /* Style untuk Visualisasi Chart seperti obat.php */
+        .demografi-chart-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100%;
+        }
+        
+        .chart-wrapper {
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Responsive chart canvas */
+        .chart-wrapper canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+        }
+        
+        .chart-caption {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        /* Chart Animation */
+        @keyframes chartFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-container {
+            animation: chartFadeIn 0.6s ease-out;
         }
 
         /* ===== Modern Table Styling ===== */
@@ -387,37 +501,80 @@ if (!isset($_SESSION["jabatan"])) {
         }
         .modern-table-header {
             background: #f8f9fa;
-            padding: 16px 20px;
+            padding: 20px 24px;
             border-bottom: 1px solid #e9ecef;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: nowrap;
+            gap: 20px;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        .search-filter input {
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            color: #495057;
+            background-color: #fff;
+            min-width: 250px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-filter input:focus {
+            border-color: #5459AC;
+            box-shadow: 0 0 0 0.2rem rgba(84, 89, 172, 0.25);
+            outline: none;
+        }
+        
+        .search-filter input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
         }
         .modern-table-title {
             color: #495057;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin: 0;
             font-family: 'Poppins', Arial, sans-serif;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
         }
         .modern-table-title i {
             color: #6fc3d0;
             margin-right: 8px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+        }
+        .modern-table-title small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #6c757d;
+            margin-left: 8px;
         }
         .add-btn {
             background: linear-gradient(135deg, #5459AC 30%, rgb(111,195,208) 100%);
             color: #fff;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 500;
             text-decoration: none;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(84, 89, 172, 0.3);
+            white-space: nowrap;
         }
         .add-btn:hover {
             transform: translateY(-1px);
@@ -426,32 +583,69 @@ if (!isset($_SESSION["jabatan"])) {
             text-decoration: none;
         }
         
+        .table-responsive {
+            border: none;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
         .modern-table {
             width: 100%;
             margin: 0;
             font-family: 'Poppins', Arial, sans-serif;
             border-collapse: separate;
             border-spacing: 0;
+            background: #fff;
+            table-layout: fixed;
         }
         .modern-table thead th {
             background: #f8f9fa;
             color: #6c757d;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 12px 16px;
+            padding: 12px 8px;
             border: none;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 2px solid #e9ecef;
             text-align: left;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .modern-table tbody td {
-            padding: 14px 16px;
+            padding: 12px 8px;
             border: none;
             border-bottom: 1px solid #f1f3f4;
             vertical-align: middle;
             color: #495057;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .modern-table tbody tr {
             transition: all 0.2s ease;
@@ -465,12 +659,42 @@ if (!isset($_SESSION["jabatan"])) {
         
         /* Enhanced Status Badges */
         .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
             font-weight: 500;
             text-transform: capitalize;
             display: inline-block;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 60px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Kolom khusus untuk teks panjang */
+        .modern-table tbody td:nth-child(2),
+        .modern-table tbody td:nth-child(3),
+        .modern-table tbody td:nth-child(4),
+        .modern-table tbody td:nth-child(5) {
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 150px;
+        }
+        
+        /* Kolom nomor tetap kecil */
+        .modern-table tbody td:nth-child(1) {
+            text-align: center;
+            font-weight: 600;
+            width: 4%;
+            min-width: 40px;
+        }
+        
+        /* Kolom biaya dan status lebih kompak */
+        .modern-table tbody td:nth-child(7),
+        .modern-table tbody td:nth-child(8) {
+            text-align: center;
         }
         .status-low {
             background: #fee2e2;
@@ -496,55 +720,52 @@ if (!isset($_SESSION["jabatan"])) {
             background: #fef3c7;
             color: #d97706;
         }
-
-        /* Enhanced Action Buttons */
-        .action-btn {
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+        .status-danger {
+            background: #fee2e2;
+            color: #dc2626;
         }
-        .action-btn-primary {
-            background: #007bff;
-            color: #fff;
-        }
-        .action-btn-success {
-            background: #28a745;
-            color: #fff;
-        }
-        .action-btn-secondary {
-            background: #6c757d;
-            color: #fff;
-        }
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            color: #fff;
-            text-decoration: none;
-        }
-
+        
         /* Patient Name Styling */
         .patient-name {
             font-weight: 600;
             color: #2c3e50;
         }
-
-        /* Code Styling */
-        .exam-code {
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-            color: #5459AC;
-            background: #f0f4ff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.85rem;
+        
+        /* Doctor Name Styling */
+        .text-primary {
+            color: #5459AC !important;
+            font-weight: 500;
+        }
+        
+        /* Currency Styling */
+        .text-success {
+            color: #16a34a !important;
+        }
+        
+        /* Bootstrap Badge Styles */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            display: inline-block;
+        }
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+        .badge-primary {
+            background: #007bff;
+            color: white;
+        }
+        .badge-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .badge-danger {
+            background: #dc3545;
+            color: white;
         }
 
         /* Padding atas main agar tidak menempel headbar */
@@ -552,12 +773,182 @@ if (!isset($_SESSION["jabatan"])) {
         #layoutSidenav_content main > .container {
             padding-top: 1.5rem;
         }
+
+        /* Custom DataTable Styling */
+        .dataTables_wrapper {
+            padding: 20px;
+        }
+        
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .dataTables_wrapper .dataTables_length {
+            float: left;
+        }
+        
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+        }
+        
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            color: #495057;
+            background-color: #fff;
+            min-width: 80px;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            color: #495057;
+            background-color: #fff;
+            min-width: 200px;
+        }
+        
+        .dataTables_wrapper .dataTables_info {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 20px;
+            padding-top: 10px;
+            float: left;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate {
+            margin-top: 20px;
+            padding-top: 10px;
+            float: right;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border: 1px solid #e9ecef;
+            background: #fff;
+            color: #495057 !important;
+            padding: 10px 20px;
+            margin: 0 6px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            min-width: 100px;
+            text-align: center;
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: linear-gradient(135deg, #5459AC 30%, rgb(111,195,208) 100%) !important;
+            border-color: #5459AC;
+            color: #fff !important;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(84, 89, 172, 0.3) !important;
+            outline: none !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: linear-gradient(135deg, #5459AC 30%, rgb(111,195,208) 100%) !important;
+            border-color: #5459AC;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(84, 89, 172, 0.3) !important;
+            outline: none !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            background: #f8f9fa !important;
+            border-color: #e9ecef;
+            color: #adb5bd !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+            background: #f8f9fa !important;
+            border-color: #e9ecef;
+            color: #adb5bd !important;
+            transform: none;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        
+        /* Clear floats */
+        .dataTables_wrapper::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Fix untuk menghilangkan kotak ganda pada pagination links */
+        .dataTables_wrapper .dataTables_paginate .paginate_button a {
+            outline: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button a:focus,
+        .dataTables_wrapper .dataTables_paginate .paginate_button a:hover,
+        .dataTables_wrapper .dataTables_paginate .paginate_button a:active {
+            outline: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+        
+        .dataTables_wrapper .row {
+            margin: 0;
+        }
+        
+        .dataTables_wrapper .row::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
     </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Poli Klinik</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Clinic4</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -583,7 +974,7 @@ if (!isset($_SESSION["jabatan"])) {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Poli Klinik</div>
+                        <div class="sb-sidenav-menu-heading">C24</div>
                         <a class="nav-link " href="../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -633,27 +1024,42 @@ if (!isset($_SESSION["jabatan"])) {
             <main>
                 <div class="container-fluid">
                     <?php
-                    // Hardcoded Data Pemeriksaan
-                    $dataPemeriksaan = [
-                        ["nama" => "Andi Wijaya", "keluhan" => "Demam", "diagnosa" => "Flu", "tanggal" => "2025-06-10", "durasi" => 10, "status" => "Selesai"],
-                        ["nama" => "Sari Dewi", "keluhan" => "Batuk", "diagnosa" => "ISPA", "tanggal" => "2025-06-11", "durasi" => 15, "status" => "Selesai"],
-                        ["nama" => "Budi Hartono", "keluhan" => "Pusing", "diagnosa" => "Vertigo", "tanggal" => "2025-06-12", "durasi" => 18, "status" => "Selesai"],
-                        ["nama" => "Lina Marlina", "keluhan" => "Mual", "diagnosa" => "Gastritis", "tanggal" => "2025-06-12", "durasi" => 20, "status" => "Selesai"],
-                        ["nama" => "Rizky Hidayat", "keluhan" => "Flu", "diagnosa" => "Common Cold", "tanggal" => "2025-06-13", "durasi" => 12, "status" => "Selesai"],
-                        ["nama" => "Intan Permata", "keluhan" => "Demam", "diagnosa" => "DBD", "tanggal" => "2025-06-14", "durasi" => 22, "status" => "Selesai"],
-                        ["nama" => "Ahmad Fauzi", "keluhan" => "Batuk", "diagnosa" => "Bronkitis", "tanggal" => "2025-06-15", "durasi" => 25, "status" => "Selesai"],
-                        ["nama" => "Maya Sari", "keluhan" => "Pusing", "diagnosa" => "Migrain", "tanggal" => "2025-06-16", "durasi" => 14, "status" => "Selesai"],
-                    ];
-
-                    $totalPemeriksaan = count($dataPemeriksaan);
-                    $pasienBatal = 8;
-                    $rataDurasi = array_sum(array_column($dataPemeriksaan, 'durasi')) / max($totalPemeriksaan, 1);
-
-                    // Hitung keluhan terbanyak
-                    $keluhanCount = array_count_values(array_column($dataPemeriksaan, 'keluhan'));
-                    arsort($keluhanCount);
-                    $keluhanTerbanyak = array_key_first($keluhanCount);
-                    $jumlahKeluhanTerbanyak = $keluhanCount[$keluhanTerbanyak];
+                    // Ambil data dari database clinic.sql dengan error handling
+                    $queryTotalPemeriksaan = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM tb_pemeriksaan WHERE status_pemeriksaan = 'selesai'");
+                    $totalPemeriksaan = ($queryTotalPemeriksaan) ? mysqli_fetch_assoc($queryTotalPemeriksaan)['total'] : 0;
+                    
+                    $queryPasienBatal = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM tb_pendaftaran WHERE status_pendaftaran = 'batal'");
+                    $pasienBatal = ($queryPasienBatal) ? mysqli_fetch_assoc($queryPasienBatal)['total'] : 0;
+                    
+                    // Hitung rata-rata durasi berdasarkan waktu pemeriksaan (simulasi durasi 10-30 menit per pemeriksaan)
+                    $queryRataDurasi = mysqli_query($koneksi, "SELECT AVG(15 + (id_pemeriksaan % 16)) as rata_durasi FROM tb_pemeriksaan WHERE status_pemeriksaan = 'selesai'");
+                    $rataDurasi = ($queryRataDurasi) ? mysqli_fetch_assoc($queryRataDurasi)['rata_durasi'] : 18;
+                    
+                    // Ambil keluhan terbanyak dari database
+                    $queryKeluhanTerbanyak = mysqli_query($koneksi, "SELECT keluhan, COUNT(*) as jumlah FROM tb_pemeriksaan WHERE keluhan IS NOT NULL AND keluhan != '' GROUP BY keluhan ORDER BY jumlah DESC LIMIT 1");
+                    $dataKeluhanTerbanyak = ($queryKeluhanTerbanyak && mysqli_num_rows($queryKeluhanTerbanyak) > 0) ? mysqli_fetch_assoc($queryKeluhanTerbanyak) : null;
+                    $keluhanTerbanyak = $dataKeluhanTerbanyak ? $dataKeluhanTerbanyak['keluhan'] : 'Tidak ada data';
+                    $jumlahKeluhanTerbanyak = $dataKeluhanTerbanyak ? $dataKeluhanTerbanyak['jumlah'] : 0;
+                    
+                    // Ambil data pemeriksaan untuk keperluan lainnya
+                    $queryDataPemeriksaan = mysqli_query($koneksi, "SELECT tp.*, tpa.nama_pasien, tp.keluhan, tp.diagnosa, tp.tanggal_pemeriksaan, tp.status_pemeriksaan 
+                                                                   FROM tb_pemeriksaan tp 
+                                                                   JOIN tb_pasien tpa ON tp.id_pasien = tpa.id_pasien 
+                                                                   WHERE tp.status_pemeriksaan = 'selesai' 
+                                                                   ORDER BY tp.tanggal_pemeriksaan DESC");
+                    $dataPemeriksaan = [];
+                    if($queryDataPemeriksaan && mysqli_num_rows($queryDataPemeriksaan) > 0) {
+                        while($row = mysqli_fetch_assoc($queryDataPemeriksaan)) {
+                            $dataPemeriksaan[] = [
+                                "nama" => $row['nama_pasien'],
+                                "keluhan" => $row['keluhan'],
+                                "diagnosa" => $row['diagnosa'],
+                                "tanggal" => $row['tanggal_pemeriksaan'],
+                                "durasi" => 15 + ($row['id_pemeriksaan'] % 16), // simulasi durasi 15-30 menit
+                                "status" => ucfirst($row['status_pemeriksaan'])
+                            ];
+                        }
+                    }
                     ?>
 
                     <!-- 🔵 Row 1: Ringkasan Data Pemeriksaan -->
@@ -732,32 +1138,99 @@ if (!isset($_SESSION["jabatan"])) {
                                 <h6 class="insight-title mb-2">Insight Analisis Pemeriksaan</h6>
                                 <p class="insight-desc mb-2">Berdasarkan data pemeriksaan terkini, sistem mendeteksi beberapa pola penting:</p>
                                 <ul class="insight-list mb-0">
-                                    <li>Durasi konsultasi >15 menit banyak terjadi di jam sibuk (17:00-20:00), pertimbangan tambahan dokter shift sore</li>
-                                    <li>Sistem mendeteksi <strong><?= $pasienBatal ?> pasien batal</strong> dalam 2 minggu terakhir</li>
-                                    <li>Keluhan pencernaan meningkat 20% bulan ini. Waktu tunggu tertinggi hari Jumat pukul 18:00</li>
-                                    <li>Pola diagnosa <strong>Flu & ISPA</strong> meningkat, pastikan stok obat tersedia</li>
+                                    <?php
+                                    // Analisis durasi pemeriksaan
+                                    $avgDurasi = round($rataDurasi, 1);
+                                    if($avgDurasi > 20) {
+                                        echo "<li>Rata-rata durasi pemeriksaan <strong>{$avgDurasi} menit</strong> di atas target 20 menit, pertimbangkan optimalisasi alur pelayanan</li>";
+                                    } else {
+                                        echo "<li>Durasi pemeriksaan rata-rata <strong>{$avgDurasi} menit</strong> sudah dalam target yang baik</li>";
+                                    }
+                                    ?>
+                                    <li>Sistem mendeteksi <strong><?= $pasienBatal ?> pasien batal</strong> dalam periode terkini - perlu evaluasi sistem pendaftaran</li>
+                                    <?php
+                                    // Analisis keluhan terbanyak
+                                    if($keluhanTerbanyak != 'Tidak ada data') {
+                                        echo "<li>Keluhan <strong>\"{$keluhanTerbanyak}\"</strong> menjadi yang tertinggi dengan {$jumlahKeluhanTerbanyak} kasus - pastikan protokol penanganan optimal</li>";
+                                    }
+                                    
+                                    // Analisis berdasarkan jam sibuk (simulasi)
+                                    $queryJamSibuk = mysqli_query($koneksi, "SELECT HOUR(jam_pemeriksaan) as jam, COUNT(*) as jumlah FROM tb_pemeriksaan GROUP BY HOUR(jam_pemeriksaan) ORDER BY jumlah DESC LIMIT 1");
+                                    $jamSibuk = mysqli_fetch_assoc($queryJamSibuk);
+                                    if($jamSibuk) {
+                                        echo "<li>Jam tersibuk: <strong>{$jamSibuk['jam']}:00</strong> dengan {$jamSibuk['jumlah']} pemeriksaan - pertimbangkan penambahan tenaga medis</li>";
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
                     <?php
-                    // 🔢 ROW 4: Data Diagnosa dan Waktu Tunggu
-                    $dataDiagnosaPerHari = [
-                        "Senin" => ["Flu" => 5, "Gastritis" => 3, "ISPA" => 2, "Vertigo" => 1, "DBD" => 2],
-                        "Selasa" => ["Flu" => 4, "Gastritis" => 4, "ISPA" => 1, "Vertigo" => 3, "Common Cold" => 2],
-                        "Rabu" => ["Gastritis" => 6, "Flu" => 2, "ISPA" => 3, "Common Cold" => 1],
-                        "Kamis" => ["DBD" => 5, "Gastritis" => 2, "Flu" => 3, "ISPA" => 2],
-                        "Jumat" => ["Flu" => 7, "Gastritis" => 5, "ISPA" => 4, "Common Cold" => 3, "DBD" => 4]
-                    ];
+                    // Ambil data diagnosa per hari dari database
+                    $dataDiagnosaPerHari = [];
+                    $hariArray = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+                    
+                    foreach($hariArray as $hari) {
+                        // Map nama hari ke nomor hari MySQL (1=Sunday, 2=Monday, dst.)
+                        $dayNumberMap = [
+                            "Minggu" => 1,
+                            "Senin" => 2, 
+                            "Selasa" => 3,
+                            "Rabu" => 4,
+                            "Kamis" => 5,
+                            "Jumat" => 6,
+                            "Sabtu" => 7
+                        ];
+                        $dayNumber = $dayNumberMap[$hari];
+                        
+                        $queryDiagnosa = mysqli_query($koneksi, "SELECT diagnosa, COUNT(*) as jumlah 
+                                                               FROM tb_pemeriksaan 
+                                                               WHERE DAYOFWEEK(tanggal_pemeriksaan) = $dayNumber 
+                                                               AND diagnosa IS NOT NULL AND diagnosa != ''
+                                                               AND status_pemeriksaan = 'selesai'
+                                                               GROUP BY diagnosa 
+                                                               ORDER BY jumlah DESC 
+                                                               LIMIT 5");
+                        
+                        $dataDiagnosaPerHari[$hari] = [];
+                        
+                        // Periksa apakah query berhasil dan ada data
+                        if($queryDiagnosa && mysqli_num_rows($queryDiagnosa) > 0) {
+                            while($row = mysqli_fetch_assoc($queryDiagnosa)) {
+                                $dataDiagnosaPerHari[$hari][$row['diagnosa']] = $row['jumlah'];
+                            }
+                        }
+                        
+                        // Jika tidak ada data, buat data default
+                        if(empty($dataDiagnosaPerHari[$hari])) {
+                            $dataDiagnosaPerHari[$hari] = ["Tidak ada data" => 0];
+                        }
+                    }
 
-                    $waktuTungguPerHari = [
-                        "Senin" => ["08:00" => 10, "09:00" => 12, "10:00" => 13, "11:00" => 15, "12:00" => 17, "13:00" => 14, "14:00" => 16, "15:00" => 18, "16:00" => 19, "17:00" => 21, "18:00" => 22],
-                        "Selasa" => ["08:00" => 9, "09:00" => 10, "10:00" => 12, "11:00" => 13, "12:00" => 14, "13:00" => 15, "14:00" => 16, "15:00" => 17, "16:00" => 18, "17:00" => 20, "18:00" => 21],
-                        "Rabu" => ["08:00" => 8, "09:00" => 9, "10:00" => 11, "11:00" => 12, "12:00" => 14, "13:00" => 13, "14:00" => 14, "15:00" => 16, "16:00" => 18, "17:00" => 20, "18:00" => 21],
-                        "Kamis" => ["08:00" => 11, "09:00" => 12, "10:00" => 14, "11:00" => 16, "12:00" => 17, "13:00" => 18, "14:00" => 19, "15:00" => 20, "16:00" => 21, "17:00" => 22, "18:00" => 23],
-                        "Jumat" => ["08:00" => 13, "09:00" => 14, "10:00" => 15, "11:00" => 16, "12:00" => 18, "13:00" => 19, "14:00" => 21, "15:00" => 22, "16:00" => 23, "17:00" => 25, "18:00" => 27],
-                    ];
+                    // Ambil data waktu tunggu dari database tb_laporan_waktu_tunggu
+                    $waktuTungguPerHari = [];
+                    foreach($hariArray as $hari) {
+                        $queryWaktuTunggu = mysqli_query($koneksi, "SELECT TIME_FORMAT(jam_laporan, '%H:%i') as jam, 
+                                                                   waktu_tunggu_rata as rata_tunggu 
+                                                                   FROM tb_laporan_waktu_tunggu 
+                                                                   WHERE hari = '$hari' 
+                                                                   ORDER BY jam_laporan");
+                        
+                        $waktuTungguPerHari[$hari] = [];
+                        
+                        // Periksa apakah query berhasil dan ada data
+                        if($queryWaktuTunggu && mysqli_num_rows($queryWaktuTunggu) > 0) {
+                            while($row = mysqli_fetch_assoc($queryWaktuTunggu)) {
+                                $waktuTungguPerHari[$hari][$row['jam']] = round($row['rata_tunggu'], 1);
+                            }
+                        }
+                        
+                        // Jika tidak ada data real, tampilkan pesan kosong
+                        if(empty($waktuTungguPerHari[$hari])) {
+                            $waktuTungguPerHari[$hari] = ["08:00" => 0, "17:00" => 0];
+                        }
+                    }
                     ?>
 
                     <!-- 🔵 Charts Section -->
@@ -767,7 +1240,21 @@ if (!isset($_SESSION["jabatan"])) {
                             <div class="chart-container">
                                 <div class="chart-header">
                                     <h6 class="chart-title">Analisis Diagnosa & Keluhan</h6>
-                                    <p class="chart-subtitle">Mengidentifikasi pola penyakit untuk penyesuaian layanan dan stok obat</p>
+                                    <p class="chart-subtitle">
+                                        Mengidentifikasi pola penyakit untuk penyesuaian layanan dan stok obat
+                                        <?php 
+                                        // Tambahkan info periode data
+                                        $firstDateQuery = mysqli_query($koneksi, "SELECT MIN(tanggal_pemeriksaan) as min_date, MAX(tanggal_pemeriksaan) as max_date FROM tb_pemeriksaan WHERE status_pemeriksaan = 'selesai'");
+                                        if($firstDateQuery && mysqli_num_rows($firstDateQuery) > 0) {
+                                            $dateRange = mysqli_fetch_assoc($firstDateQuery);
+                                            if($dateRange['min_date'] && $dateRange['max_date']) {
+                                                $minDate = date('d M Y', strtotime($dateRange['min_date']));
+                                                $maxDate = date('d M Y', strtotime($dateRange['max_date']));
+                                                echo "<br><small class='text-muted'><i class='fas fa-calendar-alt'></i> Periode: {$minDate} - {$maxDate}</small>";
+                                            }
+                                        }
+                                        ?>
+                                    </p>
                                 </div>
                                 
                                 <div class="chart-body">
@@ -785,7 +1272,25 @@ if (!isset($_SESSION["jabatan"])) {
                                     
                                     <div class="chart-insight">
                                         <i class="fas fa-info-circle mr-2"></i>
-                                        Kategori <strong>Demam & Batuk</strong> memiliki demand tertinggi. Pastikan stok selalu optimal.
+                                        <?php 
+                                        // Analisis diagnosa tersering (status selesai saja) dengan info tanggal
+                                        $topDiagnosaQuery = mysqli_query($koneksi, "SELECT diagnosa, COUNT(*) as total, 
+                                                                                   MIN(tanggal_pemeriksaan) as first_date,
+                                                                                   MAX(tanggal_pemeriksaan) as last_date
+                                                                                   FROM tb_pemeriksaan 
+                                                                                   WHERE diagnosa IS NOT NULL AND diagnosa != ''
+                                                                                   AND status_pemeriksaan = 'selesai'
+                                                                                   GROUP BY diagnosa 
+                                                                                   ORDER BY total DESC LIMIT 1");
+                                        if($topDiagnosaQuery && mysqli_num_rows($topDiagnosaQuery) > 0) {
+                                            $topDiagnosa = mysqli_fetch_assoc($topDiagnosaQuery);
+                                            $firstDate = date('d M Y', strtotime($topDiagnosa['first_date']));
+                                            $lastDate = date('d M Y', strtotime($topDiagnosa['last_date']));
+                                            echo "Diagnosa <strong>\"{$topDiagnosa['diagnosa']}\"</strong> paling sering terjadi ({$topDiagnosa['total']} kasus, {$firstDate} - {$lastDate}). Pastikan stok obat terkait selalu optimal.";
+                                        } else {
+                                            echo "Data diagnosa pemeriksaan selesai belum tersedia untuk analisis stok obat.";
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -796,7 +1301,21 @@ if (!isset($_SESSION["jabatan"])) {
                             <div class="chart-container">
                                 <div class="chart-header">
                                     <h6 class="chart-title">Laporan Waktu Tunggu</h6>
-                                    <p class="chart-subtitle">Optimasi pelayanan & efisiensi tenaga medis berdasarkan jam operasional</p>
+                                    <p class="chart-subtitle">
+                                        Optimasi pelayanan & efisiensi tenaga medis berdasarkan jam operasional
+                                        <?php 
+                                        // Tambahkan info periode data waktu tunggu
+                                        $waktuTungguDateQuery = mysqli_query($koneksi, "SELECT MIN(tanggal_laporan) as min_date, MAX(tanggal_laporan) as max_date FROM tb_laporan_waktu_tunggu");
+                                        if($waktuTungguDateQuery && mysqli_num_rows($waktuTungguDateQuery) > 0) {
+                                            $waktuTungguDateRange = mysqli_fetch_assoc($waktuTungguDateQuery);
+                                            if($waktuTungguDateRange['min_date'] && $waktuTungguDateRange['max_date']) {
+                                                $minDateWaktu = date('d M Y', strtotime($waktuTungguDateRange['min_date']));
+                                                $maxDateWaktu = date('d M Y', strtotime($waktuTungguDateRange['max_date']));
+                                                echo "<br><small class='text-muted'><i class='fas fa-calendar-alt'></i> Periode: {$minDateWaktu} - {$maxDateWaktu}</small>";
+                                            }
+                                        }
+                                        ?>
+                                    </p>
                                 </div>
                                 
                                 <div class="chart-body">
@@ -814,7 +1333,18 @@ if (!isset($_SESSION["jabatan"])) {
                                     
                                     <div class="chart-insight">
                                         <i class="fas fa-clock mr-2"></i>
-                                        Waktu tunggu tertinggi terjadi pada <strong>jam 17:00-18:00</strong>. Pertimbangkan penambahan tenaga medis.
+                                        <?php 
+                                        // Analisis waktu tunggu tertinggi berdasarkan data real
+                                        $maxWaktuQuery = mysqli_query($koneksi, "SELECT hari, TIME_FORMAT(jam_laporan, '%H:%i') as jam, waktu_tunggu_rata 
+                                                                                FROM tb_laporan_waktu_tunggu 
+                                                                                ORDER BY waktu_tunggu_rata DESC LIMIT 1");
+                                        if($maxWaktuQuery && mysqli_num_rows($maxWaktuQuery) > 0) {
+                                            $maxWaktu = mysqli_fetch_assoc($maxWaktuQuery);
+                                            echo "Waktu tunggu tertinggi: <strong>{$maxWaktu['hari']} jam {$maxWaktu['jam']}</strong> ({$maxWaktu['waktu_tunggu_rata']} menit). Pertimbangkan penambahan tenaga medis.";
+                                        } else {
+                                            echo "Data waktu tunggu belum tersedia. Pastikan sistem monitoring berjalan dengan baik.";
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -849,6 +1379,14 @@ if (!isset($_SESSION["jabatan"])) {
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                layout: {
+                                    padding: {
+                                        top: 10,
+                                        right: 15,
+                                        bottom: 10,
+                                        left: 15
+                                    }
+                                },
                                 plugins: {
                                     legend: {
                                         display: false
@@ -919,7 +1457,7 @@ if (!isset($_SESSION["jabatan"])) {
                             data: {
                                 labels: jam,
                                 datasets: [{
-                                    label: 'Waktu Tunggu',
+                                    label: 'Waktu Tunggu Aktual',
                                     data: data,
                                     borderColor: '#6fc3d0',
                                     backgroundColor: 'rgba(111, 195, 208, 0.2)',
@@ -930,7 +1468,7 @@ if (!isset($_SESSION["jabatan"])) {
                                     pointBorderWidth: 2,
                                     pointRadius: 4
                                 }, {
-                                    label: 'Target Waktu',
+                                    label: 'Target Ideal',
                                     data: data2,
                                     borderColor: '#5459AC',
                                     backgroundColor: 'rgba(84, 89, 172, 0.2)',
@@ -945,6 +1483,14 @@ if (!isset($_SESSION["jabatan"])) {
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                layout: {
+                                    padding: {
+                                        top: 10,
+                                        right: 15,
+                                        bottom: 10,
+                                        left: 15
+                                    }
+                                },
                                 plugins: {
                                     legend: {
                                         display: true,
@@ -963,7 +1509,17 @@ if (!isset($_SESSION["jabatan"])) {
                                         }
                                     },
                                     tooltip: {
-                                        enabled: false
+                                        enabled: true,
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        titleColor: '#fff',
+                                        bodyColor: '#fff',
+                                        borderColor: '#6fc3d0',
+                                        borderWidth: 1,
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.dataset.label + ': ' + context.parsed.y + ' menit';
+                                            }
+                                        }
                                     }
                                 },
                                 scales: {
@@ -997,7 +1553,10 @@ if (!isset($_SESSION["jabatan"])) {
                                                 weight: '500',
                                                 family: 'Poppins'
                                             },
-                                            stepSize: 5
+                                            stepSize: 5,
+                                            callback: function(value) {
+                                                return value + ' min';
+                                            }
                                         },
                                         border: {
                                             display: false
@@ -1019,118 +1578,93 @@ if (!isset($_SESSION["jabatan"])) {
                     });
                     </script>
 
-                    <!-- 🟣 ROW 5: Detail Tabel Pemeriksaan -->
                     <h4 class="mb-4 font-weight-bold text-secondary mt-5">Detail Tabel Pemeriksaan</h4>
                     
-                    <!-- Tabel Ringkas Data Pemeriksaan -->
+                    <!-- Tabel Database Pemeriksaan -->
                     <div class="modern-table-wrapper">
                         <div class="modern-table-header">
-                            <h6 class="modern-table-title">
-                                <i class="fas fa-table"></i>
-                                Ringkasan Data Pemeriksaan
-                            </h6>
-                            <a href="pemeriksaan_tambah.php" class="add-btn">
-                                <i class="fas fa-plus mr-1"></i> Tambah Data Periksa
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Pasien</th>
-                                        <th>Keluhan</th>
-                                        <th>Diagnosa</th>
-                                        <th>Tanggal</th>
-                                        <th>Durasi</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $no=1; foreach($dataPemeriksaan as $dp): ?>
-                                    <tr>
-                                        <td><strong><?= $no++ ?></strong></td>
-                                        <td><span class="patient-name"><?= $dp['nama'] ?></span></td>
-                                        <td><span class="status-badge status-info"><?= $dp['keluhan'] ?></span></td>
-                                        <td><?= $dp['diagnosa'] ?></td>
-                                        <td><?= date('d M Y', strtotime($dp['tanggal'])) ?></td>
-                                        <td>
-                                            <span class="status-badge <?= $dp['durasi'] > 20 ? 'status-warning' : 'status-good' ?>">
-                                                <?= $dp['durasi'] ?> menit
-                                            </span>
-                                        </td>
-                                        <td><span class="status-badge status-success"><?= $dp['status'] ?></span></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Tabel Database Pemeriksaan
-                    <div class="modern-table-wrapper">
-                        <div class="modern-table-header">
-                            <h6 class="modern-table-title">
-                                <i class="fas fa-database"></i>
-                                Database Pemeriksaan Klinik
-                            </h6>
-                            <a href="pemeriksaan_tambah.php" class="add-btn">
-                                <i class="fas fa-plus mr-1"></i> Tambah Data Periksa
-                            </a>
+                            <div class="header-left">
+                                <h6 class="modern-table-title">
+                                    <i class="fas fa-database"></i>
+                                    Database Pemeriksaan Klinik
+                                    <?php 
+                                    $totalDataQuery = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM tb_pemeriksaan");
+                                    $totalData = mysqli_fetch_assoc($totalDataQuery)['total'];
+                                    ?>
+                                    <small class="text-muted ml-2">(Total <?= $totalData ?> data)</small>
+                                </h6>
+                            </div>
+                            <div class="header-right">
+                                <div class="search-filter">
+                                    <input type="text" id="tableSearch" class="form-control" placeholder="Cari data pemeriksaan..." style="width: 250px; margin-right: 15px;">
+                                </div>
+                                <a href="pemeriksaan_tambah.php" class="add-btn">
+                                    <i class="fas fa-plus mr-1"></i> Tambah Data Periksa
+                                </a>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="modern-table" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th>Kode Pemeriksaan</th>
+                                        <th>No</th>
                                         <th>Nama Pasien</th>
-                                        <th>Poli</th>
+                                        <th>Dokter</th>
+                                        <th>Keluhan</th>
+                                        <th>Diagnosa</th>
                                         <th>Tanggal Periksa</th>
-                                        <th>Aksi</th>
+                                        <th>Biaya</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $ambil = $koneksi->query("SELECT * FROM tb_pemeriksaan a
-                                        JOIN tb_pendaftaran b ON a.id_pendaftaran = b.id_pendaftaran
-                                        JOIN tb_pasien c ON b.id_pasien = c.id_pasien
-                                        JOIN tb_poli d ON b.id_poli = d.id_poli"); ?>
-                                    <?php while ($pecah = $ambil->fetch_assoc()) { ?>
-                                        <tr>
-                                            <td><span class="exam-code"><?php echo $pecah['kd_pemeriksaan']; ?></span></td>
-                                            <td><span class="patient-name"><?php echo $pecah['nm_pasien']; ?></span></td>
-                                            <td><span class="status-badge status-info"><?php echo $pecah['nm_poli']; ?></span></td>
-                                            <td><?php echo date('d M Y', strtotime($pecah['tgl_pemeriksaan'])); ?></td>
-                                            <td>
-                                                <?php if ($pecah['status_periksa'] == 0) { ?>
-                                                    <a href="pemeriksaan_view.php?&id_pemeriksaan=<?php echo $pecah['id_pemeriksaan']; ?>" class="action-btn action-btn-primary">
-                                                        <i class="fas fa-eye"></i> Lihat
-                                                    </a>
-                                                <?php } elseif ($pecah['status_periksa'] == 1) { ?>
-                                                    <a href="pemeriksaan_view.php?&id_pemeriksaan=<?php echo $pecah['id_pemeriksaan']; ?>" class="action-btn action-btn-success">
-                                                        <i class="fas fa-check-circle"></i> Selesai
-                                                    </a>
-                                                <?php } else { ?>
-                                                    <button class="action-btn action-btn-secondary" disabled>
-                                                        <i class="fas fa-minus"></i> N/A
-                                                    </button>
-                                                <?php } ?>
-                                            </td>
-                                            <td>
-                                                <?php if ($pecah['status_periksa'] == 0) { ?>
-                                                    <span class="status-badge status-low">Belum Menerima Resep</span>
-                                                <?php } elseif ($pecah['status_periksa'] == 1) { ?>
-                                                    <span class="status-badge status-good">Sudah Menerima Resep</span>
-                                                <?php } else { ?>
-                                                    <span class="status-badge status-medium">Status Tidak Diketahui</span>
-                                                <?php } ?>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
+                                    <?php 
+                                    $queryTabelPemeriksaan = mysqli_query($koneksi, "SELECT tp.*, tpa.nama_pasien, td.nama_dokter 
+                                                                                     FROM tb_pemeriksaan tp 
+                                                                                     JOIN tb_pasien tpa ON tp.id_pasien = tpa.id_pasien 
+                                                                                     JOIN tb_dokter td ON tp.id_dokter = td.id_dokter 
+                                                                                     ORDER BY tp.id_pemeriksaan ASC");
+                                    
+                                    if (!$queryTabelPemeriksaan) {
+                                        echo "<tr><td colspan='8' class='text-center text-danger'>Error: " . mysqli_error($koneksi) . "</td></tr>";
+                                    } elseif (mysqli_num_rows($queryTabelPemeriksaan) == 0) {
+                                        echo "<tr><td colspan='8' class='text-center text-muted'>Tidak ada data pemeriksaan</td></tr>";
+                                    } else {
+                                        $no = 1;
+                                        while($tabel = mysqli_fetch_assoc($queryTabelPemeriksaan)):
+                                    ?>
+                                    <tr>
+                                        <td><strong><?= $no++ ?></strong></td>
+                                        <td><span class="patient-name"><?= $tabel['nama_pasien'] ?></span></td>
+                                        <td><span class="text-primary"><?= $tabel['nama_dokter'] ?></span></td>
+                                        <td><span class="status-badge status-info"><?= $tabel['keluhan'] ?: 'Tidak ada' ?></span></td>
+                                        <td><?= $tabel['diagnosa'] ?: 'Belum ada' ?></td>
+                                        <td><?= date('d M Y H:i', strtotime($tabel['tanggal_pemeriksaan'] . ' ' . $tabel['jam_pemeriksaan'])) ?></td>
+                                        <td>
+                                            <span class="font-weight-bold text-success">
+                                                Rp <?= number_format($tabel['biaya_pemeriksaan'], 0, ',', '.') ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php if($tabel['status_pemeriksaan'] == 'selesai'): ?>
+                                                <span class="status-badge status-success">Selesai</span>
+                                            <?php elseif($tabel['status_pemeriksaan'] == 'berlangsung'): ?>
+                                                <span class="status-badge status-warning">Berlangsung</span>
+                                            <?php elseif($tabel['status_pemeriksaan'] == 'menunggu'): ?>
+                                                <span class="status-badge status-info">Menunggu</span>
+                                            <?php else: ?>
+                                                <span class="status-badge status-danger">Batal</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php 
+                                        endwhile; 
+                                    } // end else
+                                    ?>
                                 </tbody>
                             </table>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
             </main>
             <footer class="py-4 bg-dark mt-auto">
@@ -1142,7 +1676,7 @@ if (!isset($_SESSION["jabatan"])) {
             </footer>
         </div>
     </div>
-    <script src="../assets/js/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/scripts.js"></script>
     <script src="../assets/js/Chart.min.js"></script>
@@ -1150,7 +1684,158 @@ if (!isset($_SESSION["jabatan"])) {
     <script src="../assets/demo/chart-bar-demo.js"></script>
     <script src="../assets/js/jquery.dataTables.min.js"></script>
     <script src="../assets/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../assets/demo/datatables-demo.js"></script>
+    
+    <!-- Custom DataTable Configuration -->
+    <script>
+    $(document).ready(function() {
+        var table = $('#dataTable').DataTable({
+            "pageLength": 15,
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "info": true,
+            "language": {
+                "zeroRecords": "Tidak ada data ditemukan",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+                "infoFiltered": "(difilter dari _MAX_ total data)",
+                "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                "search": "Cari:",
+                "paginate": {
+                    "next": "Next",
+                    "previous": "Previous"
+                }
+            },
+            "order": [[ 0, "asc" ]],
+            "columnDefs": [
+                { "orderable": false, "targets": [7] },
+                { "type": "num", "targets": 0 },
+                { "width": "4%", "targets": 0 },
+                { "width": "16%", "targets": 1 },
+                { "width": "14%", "targets": 2 },
+                { "width": "16%", "targets": 3 },
+                { "width": "14%", "targets": 4 },
+                { "width": "13%", "targets": 5 },
+                { "width": "12%", "targets": 6 },
+                { "width": "11%", "targets": 7 }
+            ],
+            "responsive": false,
+            "autoWidth": false,
+            "processing": true,
+            "deferRender": true,
+            "scrollX": false,
+            "fixedHeader": false,
+            "dom": 'rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            "pagingType": "simple"
+        });
+        
+        // Custom search functionality
+        $('#tableSearch').on('keyup input', function() {
+            var searchValue = this.value;
+            table.search(searchValue).draw();
+        });
+        
+        // Clear search when input is empty
+        $('#tableSearch').on('search', function() {
+            if (this.value === '') {
+                table.search('').draw();
+            }
+        });
+    });
+    </script>
+    
+    <!-- Responsive Mobile Table Fix -->
+    <style>
+    @media (max-width: 768px) {
+        .modern-table-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .header-right {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .search-filter input {
+            min-width: 100%;
+            font-size: 0.8rem;
+        }
+        
+        .modern-table-title {
+            font-size: 1rem;
+        }
+        
+        .modern-table-title small {
+            display: block;
+            margin-left: 0;
+            margin-top: 4px;
+        }
+        
+        .add-btn {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .dataTables_wrapper {
+            padding: 15px;
+        }
+        
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            float: none !important;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            float: none !important;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 8px 16px;
+            margin: 0 3px;
+            font-size: 0.75rem;
+            min-width: 80px;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .modern-table thead th {
+            padding: 8px 4px;
+            font-size: 0.6rem;
+        }
+        
+        .modern-table tbody td {
+            padding: 8px 4px;
+            font-size: 0.7rem;
+            white-space: normal;
+        }
+        
+        .modern-table tbody td:nth-child(2),
+        .modern-table tbody td:nth-child(3),
+        .modern-table tbody td:nth-child(4),
+        .modern-table tbody td:nth-child(5) {
+            max-width: 100px;
+            font-size: 0.65rem;
+        }
+        
+        .status-badge {
+            padding: 2px 6px;
+            font-size: 0.6rem;
+            min-width: 50px;
+        }
+    }
+    </style>
 </body>
 
 </html>

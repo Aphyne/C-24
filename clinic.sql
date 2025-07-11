@@ -1,8 +1,12 @@
 -- =============================================
--- Database: klinik_dashboard
+-- Database: clinic
 -- File SQL untuk dashboard klinik lengkap
 -- Urutan: Tabel dulu, kemudian Views di akhir
 -- =============================================
+
+-- Create database if not exists
+CREATE DATABASE IF NOT EXISTS `clinic` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `clinic`;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -38,28 +42,28 @@ CREATE TABLE `pengeluaran` (
 --
 
 INSERT INTO `pengeluaran` (`id_pengeluaran`, `tanggal`, `kategori`, `keterangan`, `jumlah`, `metode_pembayaran`, `bukti_pembayaran`, `vendor_supplier`, `departemen`, `status`, `approved_by`, `created_by`) VALUES
-(1, '2024-01-01', 'Obat-obatan', 'Pembelian obat generik bulan Januari', 15000000.00, 'transfer', NULL, 'PT. Kimia Farma', 'farmasi', 'paid', 'manager', 'admin'),
-(2, '2024-01-01', 'Alat Medis', 'Pembelian alat medis habis pakai', 8500000.00, 'transfer', NULL, 'PT. Medical Equipment', 'medis', 'paid', 'manager', 'admin'),
-(3, '2024-01-01', 'Gaji Staff', 'Gaji karyawan bulan Januari', 45000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
-(4, '2024-01-15', 'Listrik & Air', 'Tagihan listrik dan air bulan Januari', 2500000.00, 'transfer', NULL, 'PLN & PDAM', 'umum', 'paid', 'supervisor', 'admin'),
-(5, '2024-01-20', 'Maintenance', 'Perawatan alat-alat medis', 3200000.00, 'cash', NULL, 'CV. Teknik Medis', 'teknik', 'paid', 'supervisor', 'admin'),
-(6, '2024-02-01', 'Obat-obatan', 'Restok obat-obatan bulan Februari', 18000000.00, 'transfer', NULL, 'PT. Sanbe Farma', 'farmasi', 'paid', 'manager', 'admin'),
-(7, '2024-02-01', 'Gaji Staff', 'Gaji karyawan bulan Februari', 45000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
-(8, '2024-02-10', 'Marketing', 'Promosi dan iklan klinik', 5000000.00, 'debit', NULL, 'PT. Digital Marketing', 'marketing', 'paid', 'manager', 'admin'),
-(9, '2024-02-15', 'Training', 'Pelatihan staff medis', 7500000.00, 'transfer', NULL, 'Lembaga Pelatihan Medis', 'hrd', 'paid', 'manager', 'admin'),
-(10, '2024-03-01', 'Gaji Staff', 'Gaji karyawan bulan Maret', 47000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
-(11, '2024-03-05', 'Renovasi', 'Renovasi ruang tunggu', 12000000.00, 'transfer', NULL, 'CV. Kontraktor Bangunan', 'umum', 'paid', 'manager', 'admin'),
-(12, '2024-03-15', 'Obat-obatan', 'Pembelian obat khusus', 22000000.00, 'transfer', NULL, 'PT. Dexa Medica', 'farmasi', 'paid', 'manager', 'admin'),
-(13, '2024-04-01', 'Gaji Staff', 'Gaji karyawan bulan April', 47000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
-(14, '2024-04-10', 'Asuransi', 'Premi asuransi klinik', 8000000.00, 'transfer', NULL, 'PT. Asuransi Kesehatan', 'umum', 'paid', 'manager', 'admin'),
-(15, '2024-04-20', 'IT Support', 'Upgrade sistem informasi', 15000000.00, 'transfer', NULL, 'PT. IT Solutions', 'it', 'paid', 'manager', 'admin'),
-(16, '2024-05-01', 'Gaji Staff', 'Gaji karyawan bulan Mei', 48000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
-(17, '2024-05-15', 'Cleaning Service', 'Jasa kebersihan bulan Mei', 3500000.00, 'cash', NULL, 'CV. Cleaning Pro', 'umum', 'paid', 'supervisor', 'admin'),
-(18, '2024-06-01', 'Gaji Staff', 'Gaji karyawan bulan Juni', 48000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
-(19, '2024-06-10', 'Obat-obatan', 'Restok obat emergency', 25000000.00, 'transfer', NULL, 'PT. Novell Pharmaceutical', 'farmasi', 'paid', 'manager', 'admin'),
-(20, '2024-07-01', 'Gaji Staff', 'Gaji karyawan bulan Juli', 50000000.00, 'transfer', NULL, 'Internal', 'hrd', 'approved', 'manager', 'admin'),
-(21, '2024-07-05', 'Listrik & Air', 'Tagihan utilitas bulan Juli', 2800000.00, 'transfer', NULL, 'PLN & PDAM', 'umum', 'pending', NULL, 'admin'),
-(22, '2024-07-08', 'Obat-obatan', 'Order obat untuk stok', 20000000.00, 'transfer', NULL, 'PT. Kimia Farma', 'farmasi', 'pending', NULL, 'admin');
+(1, '2025-01-01', 'Obat-obatan', 'Pembelian obat generik bulan Januari', 15000000.00, 'transfer', NULL, 'PT. Kimia Farma', 'farmasi', 'paid', 'manager', 'admin'),
+(2, '2025-01-01', 'Alat Medis', 'Pembelian alat medis habis pakai', 8500000.00, 'transfer', NULL, 'PT. Medical Equipment', 'medis', 'paid', 'manager', 'admin'),
+(3, '2025-01-01', 'Gaji Staff', 'Gaji karyawan bulan Januari', 45000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
+(4, '2025-01-15', 'Listrik & Air', 'Tagihan listrik dan air bulan Januari', 2500000.00, 'transfer', NULL, 'PLN & PDAM', 'umum', 'paid', 'supervisor', 'admin'),
+(5, '2025-01-20', 'Maintenance', 'Perawatan alat-alat medis', 3200000.00, 'cash', NULL, 'CV. Teknik Medis', 'teknik', 'paid', 'supervisor', 'admin'),
+(6, '2025-02-01', 'Obat-obatan', 'Restok obat-obatan bulan Februari', 18000000.00, 'transfer', NULL, 'PT. Sanbe Farma', 'farmasi', 'paid', 'manager', 'admin'),
+(7, '2025-02-01', 'Gaji Staff', 'Gaji karyawan bulan Februari', 45000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
+(8, '2025-02-10', 'Marketing', 'Promosi dan iklan klinik', 5000000.00, 'debit', NULL, 'PT. Digital Marketing', 'marketing', 'paid', 'manager', 'admin'),
+(9, '2025-02-15', 'Training', 'Pelatihan staff medis', 7500000.00, 'transfer', NULL, 'Lembaga Pelatihan Medis', 'hrd', 'paid', 'manager', 'admin'),
+(10, '2025-03-01', 'Gaji Staff', 'Gaji karyawan bulan Maret', 47000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
+(11, '2025-03-05', 'Renovasi', 'Renovasi ruang tunggu', 12000000.00, 'transfer', NULL, 'CV. Kontraktor Bangunan', 'umum', 'paid', 'manager', 'admin'),
+(12, '2025-03-15', 'Obat-obatan', 'Pembelian obat khusus', 22000000.00, 'transfer', NULL, 'PT. Dexa Medica', 'farmasi', 'paid', 'manager', 'admin'),
+(13, '2025-04-01', 'Gaji Staff', 'Gaji karyawan bulan April', 47000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
+(14, '2025-04-10', 'Asuransi', 'Premi asuransi klinik', 8000000.00, 'transfer', NULL, 'PT. Asuransi Kesehatan', 'umum', 'paid', 'manager', 'admin'),
+(15, '2025-04-20', 'IT Support', 'Upgrade sistem informasi', 15000000.00, 'transfer', NULL, 'PT. IT Solutions', 'it', 'paid', 'manager', 'admin'),
+(16, '2025-05-01', 'Gaji Staff', 'Gaji karyawan bulan Mei', 48000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
+(17, '2025-05-15', 'Cleaning Service', 'Jasa kebersihan bulan Mei', 3500000.00, 'cash', NULL, 'CV. Cleaning Pro', 'umum', 'paid', 'supervisor', 'admin'),
+(18, '2025-06-01', 'Gaji Staff', 'Gaji karyawan bulan Juni', 48000000.00, 'transfer', NULL, 'Internal', 'hrd', 'paid', 'manager', 'admin'),
+(19, '2025-06-10', 'Obat-obatan', 'Restok obat emergency', 25000000.00, 'transfer', NULL, 'PT. Novell Pharmaceutical', 'farmasi', 'paid', 'manager', 'admin'),
+(20, '2025-07-01', 'Gaji Staff', 'Gaji karyawan bulan Juli', 50000000.00, 'transfer', NULL, 'Internal', 'hrd', 'approved', 'manager', 'admin'),
+(21, '2025-07-05', 'Listrik & Air', 'Tagihan utilitas bulan Juli', 2800000.00, 'transfer', NULL, 'PLN & PDAM', 'umum', 'pending', NULL, 'admin'),
+(22, '2025-07-08', 'Obat-obatan', 'Order obat untuk stok', 20000000.00, 'transfer', NULL, 'PT. Kimia Farma', 'farmasi', 'pending', NULL, 'admin');
 
 -- --------------------------------------------------------
 -- Struktur dari tabel `tb_pasien`
@@ -792,7 +796,60 @@ INSERT INTO `tb_pendaftaran` (`id_pendaftaran`, `no_antrian`, `id_pasien`, `id_d
 (15, 'A015', 15, 6, 6, '2025-01-09', '10:30:00', 'Perawatan kulit', 'selesai'),
 (16, 'A016', 1, 1, 1, '2025-01-10', '08:30:00', 'Kontrol kesehatan', 'menunggu'),
 (17, 'A017', 2, 2, 2, '2025-01-10', '09:00:00', 'Vaksinasi', 'menunggu'),
-(18, 'A018', 3, 1, 1, '2025-01-10', '09:30:00', 'Cek lab', 'dipanggil');
+(18, 'A018', 3, 1, 1, '2025-01-10', '09:30:00', 'Cek lab', 'dipanggil'),
+
+-- Data pendaftaran tambahan untuk mendukung data pemeriksaan baru
+(19, 'A019', 16, 1, 1, '2025-01-10', '08:30:00', 'Batuk dan pilek', 'selesai'),
+(20, 'A020', 17, 2, 2, '2025-01-10', '09:00:00', 'Demam anak', 'selesai'),
+(21, 'A021', 18, 1, 1, '2025-01-10', '09:30:00', 'Sakit perut', 'selesai'),
+(22, 'A022', 19, 3, 3, '2025-01-10', '10:00:00', 'Kontrol kehamilan', 'selesai'),
+(23, 'A023', 20, 4, 4, '2025-01-10', '10:30:00', 'Mata merah', 'selesai'),
+
+(24, 'A024', 21, 5, 5, '2025-01-11', '08:00:00', 'Nyeri dada kiri', 'selesai'),
+(25, 'A025', 22, 6, 6, '2025-01-11', '08:30:00', 'Eksim kulit', 'selesai'),
+(26, 'A026', 23, 7, 7, '2025-01-11', '09:00:00', 'Gangguan pendengaran', 'selesai'),
+(27, 'A027', 24, 8, 8, '2025-01-11', '09:30:00', 'Migrain', 'selesai'),
+(28, 'A028', 25, 1, 1, '2025-01-11', '10:00:00', 'Flu berat', 'selesai'),
+
+(29, 'A029', 26, 2, 2, '2025-01-12', '08:15:00', 'Imunisasi rutin', 'selesai'),
+(30, 'A030', 27, 1, 1, '2025-01-12', '08:45:00', 'Diabetes kontrol', 'selesai'),
+(31, 'A031', 28, 3, 3, '2025-01-12', '09:15:00', 'Antenatal care', 'selesai'),
+(32, 'A032', 29, 4, 4, '2025-01-12', '09:45:00', 'Mata minus bertambah', 'selesai'),
+(33, 'A033', 30, 5, 5, '2025-01-12', '10:15:00', 'Aritmia jantung', 'selesai'),
+
+(34, 'A034', 31, 6, 6, '2025-01-13', '08:00:00', 'Psoriasis kambuh', 'selesai'),
+(35, 'A035', 32, 7, 7, '2025-01-13', '08:30:00', 'Sinusitis kronis', 'selesai'),
+(36, 'A036', 33, 8, 8, '2025-01-13', '09:00:00', 'Stroke ringan', 'selesai'),
+(37, 'A037', 34, 1, 1, '2025-01-13', '09:30:00', 'Asma kambuh', 'selesai'),
+(38, 'A038', 35, 2, 2, '2025-01-13', '10:00:00', 'Cek tumbuh kembang', 'selesai'),
+
+(39, 'A039', 36, 1, 1, '2025-01-14', '08:00:00', 'Hipertensi tidak terkontrol', 'selesai'),
+(40, 'A040', 37, 3, 3, '2025-01-14', '08:30:00', 'Menopause', 'selesai'),
+(41, 'A041', 38, 4, 4, '2025-01-14', '09:00:00', 'Katarak mata kiri', 'selesai'),
+(42, 'A042', 39, 5, 5, '2025-01-14', '09:30:00', 'Gagal jantung', 'selesai'),
+(43, 'A043', 40, 6, 6, '2025-01-14', '10:00:00', 'Kanker kulit', 'selesai'),
+
+(44, 'A044', 41, 7, 7, '2025-01-17', '08:00:00', 'Vertigo', 'selesai'),
+(45, 'A045', 42, 8, 8, '2025-01-17', '08:30:00', 'Neuropati diabetik', 'selesai'),
+(46, 'A046', 43, 1, 1, '2025-01-17', '09:00:00', 'GERD kronik', 'selesai'),
+(47, 'A047', 44, 2, 2, '2025-01-17', '09:30:00', 'Obesitas anak', 'selesai'),
+(48, 'A048', 45, 3, 3, '2025-01-17', '10:00:00', 'Infertilitas', 'selesai'),
+
+(49, 'A049', 46, 4, 4, '2025-01-18', '08:00:00', 'Glaukoma', 'selesai'),
+(50, 'A050', 47, 5, 5, '2025-01-18', '08:30:00', 'Penyakit jantung koroner', 'selesai'),
+(51, 'A051', 48, 6, 6, '2025-01-18', '09:00:00', 'Lupus eritematosus', 'selesai'),
+
+-- Data untuk pemeriksaan yang sedang berlangsung dan menunggu
+(52, 'A052', 49, 1, 1, '2025-01-20', '08:00:00', 'Demam typhoid', 'dipanggil'),
+(53, 'A053', 50, 2, 2, '2025-01-20', '08:30:00', 'Pneumonia anak', 'dipanggil'),
+(54, 'A054', 1, 1, 1, '2025-01-20', '09:00:00', 'Kontrol diabetes', 'menunggu'),
+(55, 'A055', 2, 2, 2, '2025-01-20', '09:30:00', 'Vaksinasi COVID', 'menunggu'),
+(56, 'A056', 3, 3, 3, '2025-01-20', '10:00:00', 'USG kehamilan', 'menunggu'),
+
+-- Data untuk menambah variasi status batal
+(57, 'A057', 15, 1, 1, '2025-01-15', '08:00:00', 'Cek kesehatan', 'batal'),
+(58, 'A058', 20, 2, 2, '2025-01-16', '09:00:00', 'Imunisasi', 'batal'),
+(59, 'A059', 25, 3, 3, '2025-01-19', '10:00:00', 'Kontrol kandungan', 'batal');
 
 -- --------------------------------------------------------
 -- Struktur dari tabel `tb_pemeriksaan`
@@ -835,7 +892,57 @@ INSERT INTO `tb_pemeriksaan` (`id_pemeriksaan`, `id_pendaftaran`, `id_pasien`, `
 (12, 12, 12, 3, '2025-01-09', '09:15:00', 'Kontrol kehamilan', 'Kehamilan normal', 'USG, konsultasi', 'Asam folat', 180000.00, 'selesai', 'Perkembangan janin baik'),
 (13, 13, 13, 4, '2025-01-09', '09:45:00', 'Periksa mata', 'Mata sehat', 'Pemeriksaan mata lengkap', 'Tidak ada', 150000.00, 'selesai', 'Mata dalam kondisi sehat'),
 (14, 14, 14, 5, '2025-01-09', '10:15:00', 'Konsultasi jantung', 'Jantung sehat', 'EKG, echo', 'Tidak ada', 280000.00, 'selesai', 'Fungsi jantung normal'),
-(15, 15, 15, 6, '2025-01-09', '10:45:00', 'Perawatan kulit', 'Jerawat', 'Konsultasi dermatologi', 'Tretinoin gel', 170000.00, 'selesai', 'Gunakan obat sesuai petunjuk');
+(15, 15, 15, 6, '2025-01-09', '10:45:00', 'Perawatan kulit', 'Jerawat', 'Konsultasi dermatologi', 'Tretinoin gel', 170000.00, 'selesai', 'Gunakan obat sesuai petunjuk'),
+
+-- Data pemeriksaan tambahan untuk variasi yang lebih baik
+(16, 16, 16, 1, '2025-01-10', '08:30:00', 'Batuk dan pilek', 'Common cold', 'Pemeriksaan fisik', 'Paracetamol, Dextromethorphan', 120000.00, 'selesai', 'Istirahat dan minum air hangat'),
+(17, 17, 17, 2, '2025-01-10', '09:00:00', 'Demam anak', 'Viral fever', 'Pemeriksaan fisik anak', 'Paracetamol sirup', 100000.00, 'selesai', 'Monitor suhu tubuh'),
+(18, 18, 18, 1, '2025-01-10', '09:30:00', 'Sakit perut', 'Gastritis', 'Pemeriksaan abdomen', 'Antasida, Omeprazole', 140000.00, 'selesai', 'Hindari makanan pedas'),
+(19, 19, 19, 3, '2025-01-10', '10:00:00', 'Kontrol kehamilan', 'Kehamilan trimester 2', 'USG 4D', 'Vitamin prenatal', 250000.00, 'selesai', 'Janin berkembang normal'),
+(20, 20, 20, 4, '2025-01-10', '10:30:00', 'Mata merah', 'Konjungtivitis', 'Pemeriksaan mata', 'Tetes mata antibiotik', 90000.00, 'selesai', 'Jangan mengucek mata'),
+
+(21, 21, 21, 5, '2025-01-11', '08:00:00', 'Nyeri dada kiri', 'Angina stabil', 'EKG, echocardiografi', 'Nitrat, Beta blocker', 320000.00, 'selesai', 'Kontrol rutin diperlukan'),
+(22, 22, 22, 6, '2025-01-11', '08:30:00', 'Eksim kulit', 'Dermatitis atopik', 'Biopsi kulit', 'Kortikosteroid topikal', 180000.00, 'selesai', 'Hindari sabun keras'),
+(23, 23, 23, 7, '2025-01-11', '09:00:00', 'Gangguan pendengaran', 'Otitis media', 'Otoskopi', 'Antibiotik, analgesik', 160000.00, 'selesai', 'Jaga telinga tetap kering'),
+(24, 24, 24, 8, '2025-01-11', '09:30:00', 'Migrain', 'Migrain kronik', 'Neurological exam', 'Sumatriptan', 200000.00, 'selesai', 'Hindari trigger migrain'),
+(25, 25, 25, 1, '2025-01-11', '10:00:00', 'Flu berat', 'Influenza A', 'Rapid test flu', 'Oseltamivir', 180000.00, 'selesai', 'Isolasi mandiri 5 hari'),
+
+(26, 26, 26, 2, '2025-01-12', '08:15:00', 'Imunisasi rutin', 'Sehat', 'Vaksinasi MMR', 'Tidak ada', 85000.00, 'selesai', 'Vaksinasi sesuai jadwal'),
+(27, 27, 27, 1, '2025-01-12', '08:45:00', 'Diabetes kontrol', 'Diabetes melitus tipe 2', 'Cek gula darah', 'Metformin', 150000.00, 'selesai', 'Diet rendah gula'),
+(28, 28, 28, 3, '2025-01-12', '09:15:00', 'Antenatal care', 'Kehamilan normal', 'USG, lab darah', 'Iron supplement', 220000.00, 'selesai', 'Konsumsi makanan bergizi'),
+(29, 29, 29, 4, '2025-01-12', '09:45:00', 'Mata minus bertambah', 'Miopia progresif', 'Refraksi detail', 'Kacamata baru', 200000.00, 'selesai', 'Kontrol 6 bulan lagi'),
+(30, 30, 30, 5, '2025-01-12', '10:15:00', 'Aritmia jantung', 'Atrial fibrilasi', 'EKG Holter 24 jam', 'Warfarin, Digoxin', 380000.00, 'selesai', 'Monitoring INR rutin'),
+
+(31, 31, 31, 6, '2025-01-13', '08:00:00', 'Psoriasis kambuh', 'Psoriasis vulgaris', 'Dermoskopi', 'Methotrexate', 240000.00, 'selesai', 'Terapi UV dapat membantu'),
+(32, 32, 32, 7, '2025-01-13', '08:30:00', 'Sinusitis kronis', 'Rhinosinusitis kronik', 'CT scan sinus', 'Antibiotik, dekongestan', 280000.00, 'selesai', 'Irigasi hidung rutin'),
+(33, 33, 33, 8, '2025-01-13', '09:00:00', 'Stroke ringan', 'TIA (Transient Ischemic Attack)', 'CT scan kepala', 'Aspirin, statin', 450000.00, 'selesai', 'Kontrol faktor risiko'),
+(34, 34, 34, 1, '2025-01-13', '09:30:00', 'Asma kambuh', 'Asma bronkial', 'Spirometri', 'Inhaler bronkodilator', 190000.00, 'selesai', 'Hindari trigger asma'),
+(35, 35, 35, 2, '2025-01-13', '10:00:00', 'Cek tumbuh kembang', 'Tumbuh kembang normal', 'Anthropometri', 'Vitamin D', 120000.00, 'selesai', 'Stimulasi sesuai usia'),
+
+(36, 36, 36, 1, '2025-01-14', '08:00:00', 'Hipertensi tidak terkontrol', 'Hipertensi stage 2', 'Pemeriksaan tekanan darah', 'ACE inhibitor kombinasi', 160000.00, 'selesai', 'Monitoring ketat diperlukan'),
+(37, 37, 37, 3, '2025-01-14', '08:30:00', 'Menopause', 'Menopause sindrom', 'Konsultasi hormone', 'HRT (Hormone Replacement)', 200000.00, 'selesai', 'Evaluasi rutin hormone'),
+(38, 38, 38, 4, '2025-01-14', '09:00:00', 'Katarak mata kiri', 'Katarak senilis', 'Pemeriksaan funduskopi', 'Rujuk bedah mata', 180000.00, 'selesai', 'Operasi katarak dianjurkan'),
+(39, 39, 39, 5, '2025-01-14', '09:30:00', 'Gagal jantung', 'Heart failure NYHA II', 'Echocardiografi', 'ACE-i, diuretik', 350000.00, 'selesai', 'Batasi asupan garam'),
+(40, 40, 40, 6, '2025-01-14', '10:00:00', 'Kanker kulit', 'Melanoma in situ', 'Biopsi eksisi', 'Rujuk onkologi', 400000.00, 'selesai', 'Follow up onkologi'),
+
+-- Data untuk hari Jumat dan Sabtu
+(41, 41, 41, 7, '2025-01-17', '08:00:00', 'Vertigo', 'BPPV (Benign Positional Vertigo)', 'Manuver Epley', 'Betahistin, meclizine', 170000.00, 'selesai', 'Hindari gerakan mendadak'),
+(42, 42, 42, 8, '2025-01-17', '08:30:00', 'Neuropati diabetik', 'Diabetic neuropathy', 'EMG nerve conduction', 'Gabapentin, vitamin B', 280000.00, 'selesai', 'Kontrol gula darah ketat'),
+(43, 43, 43, 1, '2025-01-17', '09:00:00', 'GERD kronik', 'Gastroesophageal reflux', 'Endoskopi upper GI', 'PPI, prokinetik', 320000.00, 'selesai', 'Hindari makanan asam'),
+(44, 44, 44, 2, '2025-01-17', '09:30:00', 'Obesitas anak', 'Childhood obesity', 'Konseling nutrisi', 'Program diet', 150000.00, 'selesai', 'Aktivitas fisik teratur'),
+(45, 45, 45, 3, '2025-01-17', '10:00:00', 'Infertilitas', 'Unexplained infertility', 'HSG, hormone panel', 'Clomiphene citrate', 380000.00, 'selesai', 'Program hamil terstruktur'),
+
+-- Data untuk menambah variasi diagnosa dan keluhan
+(46, 46, 46, 4, '2025-01-18', '08:00:00', 'Glaukoma', 'Primary open angle glaucoma', 'Tonometri, perimetri', 'Tetes mata antiglaukoma', 250000.00, 'selesai', 'Kontrol tekanan mata rutin'),
+(47, 47, 47, 5, '2025-01-18', '08:30:00', 'Penyakit jantung koroner', 'Coronary artery disease', 'Treadmill test', 'Dual antiplatelet', 420000.00, 'selesai', 'Rujuk kardiologi intervensi'),
+(48, 48, 48, 6, '2025-01-18', '09:00:00', 'Lupus eritematosus', 'Systemic lupus erythematosus', 'ANA test, complement', 'Immunosuppressant', 380000.00, 'selesai', 'Monitoring rutin diperlukan'),
+
+-- Data pemeriksaan yang sedang berlangsung dan menunggu
+(49, 49, 49, 1, '2025-01-20', '08:00:00', 'Demam typhoid', 'Suspected typhoid fever', 'Widal test, kultur', 'Ceftriaxone', 200000.00, 'berlangsung', 'Menunggu hasil kultur'),
+(50, 50, 50, 2, '2025-01-20', '08:30:00', 'Pneumonia anak', 'Pneumonia komunitas', 'Foto thorax', 'Amoxicillin clavulanat', 180000.00, 'berlangsung', 'Observasi pernapasan'),
+(51, 51, 1, 1, '2025-01-20', '09:00:00', 'Kontrol diabetes', 'Diabetes melitus tipe 2', 'HbA1c, gula darah', 'Insulin, metformin', 160000.00, 'menunggu', 'Evaluasi kontrol glikemik'),
+(52, 52, 2, 2, '2025-01-20', '09:30:00', 'Vaksinasi COVID', 'Sehat', 'Screening pre-vaksin', 'Vaksin COVID booster', 0.00, 'menunggu', 'Program vaksinasi nasional'),
+(53, 53, 3, 3, '2025-01-20', '10:00:00', 'USG kehamilan', 'Kehamilan trimester 3', 'USG 4D, doppler', 'Suplemen prenatal', 280000.00, 'menunggu', 'Persiapan persalinan');
 
 -- --------------------------------------------------------
 -- Struktur dari tabel `pembayaran`
@@ -935,6 +1042,213 @@ INSERT INTO `tb_review_pasien` (`id_review`, `id_pasien`, `rating`, `ulasan`, `k
 (42, 'RM057', 3.8, 'Pelayanan bagus, tapi parking area agak terbatas. Perlu solusi parkir alternatif.', 'Konsultasi Umum', '2025-07-07', 4, 'Tim management sedang evaluasi solusi parking yang adequate.'),
 (43, 'RM058',  4.2, 'Konsultasi legal health issue sangat informatif. Dokter understand aspek hukum kesehatan.', 'Occupational Health', '2025-07-08', 6, 'Tim kami memiliki understanding workplace health regulations.'),
 (44, 'RM059', 4.5, 'Efficient service untuk executive. Waktu konsultasi tepat dan comprehensive screening.', 'Executive Checkup', '2025-07-09', 11, 'Executive package designed untuk efficiency dan comprehensiveness.');
+
+-- --------------------------------------------------------
+-- Struktur dari tabel `tb_performance_staff`
+--
+
+CREATE TABLE `tb_performance_staff` (
+  `id_performance` int(11) NOT NULL,
+  `id_staff` int(11) NOT NULL,
+  `total_jam_kerja` int(11) DEFAULT 0,
+  `target_jam_kerja` int(11) DEFAULT 176,
+  `persentase_kehadiran` decimal(5,2) DEFAULT 0.00,
+  `total_shift_bulan_ini` int(11) DEFAULT 0,
+  `total_lembur_jam` int(11) DEFAULT 0,
+  `rating_kinerja` decimal(3,1) DEFAULT 0.0,
+  `jumlah_review` int(11) DEFAULT 0,
+  `status_kinerja` enum('Sangat Baik','Baik','Cukup','Perlu Monitoring') DEFAULT 'Cukup',
+  `bulan_periode` int(2) DEFAULT NULL,
+  `tahun_periode` int(4) DEFAULT NULL,
+  `catatan_kinerja` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `tb_performance_staff`
+--
+
+INSERT INTO `tb_performance_staff` (`id_performance`, `id_staff`, `total_jam_kerja`, `target_jam_kerja`, `persentase_kehadiran`, `total_shift_bulan_ini`, `total_lembur_jam`, `rating_kinerja`, `jumlah_review`, `status_kinerja`, `bulan_periode`, `tahun_periode`, `catatan_kinerja`) VALUES
+(1, 1, 180, 176, 98.50, 25, 6, 4.9, 47, 'Sangat Baik', 7, 2025, 'Performa luar biasa, selalu melebihi target dan memberikan pelayanan terbaik'),
+(2, 2, 175, 176, 96.20, 24, 4, 4.7, 38, 'Sangat Baik', 7, 2025, 'Konsisten dalam pelayanan farmasi, sangat teliti dalam dispensing obat'),
+(3, 3, 165, 176, 90.80, 22, 3, 4.2, 29, 'Baik', 7, 2025, 'Performa kasir yang baik, perlu peningkatan dalam kehadiran'),
+(4, 4, 172, 176, 94.60, 23, 5, 4.5, 33, 'Sangat Baik', 7, 2025, 'Teknisi lab yang handal, hasil pemeriksaan selalu akurat'),
+(5, 5, 168, 176, 92.40, 22, 4, 4.4, 31, 'Baik', 7, 2025, 'Radiografer yang kompeten, hasil imaging berkualitas baik'),
+(6, 6, 176, 176, 98.80, 25, 2, 4.6, 35, 'Sangat Baik', 7, 2025, 'Security yang sangat disiplin, selalu tepat waktu dan responsif'),
+(7, 7, 170, 176, 94.20, 24, 3, 4.3, 28, 'Baik', 7, 2025, 'Cleaning service yang rajin, area klinik selalu bersih dan tertata'),
+(8, 8, 174, 176, 95.80, 23, 6, 4.8, 42, 'Sangat Baik', 7, 2025, 'IT Support yang sangat responsif, selalu cepat menangani masalah teknis'),
+(9, 9, 169, 176, 93.50, 22, 4, 4.3, 30, 'Baik', 7, 2025, 'Admin yang efisien dalam mengelola dokumen dan administrasi'),
+(10, 10, 171, 176, 95.20, 24, 3, 4.1, 27, 'Baik', 7, 2025, 'Driver ambulance yang sigap, selalu siap 24 jam untuk emergency'),
+(11, 11, 177, 176, 96.70, 24, 5, 4.6, 36, 'Sangat Baik', 7, 2025, 'Ahli gizi yang profesional, konsultasi diet pasien sangat membantu'),
+(12, 12, 173, 176, 94.80, 23, 4, 4.2, 32, 'Baik', 7, 2025, 'Teknisi maintenance yang handal, peralatan medis selalu terawat'),
+(13, 13, 175, 176, 95.40, 24, 5, 4.5, 34, 'Sangat Baik', 7, 2025, 'Fisioterapis yang berpengalaman, recovery pasien sangat baik'),
+(14, 14, 172, 176, 93.80, 23, 4, 4.4, 31, 'Baik', 7, 2025, 'Humas yang komunikatif, hubungan dengan media dan masyarakat baik'),
+(15, 15, 185, 176, 99.20, 26, 8, 4.9, 48, 'Sangat Baik', 7, 2025, 'Manager operasional yang luar biasa, memimpin tim dengan sangat baik');
+
+-- --------------------------------------------------------
+-- Struktur dari tabel `tb_staff_attendance`
+--
+
+CREATE TABLE `tb_staff_attendance` (
+  `id_attendance` int(11) NOT NULL,
+  `id_staff` int(11) NOT NULL,
+  `tanggal` date NOT NULL,
+  `jam_masuk` time DEFAULT NULL,
+  `jam_keluar` time DEFAULT NULL,
+  `total_jam` decimal(4,2) DEFAULT 0.00,
+  `status_kehadiran` enum('hadir','izin','sakit','terlambat','alpha') DEFAULT 'hadir',
+  `keterangan` text DEFAULT NULL,
+  `is_lembur` tinyint(1) DEFAULT 0,
+  `jam_lembur` decimal(4,2) DEFAULT 0.00,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `tb_staff_attendance`
+-- Sample data kehadiran staff untuk bulan Juli 2025
+--
+
+INSERT INTO `tb_staff_attendance` (`id_attendance`, `id_staff`, `tanggal`, `jam_masuk`, `jam_keluar`, `total_jam`, `status_kehadiran`, `keterangan`, `is_lembur`, `jam_lembur`) VALUES
+-- Staff 1 (Ana Kristina) - Juli 2025
+(1, 1, '2025-07-01', '07:30:00', '16:30:00', 8.00, 'hadir', NULL, 1, 1.00),
+(2, 1, '2025-07-02', '07:45:00', '16:30:00', 7.75, 'terlambat', 'Terlambat 15 menit', 0, 0.00),
+(3, 1, '2025-07-03', '07:30:00', '17:00:00', 8.50, 'hadir', NULL, 1, 1.50),
+(4, 1, '2025-07-04', '07:30:00', '16:30:00', 8.00, 'hadir', NULL, 0, 0.00),
+(5, 1, '2025-07-05', '07:30:00', '16:30:00', 8.00, 'hadir', NULL, 0, 0.00),
+(6, 1, '2025-07-08', '07:30:00', '18:00:00', 9.50, 'hadir', NULL, 1, 2.50),
+(7, 1, '2025-07-09', '07:30:00', '16:30:00', 8.00, 'hadir', NULL, 0, 0.00),
+(8, 1, '2025-07-10', '07:30:00', '17:30:00', 9.00, 'hadir', NULL, 1, 1.00),
+
+-- Staff 2 (Ahmad Pharmacy) - Juli 2025
+(9, 2, '2025-07-01', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 1, 1.00),
+(10, 2, '2025-07-02', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(11, 2, '2025-07-03', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(12, 2, '2025-07-04', '08:15:00', '17:00:00', 7.75, 'terlambat', 'Terlambat 15 menit', 0, 0.00),
+(13, 2, '2025-07-05', '08:00:00', '18:00:00', 9.00, 'hadir', NULL, 1, 1.00),
+(14, 2, '2025-07-08', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(15, 2, '2025-07-09', '08:00:00', '18:30:00', 9.50, 'hadir', NULL, 1, 1.50),
+(16, 2, '2025-07-10', '08:00:00', '17:30:00', 8.50, 'hadir', NULL, 1, 0.50),
+
+-- Staff 3 (Siti Kasir) - Juli 2025
+(17, 3, '2025-07-01', '09:00:00', '18:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(18, 3, '2025-07-02', NULL, NULL, 0.00, 'izin', 'Izin keperluan keluarga', 0, 0.00),
+(19, 3, '2025-07-03', '09:00:00', '18:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(20, 3, '2025-07-04', '09:20:00', '18:00:00', 7.67, 'terlambat', 'Terlambat 20 menit', 0, 0.00),
+(21, 3, '2025-07-05', '09:00:00', '19:00:00', 9.00, 'hadir', NULL, 1, 1.00),
+(22, 3, '2025-07-08', '09:00:00', '18:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(23, 3, '2025-07-09', NULL, NULL, 0.00, 'sakit', 'Sakit demam', 0, 0.00),
+(24, 3, '2025-07-10', '09:00:00', '19:30:00', 9.50, 'hadir', NULL, 1, 1.50),
+
+-- Staff 4 (Budi Teknisi) - Juli 2025
+(25, 4, '2025-07-01', '07:00:00', '16:00:00', 8.00, 'hadir', NULL, 1, 1.00),
+(26, 4, '2025-07-02', '07:00:00', '16:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(27, 4, '2025-07-03', '07:00:00', '17:00:00', 9.00, 'hadir', NULL, 1, 1.00),
+(28, 4, '2025-07-04', '07:00:00', '16:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(29, 4, '2025-07-05', '07:00:00', '18:00:00', 10.00, 'hadir', NULL, 1, 2.00),
+(30, 4, '2025-07-08', '07:00:00', '16:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(31, 4, '2025-07-09', '07:00:00', '16:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(32, 4, '2025-07-10', '07:00:00', '17:30:00', 9.50, 'hadir', NULL, 1, 1.00),
+
+-- Staff 5 (Dewi Radiografer) - Juli 2025
+(33, 5, '2025-07-01', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(34, 5, '2025-07-02', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(35, 5, '2025-07-03', NULL, NULL, 0.00, 'izin', 'Izin check up kesehatan', 0, 0.00),
+(36, 5, '2025-07-04', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(37, 5, '2025-07-05', '08:00:00', '18:30:00', 9.50, 'hadir', NULL, 1, 1.50),
+(38, 5, '2025-07-08', '08:00:00', '17:00:00', 8.00, 'hadir', NULL, 0, 0.00),
+(39, 5, '2025-07-09', '08:00:00', '19:00:00', 10.00, 'hadir', NULL, 1, 2.00),
+(40, 5, '2025-07-10', '08:00:00', '17:30:00', 8.50, 'hadir', NULL, 1, 0.50);
+
+-- --------------------------------------------------------
+-- Struktur dari tabel `tb_laporan_waktu_tunggu`
+--
+
+CREATE TABLE `tb_laporan_waktu_tunggu` (
+  `id_laporan` int(11) NOT NULL,
+  `tanggal_laporan` date NOT NULL,
+  `jam_laporan` time NOT NULL,
+  `hari` varchar(20) NOT NULL,
+  `waktu_tunggu_rata` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `jumlah_pasien` int(11) NOT NULL DEFAULT 0,
+  `jam_buka` time DEFAULT '08:00:00',
+  `jam_tutup` time DEFAULT '17:00:00',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `tb_laporan_waktu_tunggu`
+--
+
+INSERT INTO `tb_laporan_waktu_tunggu` (`id_laporan`, `tanggal_laporan`, `jam_laporan`, `hari`, `waktu_tunggu_rata`, `jumlah_pasien`) VALUES
+-- Data untuk Senin
+(1, '2025-01-13', '08:00:00', 'Senin', 8.5, 5),
+(2, '2025-01-13', '09:00:00', 'Senin', 12.3, 8),
+(3, '2025-01-13', '10:00:00', 'Senin', 15.2, 12),
+(4, '2025-01-13', '11:00:00', 'Senin', 18.7, 15),
+(5, '2025-01-13', '12:00:00', 'Senin', 22.1, 10),
+(6, '2025-01-13', '13:00:00', 'Senin', 16.8, 7),
+(7, '2025-01-13', '14:00:00', 'Senin', 13.4, 9),
+(8, '2025-01-13', '15:00:00', 'Senin', 11.2, 6),
+(9, '2025-01-13', '16:00:00', 'Senin', 9.8, 4),
+(10, '2025-01-13', '17:00:00', 'Senin', 7.5, 3),
+
+-- Data untuk Selasa
+(11, '2025-01-14', '08:00:00', 'Selasa', 7.2, 4),
+(12, '2025-01-14', '09:00:00', 'Selasa', 10.8, 7),
+(13, '2025-01-14', '10:00:00', 'Selasa', 14.5, 11),
+(14, '2025-01-14', '11:00:00', 'Selasa', 17.3, 13),
+(15, '2025-01-14', '12:00:00', 'Selasa', 20.6, 9),
+(16, '2025-01-14', '13:00:00', 'Selasa', 15.2, 6),
+(17, '2025-01-14', '14:00:00', 'Selasa', 12.7, 8),
+(18, '2025-01-14', '15:00:00', 'Selasa', 10.4, 5),
+(19, '2025-01-14', '16:00:00', 'Selasa', 8.9, 3),
+(20, '2025-01-14', '17:00:00', 'Selasa', 6.8, 2),
+
+-- Data untuk Rabu
+(21, '2025-01-15', '08:00:00', 'Rabu', 9.1, 6),
+(22, '2025-01-15', '09:00:00', 'Rabu', 13.6, 9),
+(23, '2025-01-15', '10:00:00', 'Rabu', 16.9, 13),
+(24, '2025-01-15', '11:00:00', 'Rabu', 19.8, 16),
+(25, '2025-01-15', '12:00:00', 'Rabu', 23.4, 11),
+(26, '2025-01-15', '13:00:00', 'Rabu', 17.5, 8),
+(27, '2025-01-15', '14:00:00', 'Rabu', 14.1, 10),
+(28, '2025-01-15', '15:00:00', 'Rabu', 11.8, 7),
+(29, '2025-01-15', '16:00:00', 'Rabu', 10.3, 5),
+(30, '2025-01-15', '17:00:00', 'Rabu', 8.2, 4),
+
+-- Data untuk Kamis
+(31, '2025-01-16', '08:00:00', 'Kamis', 8.7, 5),
+(32, '2025-01-16', '09:00:00', 'Kamis', 12.1, 8),
+(33, '2025-01-16', '10:00:00', 'Kamis', 15.6, 12),
+(34, '2025-01-16', '11:00:00', 'Kamis', 18.4, 14),
+(35, '2025-01-16', '12:00:00', 'Kamis', 21.8, 10),
+(36, '2025-01-16', '13:00:00', 'Kamis', 16.3, 7),
+(37, '2025-01-16', '14:00:00', 'Kamis', 13.8, 9),
+(38, '2025-01-16', '15:00:00', 'Kamis', 11.5, 6),
+(39, '2025-01-16', '16:00:00', 'Kamis', 9.7, 4),
+(40, '2025-01-16', '17:00:00', 'Kamis', 7.9, 3),
+
+-- Data untuk Jumat
+(41, '2025-01-17', '08:00:00', 'Jumat', 10.2, 7),
+(42, '2025-01-17', '09:00:00', 'Jumat', 14.8, 10),
+(43, '2025-01-17', '10:00:00', 'Jumat', 18.1, 14),
+(44, '2025-01-17', '11:00:00', 'Jumat', 21.5, 17),
+(45, '2025-01-17', '12:00:00', 'Jumat', 25.2, 12),
+(46, '2025-01-17', '13:00:00', 'Jumat', 19.1, 9),
+(47, '2025-01-17', '14:00:00', 'Jumat', 15.7, 11),
+(48, '2025-01-17', '15:00:00', 'Jumat', 13.2, 8),
+(49, '2025-01-17', '16:00:00', 'Jumat', 11.6, 6),
+(50, '2025-01-17', '17:00:00', 'Jumat', 9.4, 4),
+
+-- Data untuk Sabtu (jam operasional lebih pendek)
+(51, '2025-01-18', '08:00:00', 'Sabtu', 6.8, 3),
+(52, '2025-01-18', '09:00:00', 'Sabtu', 9.5, 5),
+(53, '2025-01-18', '10:00:00', 'Sabtu', 12.3, 8),
+(54, '2025-01-18', '11:00:00', 'Sabtu', 14.7, 10),
+(55, '2025-01-18', '12:00:00', 'Sabtu', 11.2, 6);
 
 -- --------------------------------------------------------
 -- VIEW KHUSUS UNTUK MONITORING DAN STATISTIK OBAT
@@ -1052,6 +1366,58 @@ LEFT JOIN user_login_log ul ON u.id_user = ul.user_id
 GROUP BY u.id_user, u.username, u.nama_lengkap, u.jabatan, u.status_aktif, u.last_login, u.login_count
 ORDER BY u.last_login DESC;
 
+-- View untuk staff performance dashboard
+CREATE VIEW `v_staff_dashboard` AS
+SELECT 
+    s.id_staff,
+    s.nip,
+    s.nama_staff,
+    s.jabatan,
+    s.departemen,
+    s.status_staff,
+    p.total_jam_kerja,
+    p.target_jam_kerja,
+    p.persentase_kehadiran,
+    p.total_shift_bulan_ini,
+    p.total_lembur_jam,
+    p.rating_kinerja,
+    p.jumlah_review,
+    p.status_kinerja,
+    p.catatan_kinerja,
+    p.bulan_periode,
+    p.tahun_periode,
+    CASE 
+        WHEN p.rating_kinerja >= 4.5 THEN '★★★★★'
+        WHEN p.rating_kinerja >= 3.5 THEN '★★★★☆'
+        WHEN p.rating_kinerja >= 2.5 THEN '★★★☆☆'
+        WHEN p.rating_kinerja >= 1.5 THEN '★★☆☆☆'
+        ELSE '★☆☆☆☆'
+    END as rating_bintang,
+    CASE
+        WHEN p.status_kinerja = 'Sangat Baik' THEN 'success'
+        WHEN p.status_kinerja = 'Baik' THEN 'success'
+        WHEN p.status_kinerja = 'Cukup' THEN 'warning'
+        ELSE 'danger'
+    END as badge_class,
+    COUNT(a.id_attendance) as total_hari_kerja,
+    COUNT(CASE WHEN a.status_kehadiran = 'izin' THEN 1 END) as total_izin,
+    COUNT(CASE WHEN a.status_kehadiran = 'sakit' THEN 1 END) as total_sakit,
+    COUNT(CASE WHEN a.status_kehadiran = 'terlambat' THEN 1 END) as total_terlambat
+FROM tb_staff s
+LEFT JOIN tb_performance_staff p ON s.id_staff = p.id_staff 
+    AND p.bulan_periode = MONTH(CURDATE()) 
+    AND p.tahun_periode = YEAR(CURDATE())
+LEFT JOIN tb_staff_attendance a ON s.id_staff = a.id_staff 
+    AND MONTH(a.tanggal) = MONTH(CURDATE()) 
+    AND YEAR(a.tanggal) = YEAR(CURDATE())
+WHERE s.status_staff = 'aktif'
+GROUP BY s.id_staff, s.nip, s.nama_staff, s.jabatan, s.departemen, s.status_staff,
+         p.total_jam_kerja, p.target_jam_kerja, p.persentase_kehadiran, 
+         p.total_shift_bulan_ini, p.total_lembur_jam, p.rating_kinerja, 
+         p.jumlah_review, p.status_kinerja, p.catatan_kinerja, 
+         p.bulan_periode, p.tahun_periode
+ORDER BY p.rating_kinerja DESC, p.total_jam_kerja DESC;
+
 -- View khusus untuk monitoring obat (HANYA UNTUK OBAT)
 CREATE VIEW IF NOT EXISTS `v_monitoring_obat` AS
 SELECT 
@@ -1071,7 +1437,14 @@ SELECT
         WHEN o.stok <= (o.stok_minimum * 2) THEN 'Low'
         WHEN o.stok <= (o.stok_minimum * 5) THEN 'Medium'
         ELSE 'Good'
-    END as status_stok
+    END as status_stok,
+    DATEDIFF(o.expired_date, CURDATE()) as hari_sampai_expired,
+    CASE 
+        WHEN DATEDIFF(o.expired_date, CURDATE()) <= 0 THEN 'Expired'
+        WHEN DATEDIFF(o.expired_date, CURDATE()) <= 30 THEN 'Akan Expired'
+        WHEN DATEDIFF(o.expired_date, CURDATE()) <= 90 THEN 'Perhatian'
+        ELSE 'Aman'
+    END as status_expired
 FROM tb_obat o
 LEFT JOIN tb_transaksi_obat t ON o.id_obat = t.id_obat
 WHERE o.status_obat = 'aktif'
@@ -1092,6 +1465,57 @@ WHERE o.status_obat = 'aktif'
 AND t.tanggal_transaksi >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
 GROUP BY DATE_FORMAT(t.tanggal_transaksi, '%Y-%m'), o.nama_obat, o.kategori
 ORDER BY periode DESC, total_terjual DESC;
+
+-- ========================================
+-- INDEXES DAN PRIMARY KEYS
+-- ========================================
+
+-- 
+-- Indexes for table `tb_performance_staff`
+--
+ALTER TABLE `tb_performance_staff`
+  ADD PRIMARY KEY (`id_performance`),
+  ADD KEY `idx_staff_performance` (`id_staff`),
+  ADD KEY `idx_periode_performance` (`bulan_periode`, `tahun_periode`),
+  ADD KEY `idx_status_performance` (`status_kinerja`);
+
+--
+-- Indexes for table `tb_staff_attendance`
+--
+ALTER TABLE `tb_staff_attendance`
+  ADD PRIMARY KEY (`id_attendance`),
+  ADD KEY `idx_staff_attendance` (`id_staff`),
+  ADD KEY `idx_tanggal_attendance` (`tanggal`),
+  ADD KEY `idx_status_attendance` (`status_kehadiran`);
+
+--
+-- Indexes for table `tb_laporan_waktu_tunggu`
+--
+ALTER TABLE `tb_laporan_waktu_tunggu`
+  ADD PRIMARY KEY (`id_laporan`),
+  ADD KEY `idx_tanggal_jam` (`tanggal_laporan`,`jam_laporan`),
+  ADD KEY `idx_hari` (`hari`);
+
+--
+-- AUTO_INCREMENT for new tables
+--
+ALTER TABLE `tb_performance_staff`
+  MODIFY `id_performance` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+ALTER TABLE `tb_staff_attendance`
+  MODIFY `id_attendance` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+ALTER TABLE `tb_laporan_waktu_tunggu`
+  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+
+--
+-- Constraints for new tables
+--
+ALTER TABLE `tb_performance_staff`
+  ADD CONSTRAINT `fk_performance_staff` FOREIGN KEY (`id_staff`) REFERENCES `tb_staff` (`id_staff`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `tb_staff_attendance`
+  ADD CONSTRAINT `fk_attendance_staff` FOREIGN KEY (`id_staff`) REFERENCES `tb_staff` (`id_staff`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 COMMIT;
 

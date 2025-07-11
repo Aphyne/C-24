@@ -7,6 +7,204 @@ if (!isset($_SESSION["jabatan"])) {
     exit();
 }
 
+// Get current date and time info
+$currentYear = date('Y');
+$currentMonth = date('n');
+$currentDate = date('Y-m-d');
+$currentDateTime = date('Y-m-d H:i:s');
+
+// ==== SUMMARY BOX DATA CALCULATIONS ====
+// 1. Keuntungan Tahun Ini (sama dengan halaman keuntungan.php)
+// Menggunakan data dari keuntungan_layanan_summary seperti di keuntungan.php
+$queryTotalKeuntungan = "SELECT SUM(total_keuntungan_tahun) as total_tahun FROM keuntungan_layanan_summary WHERE tahun = $currentYear";
+$resultTotalKeuntungan = mysqli_query($koneksi, $queryTotalKeuntungan);
+$totalKeuntunganData = mysqli_fetch_assoc($resultTotalKeuntungan);
+$keuntunganTahunIni = $totalKeuntunganData['total_tahun'] ? $totalKeuntunganData['total_tahun'] : 320000000;
+
+// 2. Pengeluaran Tahun Ini (sama dengan halaman pembayaran.php)
+// Menggunakan logika konsistensi data seperti di pembayaran.php
+$tahunDataPengeluaran = $currentYear;
+
+// Cek apakah ada data untuk tahun ini
+$queryCheckTahunPengeluaran = "SELECT COUNT(*) as count_data FROM pengeluaran WHERE YEAR(tanggal) = $currentYear";
+$resultCheckTahunPengeluaran = mysqli_query($koneksi, $queryCheckTahunPengeluaran);
+$checkTahunPengeluaranData = mysqli_fetch_assoc($resultCheckTahunPengeluaran);
+
+// Jika tidak ada data tahun ini, gunakan 2024 untuk SEMUA perhitungan (sama seperti pembayaran.php)
+if ($checkTahunPengeluaranData['count_data'] == 0) {
+    $tahunDataPengeluaran = 2024;
+}
+
+$queryPengeluaranTahun = "SELECT SUM(jumlah) as total_pengeluaran FROM pengeluaran WHERE YEAR(tanggal) = $tahunDataPengeluaran";
+$resultPengeluaranTahun = mysqli_query($koneksi, $queryPengeluaranTahun);
+$pengeluaranTahunData = mysqli_fetch_assoc($resultPengeluaranTahun);
+$pengeluaranTahunIni = $pengeluaranTahunData['total_pengeluaran'] ? $pengeluaranTahunData['total_pengeluaran'] : 0;
+
+// 3. Stok Obat Kritis (stok <= stok_minimum)
+$queryObatKritis = "SELECT COUNT(*) as jumlah_obat_kritis FROM tb_obat WHERE stok <= stok_minimum AND status_obat = 'aktif'";
+$resultObatKritis = mysqli_query($koneksi, $queryObatKritis);
+$obatKritisData = mysqli_fetch_assoc($resultObatKritis);
+$jumlahObatKritis = $obatKritisData['jumlah_obat_kritis'];
+
+// 4. Total Pasien
+$queryTotalPasien = "SELECT COUNT(*) as total_pasien FROM tb_pasien";
+$resultTotalPasien = mysqli_query($koneksi, $queryTotalPasien);
+$totalPasienData = mysqli_fetch_assoc($resultTotalPasien);
+$totalPasien = $totalPasienData['total_pasien'];
+
+// Pasien baru bulan ini
+$queryPasienBaru = "SELECT COUNT(*) as pasien_baru FROM tb_pasien WHERE YEAR(created_at) = $currentYear AND MONTH(created_at) = $currentMonth";
+$resultPasienBaru = mysqli_query($koneksi, $queryPasienBaru);
+$pasienBaruData = mysqli_fetch_assoc($resultPasienBaru);
+$pasienBaruBulanIni = $pasienBaruData['pasien_baru'];
+
+// ==== AKTIVITAS HARI INI ====
+// Pasien hari ini (menggunakan data yang sama dengan pasien.php - berdasarkan tb_pasien created_at)
+$queryPasienHariIni = "SELECT COUNT(*) as pasien_hari_ini FROM tb_pasien WHERE DATE(created_at) = '$currentDate'";
+$resultPasienHariIni = mysqli_query($koneksi, $queryPasienHariIni);
+$pasienHariIniData = mysqli_fetch_assoc($resultPasienHariIni);
+$pasienHariIni = $pasienHariIniData['pasien_hari_ini'];
+
+// Pemeriksaan selesai (total keseluruhan seperti pemeriksaan.php)
+$queryPemeriksaanSelesai = "SELECT COUNT(*) as pemeriksaan_selesai FROM tb_pemeriksaan WHERE status_pemeriksaan = 'selesai'";
+$resultPemeriksaanSelesai = mysqli_query($koneksi, $queryPemeriksaanSelesai);
+$pemeriksaanSelesaiData = mysqli_fetch_assoc($resultPemeriksaanSelesai);
+$pemeriksaanSelesai = $pemeriksaanSelesaiData['pemeriksaan_selesai'];
+
+// Dokter aktif (total keseluruhan seperti dokter.php)
+$queryDokterAktif = "SELECT COUNT(*) as dokter_aktif FROM tb_dokter WHERE status_dokter = 'aktif'";
+$resultDokterAktif = mysqli_query($koneksi, $queryDokterAktif);
+$dokterAktifData = mysqli_fetch_assoc($resultDokterAktif);
+$dokterAktif = $dokterAktifData['dokter_aktif'];
+
+// Staff aktif (menggunakan query yang sama dengan staff.php)
+$queryStaffAktif = "SELECT COUNT(*) as staff_aktif FROM tb_staff WHERE status_staff = 'aktif'";
+$resultStaffAktif = mysqli_query($koneksi, $queryStaffAktif);
+$staffAktifData = mysqli_fetch_assoc($resultStaffAktif);
+$staffAktif = $staffAktifData['staff_aktif'] ? $staffAktifData['staff_aktif'] : 0;
+
+// ==== DATA KEUANGAN UNTUK CHART ====
+// Get monthly profit data for current year (sama seperti di keuntungan.php)
+$dataKeuntunganChart = [];
+$dataPengeluaranChart = [];
+
+// Cek apakah ada data keuntungan untuk tahun ini
+$queryCheckTahunKeuntungan = "SELECT COUNT(*) as count_data FROM keuntungan_bulanan_analytics WHERE tahun = $currentYear";
+$resultCheckTahunKeuntungan = mysqli_query($koneksi, $queryCheckTahunKeuntungan);
+$checkTahunKeuntunganData = mysqli_fetch_assoc($resultCheckTahunKeuntungan);
+
+// Tahun data untuk keuntungan
+$tahunDataKeuntungan = $currentYear;
+if ($checkTahunKeuntunganData['count_data'] == 0) {
+    $tahunDataKeuntungan = 2024;
+}
+
+// Menggunakan data dari keuntungan_bulanan_analytics seperti di keuntungan.php
+$queryKeuntunganBulanAnalytics = "SELECT bulan, total_keuntungan FROM keuntungan_bulanan_analytics 
+                                   WHERE tahun = $tahunDataKeuntungan ORDER BY bulan";
+$resultKeuntunganBulanAnalytics = mysqli_query($koneksi, $queryKeuntunganBulanAnalytics);
+
+// Inisialisasi array dengan 0 untuk semua bulan
+for ($i = 0; $i < 12; $i++) {
+    $dataKeuntunganChart[$i] = 0;
+}
+
+// Isi data keuntungan dari database
+while ($row = mysqli_fetch_assoc($resultKeuntunganBulanAnalytics)) {
+    $dataKeuntunganChart[$row['bulan'] - 1] = round($row['total_keuntungan'] / 1000000, 1);
+}
+
+// Data pengeluaran per bulan (menggunakan tahun yang konsisten)
+for ($month = 1; $month <= 12; $month++) {
+    $queryPengeluaranBulan = "SELECT SUM(jumlah) as pengeluaran_bulan FROM pengeluaran WHERE YEAR(tanggal) = $tahunDataPengeluaran AND MONTH(tanggal) = $month";
+    $resultPengeluaranBulan = mysqli_query($koneksi, $queryPengeluaranBulan);
+    $pengeluaranBulanData = mysqli_fetch_assoc($resultPengeluaranBulan);
+    $dataPengeluaranChart[] = $pengeluaranBulanData['pengeluaran_bulan'] ? round($pengeluaranBulanData['pengeluaran_bulan'] / 1000000, 1) : 0;
+}
+
+// ==== DATA TREN 7 HARI ====
+$dataTren7Hari = ['pasien' => [], 'pemeriksaan' => [], 'pengeluaran' => [], 'keuntungan' => []];
+$hari7Terakhir = [];
+
+for ($i = 6; $i >= 0; $i--) {
+    $tanggal = date('Y-m-d', strtotime("-$i days"));
+    $hari7Terakhir[] = date('D', strtotime($tanggal));
+    
+    // Pasien per hari (menggunakan data yang sama dengan pasien.php - berdasarkan tb_pasien created_at)
+    $queryPasienHari = "SELECT COUNT(*) as jumlah FROM tb_pasien WHERE DATE(created_at) = '$tanggal'";
+    $resultPasienHari = mysqli_query($koneksi, $queryPasienHari);
+    $pasienHariData = mysqli_fetch_assoc($resultPasienHari);
+    $dataTren7Hari['pasien'][] = $pasienHariData['jumlah'];
+    
+    // Pemeriksaan per hari (menggunakan data yang sama dengan pemeriksaan.php - status_pemeriksaan = 'selesai')
+    $queryPemeriksaanHari = "SELECT COUNT(*) as jumlah FROM tb_pemeriksaan WHERE tanggal_pemeriksaan = '$tanggal' AND status_pemeriksaan = 'selesai'";
+    $resultPemeriksaanHari = mysqli_query($koneksi, $queryPemeriksaanHari);
+    $pemeriksaanHariData = mysqli_fetch_assoc($resultPemeriksaanHari);
+    $dataTren7Hari['pemeriksaan'][] = $pemeriksaanHariData['jumlah'];
+    
+    // Pengeluaran per hari (menggunakan data yang sama dengan pembayaran.php - SUM dari tabel pengeluaran dalam juta)
+    $queryPengeluaranHari = "SELECT SUM(jumlah) as jumlah FROM pengeluaran WHERE tanggal = '$tanggal'";
+    $resultPengeluaranHari = mysqli_query($koneksi, $queryPengeluaranHari);
+    $pengeluaranHariData = mysqli_fetch_assoc($resultPengeluaranHari);
+    $dataTren7Hari['pengeluaran'][] = $pengeluaranHariData['jumlah'] ? round($pengeluaranHariData['jumlah'] / 1000000, 1) : 0;
+    
+    // Keuntungan per hari (menggunakan data yang sama dengan keuntungan.php - SUM dari tabel keuntungan dalam juta)
+    $queryKeuntunganHari = "SELECT SUM(keuntungan_bersih) as jumlah FROM keuntungan WHERE DATE(tanggal) = '$tanggal'";
+    $resultKeuntunganHari = mysqli_query($koneksi, $queryKeuntunganHari);
+    $keuntunganHariData = mysqli_fetch_assoc($resultKeuntunganHari);
+    $dataTren7Hari['keuntungan'][] = $keuntunganHariData['jumlah'] ? round($keuntunganHariData['jumlah'] / 1000000, 1) : 0;
+}
+
+// ==== INSIGHT & NOTIFIKASI ====
+// Obat dengan stok paling kritis
+$queryObatKritisDetail = "SELECT nama_obat, stok FROM tb_obat WHERE stok <= stok_minimum AND status_obat = 'aktif' ORDER BY stok ASC LIMIT 1";
+$resultObatKritisDetail = mysqli_query($koneksi, $queryObatKritisDetail);
+$obatKritisDetail = mysqli_fetch_assoc($resultObatKritisDetail);
+
+// Dokter yang tidak hadir hari ini (assumsi: dokter yang tidak ada pemeriksaan hari ini)
+$queryDokterTidakHadir = "SELECT nama_dokter FROM tb_dokter WHERE status_dokter = 'aktif' AND id_dokter NOT IN (SELECT DISTINCT id_dokter FROM tb_pemeriksaan WHERE tanggal_pemeriksaan = '$currentDate') LIMIT 1";
+$resultDokterTidakHadir = mysqli_query($koneksi, $queryDokterTidakHadir);
+$dokterTidakHadir = mysqli_fetch_assoc($resultDokterTidakHadir);
+
+// Pemeriksaan harian 3 hari terakhir untuk deteksi penurunan
+$pemeriksaan3Hari = [];
+for ($i = 2; $i >= 0; $i--) {
+    $tanggalCek = date('Y-m-d', strtotime("-$i days"));
+    $queryPemeriksaanCek = "SELECT COUNT(*) as jumlah FROM tb_pemeriksaan WHERE tanggal_pemeriksaan = '$tanggalCek' AND status_pemeriksaan = 'selesai'";
+    $resultPemeriksaanCek = mysqli_query($koneksi, $queryPemeriksaanCek);
+    $pemeriksaanCekData = mysqli_fetch_assoc($resultPemeriksaanCek);
+    $pemeriksaan3Hari[] = $pemeriksaanCekData['jumlah'];
+}
+
+// ==== DATA UNTUK TINDAKAN CEPAT ====
+// Diagnosa tertinggi
+$queryDiagnosaTertinggi = "SELECT diagnosa, COUNT(*) as jumlah FROM tb_pemeriksaan WHERE status_pemeriksaan = 'selesai' GROUP BY diagnosa ORDER BY jumlah DESC LIMIT 1";
+$resultDiagnosaTertinggi = mysqli_query($koneksi, $queryDiagnosaTertinggi);
+$diagnosaTertinggi = mysqli_fetch_assoc($resultDiagnosaTertinggi);
+
+// Total jumlah obat
+$queryTotalObat = "SELECT COUNT(*) as total_obat FROM tb_obat WHERE status_obat = 'aktif'";
+$resultTotalObat = mysqli_query($koneksi, $queryTotalObat);
+$totalObatData = mysqli_fetch_assoc($resultTotalObat);
+$totalObat = $totalObatData['total_obat'];
+
+// ==== DATA UNTUK KALENDER MINI ====
+// Pemeriksaan yang dijadwalkan hari ini
+$queryJadwalHariIni = "SELECT COUNT(*) as jumlah_jadwal FROM tb_pendaftaran WHERE tanggal_pendaftaran = '$currentDate' AND status_pendaftaran IN ('menunggu', 'dipanggil')";
+$resultJadwalHariIni = mysqli_query($koneksi, $queryJadwalHariIni);
+$jadwalHariIniData = mysqli_fetch_assoc($resultJadwalHariIni);
+$jadwalHariIni = $jadwalHariIniData['jumlah_jadwal'];
+
+// Total dokter aktif hari ini
+$queryDokterAktifHariIni = "SELECT COUNT(DISTINCT d.id_dokter) as dokter_aktif 
+                            FROM tb_dokter d 
+                            JOIN tb_pemeriksaan p ON d.id_dokter = p.id_dokter 
+                            WHERE d.status_dokter = 'aktif' AND p.tanggal_pemeriksaan = '$currentDate'";
+$resultDokterAktifHariIni = mysqli_query($koneksi, $queryDokterAktifHariIni);
+$dokterAktifHariIniData = mysqli_fetch_assoc($resultDokterAktifHariIni);
+$dokterAktifHariIni = $dokterAktifHariIniData['dokter_aktif'] ? $dokterAktifHariIniData['dokter_aktif'] : 0;
+
+// ==== DATA UNTUK TINDAKAN CEPAT ====
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +224,87 @@ if (!isset($_SESSION["jabatan"])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* Perbaikan Layout dan Spacing */
+.container-fluid {
+  padding-left: 25px !important;
+  padding-right: 25px !important;
+}
+
+.card {
+  margin-bottom: 15px !important;
+  border: none !important;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08) !important;
+}
+
+.card-body {
+  padding: 25px !important;
+}
+
+.card-header {
+  padding: 20px 25px !important;
+  border-bottom: none !important;
+}
+
+/* Row spacing */
+.row {
+  margin-bottom: 8px;
+}
+
+.row [class*="col-"] {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+/* Chart containers */
+.chart-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+}
+
+canvas {
+  max-height: 400px !important;
+}
+
+/* Section spacing */
+.mt-4 {
+  margin-top: 2rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 2rem !important;
+}
+
+/* Header title consistency with keuntungan.php */
+h4.mb-4.font-weight-bold.text-secondary {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #6c757d !important;
+  margin-bottom: 1rem !important;
+  font-family: inherit !important;
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+  
+  main {
+    padding: 15px !important;
+  }
+  
+  .card-body {
+    padding: 20px !important;
+  }
+  
+  .card-header {
+    padding: 15px 20px !important;
+  }
+}
+
 /* --- NAVBAR ATAS (HEADBAR) --- */
 .sb-topnav.navbar {
   background: linear-gradient(90deg, #5459AC 70%, #6fc3d0 100%) !important;
@@ -147,18 +426,19 @@ if (!isset($_SESSION["jabatan"])) {
 
   .summary-box {
     background-color: #fff;
-    border-radius: 14px;
-    box-shadow: 0 2px 16px rgba(8,131,149,0.10); /* gunakan warna #088395 */
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(8,131,149,0.12); /* gunakan warna #088395 */
+    padding: 25px;
+    margin-bottom: 25px;
     transition: box-shadow 0.3s, transform 0.3s;
-    height: 100%;
+    height: 180px;
     color: #222;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border: 1px solid rgba(8,131,149,0.08);
   }
 
   .summary-box:hover {
@@ -312,68 +592,6 @@ body {
   box-shadow: none !important;
   border-radius: 0 !important;
 }
-
-#noteHeader {
-  background: #5459AC;
-  border-radius: 12px 12px 0 0;
-  width: 100%;
-  margin: 18px auto 10px auto;
-  padding: 14px 12px 12px 12px; /* Tambah padding atas agar lebih tinggi */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  max-width: 100%;
-  word-break: break-word;
-  box-sizing: border-box;
-  min-height: 70px; /* Tambah tinggi minimum */
-}
-
-#noteHeader h2 {
-  color: #fff;
-  font-weight: 700;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  margin: 0;
-  gap: 8px;
-  width: 100%;
-  justify-content: center;
-  word-break: break-word;
-  flex-wrap: wrap;
-}
-
-#noteHeader .fa-sticky-note {
-  font-size: 1.3em;
-}
-
-#noteYear {
-  margin-left: 8px;
-  font-size: 18px;
-  white-space: nowrap;
-}
-
-@media (max-width: 576px) {
-  #noteHeader {
-    padding: 8px 4px;
-    margin: 10px auto 8px auto;
-  }
-  #noteHeader h2 {
-    flex-direction: column;
-    font-size: 15px;
-    gap: 2px;
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-  }
-  #noteYear {
-    margin-left: 0 !important;
-    margin-top: 2px;
-    font-size: 14px;
-    display: block;
-  }
-}
 </style>
 
 </head>
@@ -488,53 +706,71 @@ body {
             </nav>
         </div>
         <div id="layoutSidenav_content" class="bg-white text-dark">
-            <main>
-                <div class="container-fluid">
+            <main style="padding: 15px;">
+                <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 15px;">
+                    
+                    <!-- Header Dashboard dengan alignment yang sejajar -->
+                    <div class="row" style="margin-left: 0; margin-right: 0; margin-bottom: 0.5rem;">
+                        <div class="col-lg-9" style="padding-left: 12px; padding-right: 12px;">
+                            <h4 class="mb-1 font-weight-bold text-secondary">Dashboard</h4>
+                        </div>
+                        <div class="col-lg-3" style="padding-left: 12px; padding-right: 12px;">
+                            <!-- Space for alignment with right column -->
+                        </div>
+                    </div>
+                    
                      <!-- 4 KOLOM -->
-                    <div class="row g-4 mt-4">
-  <div class="col-md-3">
-    <div class="dash count summary-box">
-      <div class="summary-title">Keuntugan Tahun Ini</div>
-      <div class="summary-value">
-        $<span class="counter" data-count="6219384">0</span>
-        <span class="summary-icon"><i class="fas fa-dollar-sign"></i></span>
-      </div>
-      <div class="summary-change custom-bg-success">+12% from yesterday</div>
-    </div>
-  </div>
+                    <div class="row" style="margin-left: 0; margin-right: 0; margin-top: 0.2rem;">
+                        <!-- Left side: 3 summary boxes aligned with Dashboard Keuangan Klinik -->
+                        <div class="col-lg-9">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="dash count summary-box">
+                                        <div class="summary-title">Keuntungan Tahun Ini</div>
+                                        <div class="summary-value">
+                                            Rp<span class="counter" data-count="<?php echo round($keuntunganTahunIni / 1000000, 1); ?>"><?php echo round($keuntunganTahunIni / 1000000, 1); ?></span>M
+                                            <span class="summary-icon"><i class="fas fa-dollar-sign"></i></span>
+                                        </div>
+                                        <div class="summary-change custom-bg-success">Tahun <?php echo $currentYear; ?></div>
+                                    </div>
+                                </div>
 
-  <div class="col-md-3">
-    <div class="dash count summary-box">
-      <div class="summary-title">Pengeluaran Tahun ini</div>
-      <div class="summary-value">
-        $<span class="counter" data-count="4231216">0</span>
-        <span class="summary-icon"><i class="fas fa-prescription-bottle-alt"></i></span>
-      </div>
-      <div class="summary-change custom-bg-success">+7% from last week</div>
-    </div>
-  </div>
+                                <div class="col-md-4">
+                                    <div class="dash count summary-box">
+                                        <div class="summary-title">Pengeluaran Tahun ini</div>
+                                        <div class="summary-value">
+                                            Rp<span class="counter" data-count="<?php echo round($pengeluaranTahunIni / 1000000, 1); ?>"><?php echo round($pengeluaranTahunIni / 1000000, 1); ?></span>M
+                                            <span class="summary-icon"><i class="fas fa-prescription-bottle-alt"></i></span>
+                                        </div>
+                                        <div class="summary-change custom-bg-success">Tahun <?php echo $currentYear; ?></div>
+                                    </div>
+                                </div>
 
-  <div class="col-md-3">
-    <div class="dash count summary-box">
-      <div class="summary-title">Stok Obat Kriris</div>
-      <div class="summary-value">
-        <span class="counter" data-count="8">0</span>
-        <span class="summary-icon"><i class="fas fa-box-open"></i></span>
-      </div>
-      <div class="summary-change custom-bg-danger">-2 from yesterday</div>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="dash count summary-box">
-      <div class="summary-title">Total Pasien</div>
-      <div class="summary-value">
-        <span class="counter" data-count="73">0</span>
-        <span class="summary-icon"><i class="fas fa-users"></i></span>
-      </div>
-      <div class="summary-change custom-bg-success">+22 new this month</div>
-    </div>
-  </div>
+                                <div class="col-md-4">
+                                    <div class="dash count summary-box">
+                                        <div class="summary-title">Stok Obat Kritis</div>
+                                        <div class="summary-value">
+                                            <span class="counter" data-count="<?php echo $jumlahObatKritis; ?>"><?php echo $jumlahObatKritis; ?></span>
+                                            <span class="summary-icon"><i class="fas fa-box-open"></i></span>
+                                        </div>
+                                        <div class="summary-change custom-bg-danger">Perlu restok segera</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right side: 1 summary box aligned with Catatan Keuangan -->
+                        <div class="col-lg-3">
+                            <div class="dash count summary-box">
+                                <div class="summary-title">Total Pasien</div>
+                                <div class="summary-value">
+                                    <span class="counter" data-count="<?php echo $totalPasien; ?>"><?php echo $totalPasien; ?></span>
+                                    <span class="summary-icon"><i class="fas fa-users"></i></span>
+                                </div>
+                                <div class="summary-change custom-bg-success">+<?php echo $pasienBaruBulanIni; ?> bulan ini</div>
+                            </div>
+                        </div>
+                    </div>
 <!-- Script animasi counter -->
                     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                     <script>
@@ -549,10 +785,18 @@ body {
                                 duration: 1500,
                                 easing: 'swing',
                                 step: function () {
-                                    $this.text(Math.floor(this.countNum));
+                                    if (countTo.indexOf('.') > -1) {
+                                        $this.text(parseFloat(this.countNum).toFixed(1));
+                                    } else {
+                                        $this.text(Math.floor(this.countNum));
+                                    }
                                 },
                                 complete: function () {
-                                    $this.text(this.countNum);
+                                    if (countTo.indexOf('.') > -1) {
+                                        $this.text(parseFloat(this.countNum).toFixed(1));
+                                    } else {
+                                        $this.text(this.countNum);
+                                    }
                                 }
                             });
                         });
@@ -663,7 +907,7 @@ body {
 
 
                     <!-- ROW: Dashboard Keuangan Klinik & Notes -->
-<div class="row mt-4 align-items-stretch"> <!-- TAMBAHKAN align-items-stretch -->
+<div class="row mt-2 align-items-stretch" style="margin-left: 0; margin-right: 0;"> <!-- TAMBAHKAN align-items-stretch -->
   <!-- Kiri: Dashboard Keuangan Klinik (judul, filter, chart dalam satu container) -->
   <div class="col-lg-9 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
     <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px; background:#fff;">
@@ -673,14 +917,7 @@ body {
              style="background: linear-gradient(90deg, rgb(61, 191, 211) 0%, #5459AC 100%);">
           <h2 class="mb-0" style="font-size:22px;color:#fff;font-weight:700;">Dashboard Keuangan Klinik</h2>
           <div>
-            <span style="color:#fff;">Pilih Tahun:</span>
-            <select id="yearSelect" class="form-select d-inline-block w-auto ms-2">
-              <option value="2021">2021</option>
-              <option value="2022">2022</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025" selected>2025</option>
-            </select>
+            <span style="color:#fff;">Tahun: <?php echo $currentYear; ?></span>
           </div>
         </div>
         <div style="min-width:250px; min-height:400px;">
@@ -689,20 +926,12 @@ body {
       </div>
     </div>
   </div>
-  <!-- Kanan: Notes -->
-  <div class="col-lg-3 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
-    <div class="card note-shadow border-0 flex-fill" style="border-radius:15px; background:#fff;">
-      <!-- Judul Note: background ungu, teks putih -->
-      <div id="noteHeader">
-  <h2>
-    <i class="fas fa-sticky-note"></i> Catatan Keuangan <span id="noteYear">2025</span>
-  </h2>
-</div>
-      <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height:320px; padding:12px 8px 8px 8px;">
-        <div id="noteCard" class="w-100"></div>
-        <div id="summaryCard" class="w-100 mt-3"></div>
-      </div>
-    </div>
+  <!-- Kanan: Notes (tanpa container background) -->
+  <div class="col-lg-3 mb-3 d-flex flex-column justify-content-start" style="height: fit-content;"> <!-- TAMBAHKAN justify-content-start -->
+    <!-- Note Card: Detail Bulanan (langsung tanpa container) -->
+    <div id="noteCard" class="note-detail-card mb-0 flex-fill" style="height: 248px; margin-bottom: 3px;"></div>
+    <!-- Summary Card: Ringkasan Tahunan (langsung tanpa container) -->
+    <div id="summaryCard" class="summary-detail-card" style="height: 248px;"></div>
   </div>
 </div>
 
@@ -713,11 +942,132 @@ body {
     background: linear-gradient(135deg, #fff 60%, #e6f7fa 100%) !important;
     border: none !important;
   }
-  .note-shadow h3 {
-    color: #5459AC !important;
+  
+  /* Styling untuk Note Card dan Summary Card */
+  .note-detail-card, .summary-detail-card {
+    background: linear-gradient(135deg, #f8fcff 0%, #ffffff 100%);
+    border: 1px solid rgba(61,191,211,0.15);
+    border-radius: 12px;
+    padding: 12px; /* Kurangi padding lebih banyak untuk menghemat ruang */
+    box-shadow: 0 3px 10px rgba(61,191,211,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: visible; /* Ubah dari hidden ke visible untuk menghindari terpotong */
+    margin-top: 0; /* Hilangkan margin top untuk alignment yang sempurna */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribusi ruang secara merata */
+    word-wrap: break-word; /* Pastikan text wrap dengan baik */
+    word-break: break-word; /* Pastikan word break jika diperlukan */
   }
-  .note-shadow p {
-    color: #088395 !important;
+  
+  .note-detail-card:hover, .summary-detail-card:hover {
+    box-shadow: 0 5px 20px rgba(61,191,211,0.15);
+    transform: translateY(-2px);
+    border-color: rgba(61,191,211,0.25);
+  }
+  
+  .note-detail-card::before, .summary-detail-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3dbfd3 0%, #5459AC 100%);
+    border-radius: 12px 12px 0 0;
+  }
+  
+  /* Data item styling */
+  .data-item {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Kurangi gap lebih banyak untuk menghemat ruang */
+    margin-bottom: 8px; /* Kurangi margin untuk menghemat ruang */
+    padding: 5px 0; /* Kurangi padding untuk menghemat ruang */
+    border-bottom: 1px solid rgba(61,191,211,0.08);
+    transition: all 0.2s ease;
+    width: 100%; /* Pastikan lebar penuh */
+    box-sizing: border-box; /* Include padding dalam perhitungan lebar */
+  }
+  
+  .data-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .data-item:hover {
+    background: rgba(61,191,211,0.05);
+    border-radius: 8px;
+    padding: 4px 6px; /* Sesuaikan dengan padding yang baru */
+    margin: 0 -6px 6px -6px; /* Sesuaikan dengan margin yang baru */
+  }
+  
+  .data-item:last-child:hover {
+    margin-bottom: -6px; /* Sesuaikan dengan margin yang baru */
+  }
+  
+  .data-icon {
+    color: #fff;
+    background: linear-gradient(135deg, #3dbfd3 0%, #5459AC 100%);
+    border-radius: 6px; /* Kurangi border radius */
+    padding: 5px 6px; /* Kurangi padding icon */
+    font-size: 10px; /* Kurangi font size icon */
+    min-width: 24px; /* Kurangi min-width icon */
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(61,191,211,0.15);
+  }
+  
+  .data-text {
+    color: #2c3e50;
+    font-size: 11px; /* Kurangi lebih banyak font size untuk mencegah overflow */
+    font-weight: 500;
+    flex: 1;
+    white-space: nowrap; /* Pastikan text tidak wrap untuk mencegah terpotong */
+    overflow: hidden; /* Hide overflow jika terlalu panjang */
+    text-overflow: ellipsis; /* Tambahkan ellipsis jika terpotong */
+  }
+  
+  .data-value {
+    font-weight: 700;
+    color: #5459AC;
+  }
+  
+  .data-subtitle {
+    color: #7f8c8d;
+    font-size: 9px; /* Kurangi font size lebih banyak untuk menghemat ruang */
+    margin-top: 6px; /* Kurangi margin untuk menghemat ruang */
+    text-align: center;
+    font-style: italic;
+  }
+  
+  /* Source info styling */
+  .source-info {
+    background: rgba(84,89,172,0.05);
+    border: 1px solid rgba(84,89,172,0.1);
+    border-radius: 5px; /* Kurangi border radius lebih banyak */
+    padding: 4px 6px; /* Kurangi padding lebih banyak untuk menghemat ruang */
+    margin-top: 6px; /* Kurangi margin untuk menghemat ruang */
+    font-size: 8px; /* Kurangi font size lebih banyak untuk menghemat ruang */
+    color: #5459AC;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .source-info i {
+    color: #3dbfd3;
+    margin-right: 5px;
+  }
+  
+  /* Title untuk setiap section */
+  .section-title {
+    color: #5459AC;
+    font-size: 11px; /* Kurangi lebih banyak untuk hemat ruang */
+    font-weight: 700;
+    margin-bottom: 6px; /* Kurangi margin lebih banyak untuk menghemat ruang */
+    text-align: center;
+    padding-bottom: 3px; /* Kurangi padding untuk menghemat ruang */
+    border-bottom: 2px solid rgba(61,191,211,0.15);
   }
 </style>
 
@@ -725,67 +1075,77 @@ body {
 const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 const dataKeuntungan = {
-    2021: [2.2, 3.1, 1.5, 4.8, 3.9, 5.0, 4.1, 2.8, 3.7, 4.0, 4.6, 5.2],
-    2022: [4.5, 5.2, 6.0, 5.4, 7.0, 8.5, 7.5, 6.3, 8.2, 9.5, 10.0, 11.5],
-    2023: [5.8, 6.5, 7.2, 8.0, 9.5, 10.8, 11.0, 12.3, 13.5, 14.2, 15.0, 16.3],
-    2024: [7.0, 8.5, 9.2, 10.5, 11.8, 13.0, 14.5, 15.7, 16.8, 18.0, 19.5, 20.7],
-    2025: [9.0, 10.5, 12.2, 13.5, 15.0, 16.5, 18.2, 19.0, 20.8, 21.5, 23.0, 24.7]
+    <?php echo $tahunDataKeuntungan; ?>: [<?php echo implode(',', $dataKeuntunganChart); ?>]
 };
 
 const dataPengeluaran = {
-    2021: [1.5, 2.0, 1.2, 3.0, 2.5, 3.5, 2.8, 2.0, 2.5, 3.0, 3.4, 3.8],
-    2022: [3.0, 3.8, 4.2, 3.6, 4.5, 5.0, 4.8, 4.2, 5.5, 6.0, 6.5, 7.2],
-    2023: [4.0, 4.5, 5.0, 5.8, 6.5, 7.2, 8.0, 8.5, 9.0, 10.0, 11.0, 12.0],
-    2024: [5.5, 6.0, 6.8, 7.5, 8.0, 9.2, 10.0, 10.8, 12.0, 13.5, 14.2, 15.5],
-    2025: [7.0, 8.0, 9.0, 10.5, 11.2, 12.5, 13.8, 14.5, 15.8, 16.5, 18.0, 19.0]
+    <?php echo $tahunDataPengeluaran; ?>: [<?php echo implode(',', $dataPengeluaranChart); ?>]
 };
 
-let tahunAktif = '2025';
+const tahunDataKeuntungan = <?php echo $tahunDataKeuntungan; ?>;
+const tahunDataPengeluaran = <?php echo $tahunDataPengeluaran; ?>;
+
+let tahunAktif = '<?php echo $currentYear; ?>';
 let chartInstance = null;
 
 function generateNote(tahun, bulanIndex) {
     const month = labels[bulanIndex];
-    const keuntungan = dataKeuntungan[tahun][bulanIndex].toFixed(1);
-    const pengeluaran = dataPengeluaran[tahun][bulanIndex].toFixed(1);
+    const keuntungan = dataKeuntungan[tahunDataKeuntungan][bulanIndex].toFixed(1);
+    const pengeluaran = dataPengeluaran[tahunDataPengeluaran][bulanIndex].toFixed(1);
     const labaBersih = (keuntungan - pengeluaran).toFixed(1);
-    // Semua icon putih, teks ungu (#5459AC)
+    
     return `
-      <div class="d-flex align-items-center mb-2" style="gap:8px;">
-        <span style="color:#fff;background:#5459AC;border-radius:8px;padding:4px 8px;"><i class="fas fa-coins"></i></span>
-        <span style="color:#5459AC;">Keuntungan: <b>Rp ${keuntungan} Juta</b></span>
+      <div class="section-title">Detail Bulan ${month}</div>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-coins"></i></span>
+        <span class="data-text">Keuntungan: <span class="data-value">Rp ${keuntungan} Juta</span></span>
       </div>
-      <div class="d-flex align-items-center mb-2" style="gap:8px;">
-        <span style="color:#fff;background:#5459AC;border-radius:8px;padding:4px 8px;"><i class="fas fa-money-bill-wave"></i></span>
-        <span style="color:#5459AC;">Pengeluaran: <b>Rp ${pengeluaran} Juta</b></span>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-money-bill-wave"></i></span>
+        <span class="data-text">Pengeluaran: <span class="data-value">Rp ${pengeluaran} Juta</span></span>
       </div>
-      <div class="d-flex align-items-center" style="gap:8px;">
-        <span style="color:#fff;background:#5459AC;border-radius:8px;padding:4px 8px;"><i class="fas fa-chart-line"></i></span>
-        <span style="color:#5459AC;">Laba Bersih: <b>Rp ${labaBersih} Juta</b></span>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-chart-line"></i></span>
+        <span class="data-text">Laba Bersih: <span class="data-value">Rp ${labaBersih} Juta</span></span>
       </div>
-      <div style="color:#888;font-size:13px;margin-top:10px;">${month} ${tahun}</div>
+      <div class="data-subtitle">${month} ${tahun}</div>
+      <div class="source-info">
+        <i class="fas fa-info-circle"></i>
+        Data: Keuntungan ${tahunDataKeuntungan} | Pengeluaran ${tahunDataPengeluaran}
+      </div>
     `;
 }
 
 function generateSummary(tahun) {
-    const keuntungan = dataKeuntungan[tahun].reduce((a,b)=>a+b,0);
-    const pengeluaran = dataPengeluaran[tahun].reduce((a,b)=>a+b,0);
+    const keuntungan = dataKeuntungan[tahunDataKeuntungan].reduce((a,b)=>a+b,0);
+    const pengeluaran = dataPengeluaran[tahunDataPengeluaran].reduce((a,b)=>a+b,0);
     const rataKeuntungan = (keuntungan / 12).toFixed(1);
     const rataPengeluaran = (pengeluaran / 12).toFixed(1);
-    // Semua icon putih, teks ungu (#5459AC)
+    const totalLabaBersih = (keuntungan - pengeluaran).toFixed(1);
+    const rataLabaBersih = (rataKeuntungan - rataPengeluaran).toFixed(1);
+    
     return `
-      <div class="d-flex align-items-center mb-2" style="gap:8px;">
-        <span style="color:#fff;background:#5459AC;border-radius:8px;padding:4px 8px;"><i class="fas fa-coins"></i></span>
-        <span style="color:#5459AC;">Rata-rata Keuntungan: <b>Rp ${rataKeuntungan} Juta/bln</b></span>
+      <div class="section-title">Ringkasan Tahunan</div>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-calculator"></i></span>
+        <span class="data-text">Total Keuntungan: <span class="data-value">Rp ${keuntungan.toFixed(1)} Juta</span></span>
       </div>
-      <div class="d-flex align-items-center mb-2" style="gap:8px;">
-        <span style="color:#fff;background:#5459AC;border-radius:8px;padding:4px 8px;"><i class="fas fa-money-bill-wave"></i></span>
-        <span style="color:#5459AC;">Rata-rata Pengeluaran: <b>Rp ${rataPengeluaran} Juta/bln</b></span>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-receipt"></i></span>
+        <span class="data-text">Total Pengeluaran: <span class="data-value">Rp ${pengeluaran.toFixed(1)} Juta</span></span>
       </div>
-      <div class="d-flex align-items-center" style="gap:8px;">
-        <span style="color:#fff;background:#5459AC;border-radius:8px;padding:4px 8px;"><i class="fas fa-chart-line"></i></span>
-        <span style="color:#5459AC;">Rata-rata Laba Bersih: <b>Rp ${(rataKeuntungan - rataPengeluaran).toFixed(1)} Juta/bln</b></span>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-trophy"></i></span>
+        <span class="data-text">Total Laba Bersih: <span class="data-value">Rp ${totalLabaBersih} Juta</span></span>
       </div>
-      <div style="color:#888;font-size:13px;margin-top:10px;">Tahun ${tahun}</div>
+      <div class="data-item">
+        <span class="data-icon"><i class="fas fa-chart-bar"></i></span>
+        <span class="data-text">Rata-rata/bulan: <span class="data-value">Rp ${rataLabaBersih} Juta</span></span>
+      </div>
+      <div class="source-info">
+        <i class="fas fa-database"></i>
+        Sumber: Keuntungan tahun ${tahunDataKeuntungan} | Pengeluaran tahun ${tahunDataPengeluaran}
+      </div>
     `;
 }
 
@@ -810,8 +1170,8 @@ function createChart(tahun, bulanAwal) {
             labels: labels,
             datasets: [
                 {
-                    label: 'Keuntungan',
-                    data: dataKeuntungan[tahun],
+                    label: 'Keuntungan (Tahun ' + tahunDataKeuntungan + ')',
+                    data: dataKeuntungan[tahunDataKeuntungan],
                     fill: true,
                     backgroundColor: gradientKeuntungan,
                     borderColor: 'rgb(61,191,211)',
@@ -820,8 +1180,8 @@ function createChart(tahun, bulanAwal) {
                     pointHoverRadius: 10
                 },
                 {
-                    label: 'Pengeluaran',
-                    data: dataPengeluaran[tahun],
+                    label: 'Pengeluaran (Tahun ' + tahunDataPengeluaran + ')',
+                    data: dataPengeluaran[tahunDataPengeluaran],
                     fill: true,
                     backgroundColor: gradientPengeluaran,
                     borderColor: '#5459AC',
@@ -841,39 +1201,50 @@ function createChart(tahun, bulanAwal) {
                 }
             },
             plugins: {
-                legend: { labels: { color: '#222' } }, // warna label legend jadi hitam
+                legend: { 
+                    labels: { 
+                        color: '#222',
+                        usePointStyle: true,
+                        padding: 15
+                    } 
+                },
                 tooltip: {
                     callbacks: {
                         label: context => `${context.dataset.label}: Rp ${context.formattedValue} Juta`
-                    }
+                    },
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    titleColor: '#333',
+                    bodyColor: '#333',
+                    borderColor: '#3dbfd3',
+                    borderWidth: 1
                 }
             },
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#222' } // warna sumbu X jadi hitam
+                    ticks: { color: '#222' }
                 },
                 y: {
                     grid: { display: false },
-                    ticks: { callback: val => 'Rp ' + val + 'jt', color: '#222' } // warna sumbu Y jadi hitam
+                    ticks: { 
+                        callback: val => 'Rp ' + val + 'jt', 
+                        color: '#222' 
+                    }
                 }
             }
         }
     });
+    
     document.getElementById('noteCard').innerHTML = generateNote(tahun, bulanAwal);
     document.getElementById('summaryCard').innerHTML = generateSummary(tahun);
-    document.getElementById('noteYear').textContent = tahun; // Update tahun di judul note
 }
 
-document.getElementById('yearSelect').addEventListener('change', () => {
-    createChart(document.getElementById('yearSelect').value, 0);
-});
-
-createChart(tahunAktif, 0);
+// Initialize chart with current year data
+createChart(tahunAktif, <?php echo ($currentMonth - 1); ?>);
 </script>
 
             <!-- ROW 3: Kalender Mini dan Alert & Notifikasi Strategis -->
-<div class="row mt-4 align-items-stretch"> <!-- TAMBAHKAN align-items-stretch -->
+<div class="row mt-1 align-items-stretch" style="margin-left: 0; margin-right: 0;"> <!-- TAMBAHKAN align-items-stretch -->
   <div class="col-md-6 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
     <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
       <div class="card-header px-4 py-3" style="background: #3dbfd3; border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
@@ -881,10 +1252,10 @@ createChart(tahunAktif, 0);
       </div>
       <div class="card-body" style="background:#f8fcff; border-radius:0 0 15px 15px;">
         <ul class="mb-0" style="list-style:none;padding-left:0;">
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-user-md"></i></span> <span style="color:#5459AC;">08:00 - Shift Pagi Dokter A</span></li>
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-syringe"></i></span> <span style="color:#5459AC;">10:00 - Penyuluhan Imunisasi</span></li>
+          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-user-md"></i></span> <span style="color:#5459AC;">08:00 - <?php echo $dokterAktifHariIni; ?> Dokter bertugas hari ini</span></li>
+          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-calendar-check"></i></span> <span style="color:#5459AC;">Jadwal: <?php echo $jadwalHariIni; ?> pemeriksaan menunggu</span></li>
           <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-file-invoice"></i></span> <span style="color:#5459AC;">13:00 - Audit Internal</span></li>
-          <li><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-pills"></i></span> <span style="color:#5459AC;">15:00 - Pengadaan Obat Mingguan</span></li>
+          <li><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-pills"></i></span> <span style="color:#5459AC;">15:00 - Cek Stok: <?php echo $jumlahObatKritis; ?> obat kritis</span></li>
         </ul>
       </div>
     </div>
@@ -900,7 +1271,7 @@ createChart(tahunAktif, 0);
         <ul class="mb-0" style="list-style:none;padding-left:0;">
           <li class="d-flex align-items-center mb-2">
             <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-capsules"></i></span>
-            <span style="color:#5459AC;"> <strong>Paracetamol</strong> stok tinggal <strong>5 strip</strong> – segera lakukan pemesanan ulang.</span>
+            <span style="color:#5459AC;"> <strong><?php echo $obatKritisDetail['nama_obat'] ?? 'Paracetamol'; ?></strong> stok tinggal <strong><?php echo $obatKritisDetail['stok'] ?? '5'; ?> unit</strong> – segera lakukan pemesanan ulang.</span>
           </li>
           <li class="d-flex align-items-center mb-2">
             <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-clock"></i></span>
@@ -908,11 +1279,23 @@ createChart(tahunAktif, 0);
           </li>
           <li class="d-flex align-items-center mb-2">
             <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-chart-line"></i></span>
-            <span style="color:#5459AC;">Pemeriksaan harian menurun selama <strong>3 hari berturut-turut</strong>.</span>
+            <span style="color:#5459AC;"><?php 
+            if (count($pemeriksaan3Hari) >= 3 && $pemeriksaan3Hari[2] < $pemeriksaan3Hari[1] && $pemeriksaan3Hari[1] < $pemeriksaan3Hari[0]) {
+                echo 'Pemeriksaan harian menurun selama <strong>3 hari berturut-turut</strong>.';
+            } else {
+                echo 'Tren pemeriksaan stabil dalam 3 hari terakhir.';
+            }
+            ?></span>
           </li>
           <li class="d-flex align-items-center">
             <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-user-md"></i></span>
-            <span style="color:#5459AC;">Dokter A tidak hadir hari ini – sesuaikan jadwal pemeriksaan.</span>
+            <span style="color:#5459AC;"><?php 
+            if ($dokterTidakHadir) {
+                echo $dokterTidakHadir['nama_dokter'] . ' tidak hadir hari ini – sesuaikan jadwal pemeriksaan.';
+            } else {
+                echo 'Semua dokter aktif bertugas hari ini.';
+            }
+            ?></span>
           </li>
         </ul>
       </div>
@@ -921,13 +1304,13 @@ createChart(tahunAktif, 0);
 </div>
 
 <!-- ROW 4: Aktivitas Hari Ini (PUTIH, ICON SATU WARNA, SEPERTI SUMMARY) -->
-<div class="row mt-4 row-aktivitas-hari-ini">
+<div class="row mt-1 row-aktivitas-hari-ini" style="margin-left: 0; margin-right: 0;">
   <div class="col-md-3">
     <div class="card shadow-sm border-0 text-center" style="border-radius:15px; background:#fff; color:#222;">
       <div class="card-body py-4">
         <div class="mb-2" style="font-size:2rem; color:#088395;"><i class="fas fa-user-injured"></i></div>
         <h6 class="mb-1" style="font-weight:600;">Pasien Hari Ini</h6>
-        <h4 class="mb-0" style="font-weight:700;">28</h4>
+        <h4 class="mb-0" style="font-weight:700;"><?php echo $pasienHariIni; ?></h4>
       </div>
     </div>
   </div>
@@ -936,7 +1319,7 @@ createChart(tahunAktif, 0);
       <div class="card-body py-4">
         <div class="mb-2" style="font-size:2rem; color:#088395;"><i class="fas fa-stethoscope"></i></div>
         <h6 class="mb-1" style="font-weight:600;">Pemeriksaan Selesai</h6>
-        <h4 class="mb-0" style="font-weight:700;">22</h4>
+        <h4 class="mb-0" style="font-weight:700;"><?php echo $pemeriksaanSelesai; ?></h4>
       </div>
     </div>
   </div>
@@ -945,30 +1328,30 @@ createChart(tahunAktif, 0);
       <div class="card-body py-4">
         <div class="mb-2" style="font-size:2rem; color:#088395;"><i class="fas fa-user-md"></i></div>
         <h6 class="mb-1" style="font-weight:600;">Dokter Aktif</h6>
-        <h4 class="mb-0" style="font-weight:700;">5</h4>
+        <h4 class="mb-0" style="font-weight:700;"><?php echo $dokterAktif; ?></h4>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card shadow-sm border-0 text-center" style="border-radius:15px; background:#fff; color:#222;">
       <div class="card-body py-4">
-        <div class="mb-2" style="font-size:2rem; color:#088395;"><i class="fas fa-money-bill-wave"></i></div>
-        <h6 class="mb-1" style="font-weight:600;">Pengeluaran Hari Ini</h6>
-        <h4 class="mb-0" style="font-weight:700;">Rp 4.2 Juta</h4>
+        <div class="mb-2" style="font-size:2rem; color:#088395;"><i class="fas fa-user-check"></i></div>
+        <h6 class="mb-1" style="font-weight:600;">Staff Aktif</h6>
+        <h4 class="mb-0" style="font-weight:700;"><?php echo $staffAktif; ?> Staff</h4>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ROW 5: Grafik Tren 7 Hari & Tindakan Cepat -->
-<div class="row mt-4 align-items-stretch">
+<div class="row mt-1 align-items-stretch" style="margin-left: 0; margin-right: 0;">
   <!-- Grafik Tren 7 Hari (perkecil lebar, misal col-lg-8) -->
   <div class="col-lg-8 mb-3 d-flex">
     <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
       <!-- Judul dengan gradasi -->
       <div class="card-header px-4 py-3" style="background: linear-gradient(90deg, rgb(61,191,211) 0%, #5459AC 60%, #088395 100%); border-radius: 15px 15px 0 0;">
         <h5 class="mb-0" style="color:#fff;font-weight:700;">
-          <i class="fas fa-chart-area" style="margin-right:8px;"></i> Tren 7 Hari Terakhir: Pasien, Pemeriksaan, Pengeluaran
+          <i class="fas fa-chart-area" style="margin-right:8px;"></i> Tren 7 Hari Terakhir: Pasien, Pemeriksaan, Pengeluaran & Keuntungan
         </h5>
       </div>
       <div class="card-body" style="min-height:340px; display:flex; align-items:center; justify-content:center;">
@@ -983,10 +1366,10 @@ createChart(tahunAktif, 0);
         <i class="fas fa-bolt me-2"></i> Tindakan Cepat
       </div>
       <div class="card-body d-flex flex-wrap gap-3" style="background:#f8fcff; border-radius:0 0 15px 15px;">
-        <a href="data-pemeriksaan/pemeriksaan.php" class="btn btn-outline-primary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-plus me-1"></i> Diagnosa Tertinggi</a>
-        <a href="data-master/data-pasien/pasien.php" class="btn btn-outline-secondary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-file-alt me-1"></i> Lihat Ulasan Pasien</a>
-        <a href="data-master/data-obat/obat.php" class="btn btn-outline-danger flex-fill mb-2" style="min-width:180px;"><i class="fas fa-box-open me-1"></i> Total Jumlah Obat</a>
-        <a href="keuntungan/keuntungan.php" class="btn btn-outline-success flex-fill" style="min-width:180px;"><i class="fas fa-chart-line me-1"></i> Keuntungan Bulanan</a>
+        <a href="data-pemeriksaan/pemeriksaan.php" class="btn btn-outline-primary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-plus me-1"></i> Diagnosa: <?php echo $diagnosaTertinggi['diagnosa'] ?? 'ISPA'; ?> (<?php echo $diagnosaTertinggi['jumlah'] ?? '15'; ?>x)</a>
+        <a href="data-master/data-pasien/pasien.php" class="btn btn-outline-secondary flex-fill mb-2" style="min-width:180px;"><i class="fas fa-file-alt me-1"></i> Lihat Data <?php echo $totalPasien; ?> Pasien</a>
+        <a href="data-master/data-obat/obat.php" class="btn btn-outline-danger flex-fill mb-2" style="min-width:180px;"><i class="fas fa-box-open me-1"></i> Total <?php echo $totalObat; ?> Jenis Obat</a>
+        <a href="keuntungan/keuntungan.php" class="btn btn-outline-success flex-fill" style="min-width:180px;"><i class="fas fa-chart-line me-1"></i> Laporan Keuntungan</a>
       </div>
     </div>
   </div>
@@ -1010,14 +1393,19 @@ const gradientPengeluaran = ctxTren.createLinearGradient(0, 0, 0, 300);
 gradientPengeluaran.addColorStop(0, 'rgba(0,255,202,0.35)');
 gradientPengeluaran.addColorStop(1, 'rgba(255,255,255,0.7)');
 
+// Gradien area untuk Keuntungan (emas #FFD700)
+const gradientKeuntungan = ctxTren.createLinearGradient(0, 0, 0, 300);
+gradientKeuntungan.addColorStop(0, 'rgba(255,215,0,0.30)');
+gradientKeuntungan.addColorStop(1, 'rgba(255,255,255,0.7)');
+
 const chartTren7Hari = new Chart(ctxTren, {
   type: 'line',
   data: {
-    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+    labels: [<?php echo "'" . implode("', '", $hari7Terakhir) . "'"; ?>],
     datasets: [
       {
         label: 'Pasien',
-        data: [25, 28, 30, 29, 32, 27, 20],
+        data: [<?php echo implode(',', $dataTren7Hari['pasien']); ?>],
         borderColor: 'rgb(61,191,211)',
         backgroundColor: gradientPasien,
         fill: true,
@@ -1027,7 +1415,7 @@ const chartTren7Hari = new Chart(ctxTren, {
       },
       {
         label: 'Pemeriksaan',
-        data: [18, 20, 22, 21, 25, 19, 15],
+        data: [<?php echo implode(',', $dataTren7Hari['pemeriksaan']); ?>],
         borderColor: '#5459AC',
         backgroundColor: gradientPemeriksaan,
         fill: true,
@@ -1037,9 +1425,19 @@ const chartTren7Hari = new Chart(ctxTren, {
       },
       {
         label: 'Pengeluaran (juta)',
-        data: [3.5, 4.0, 3.8, 4.2, 4.5, 4.1, 3.9],
+        data: [<?php echo implode(',', $dataTren7Hari['pengeluaran']); ?>],
         borderColor: '#00FFCA',
         backgroundColor: gradientPengeluaran,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointHoverRadius: 10
+      },
+      {
+        label: 'Keuntungan (juta)',
+        data: [<?php echo implode(',', $dataTren7Hari['keuntungan']); ?>],
+        borderColor: '#FFD700',
+        backgroundColor: gradientKeuntungan,
         fill: true,
         tension: 0.4,
         pointRadius: 5,
@@ -1068,23 +1466,25 @@ const chartTren7Hari = new Chart(ctxTren, {
 </script>
 
             </main>
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid">
+            <footer class="py-4 bg-light mt-auto" style="margin-top: 40px !important;">
+                <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Poli Klinik 2021 | Repost by <a href='https://stokcoding.com/' title='StokCoding.com' target='_blank'>StokCoding.com</a>
+                        <div class="text-muted">Copyright &copy; Poli Klinik 2025 | Sistem Manajemen Klinik
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-heart text-danger"></i> Dibuat dengan penuh dedikasi
                         </div>
                     </div>
                 </div>
             </footer>
         </div>
     </div>
-    <script src="assets/js/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/scripts.js"></script>
     <script src="assets/js/Chart.min.js"></script>
     <script src="assets/demo/chart-area-demo.js"></script>
     <script src="assets/demo/chart-bar-demo.js"></script>
-    <script src="assets/js/jquery.dataTables.min.js"></script>
     <script src="assets/js/dataTables.bootstrap4.min.js"></script>
     <script src="assets/demo/datatables-demo.js"></script>
 </body>

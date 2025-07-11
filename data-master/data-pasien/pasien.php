@@ -278,32 +278,124 @@ body, .summary-box, .summary-box * {
     outline: none;
 }
 .dataTables_wrapper .dataTables_paginate {
-    margin-top: 10px;
+    margin-top: 20px;
+    padding-top: 10px;
+    float: right;
 }
+
 .dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: 1px solid #e9ecef;
     background: #fff;
-    color: #5459AC !important;
-    border: 2px solid #6fc3d0;
+    color: #495057 !important;
+    padding: 10px 20px;
+    margin: 0 6px;
     border-radius: 8px;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+    min-width: 100px;
+    text-align: center;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
     font-family: 'Poppins', Arial, sans-serif;
-    margin: 0 2px;
-    padding: 4px 18px;
-    transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.18s;
-    box-shadow: 0 2px 8px rgba(8,131,149,0.08);
 }
-.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: #5459AC !important;
-    color: #fff !important;
+    background: linear-gradient(135deg, #5459AC 30%, rgb(111,195,208) 100%) !important;
     border-color: #5459AC;
-    box-shadow: 0 4px 18px rgba(8,131,149,0.13);
+    color: #fff !important;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(84, 89, 172, 0.3) !important;
+    outline: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(135deg, #5459AC 30%, rgb(111,195,208) 100%) !important;
+    border-color: #5459AC;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(84, 89, 172, 0.3) !important;
+    outline: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    background: #f8f9fa !important;
+    border-color: #e9ecef;
+    color: #adb5bd !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+    background: #f8f9fa !important;
+    border-color: #e9ecef;
+    color: #adb5bd !important;
+    transform: none;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Fix untuk menghilangkan kotak ganda pada pagination links */
+.dataTables_wrapper .dataTables_paginate .paginate_button a {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button a:focus,
+.dataTables_wrapper .dataTables_paginate .paginate_button a:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button a:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
 }
 .dataTables_wrapper .dataTables_info {
-    font-size: 0.98rem;
-    color: #5459AC;
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 20px;
+    padding-top: 10px;
+    float: left;
     font-family: 'Poppins', Arial, sans-serif;
-    margin-top: 10px;
+}
+
+/* Clear floats */
+.dataTables_wrapper::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.dataTables_wrapper .row {
+    margin: 0;
+}
+
+.dataTables_wrapper .row::after {
+    content: "";
+    display: table;
+    clear: both;
 }
 @media (max-width: 767px) {
     .table, .dataTable { font-size: 0.95rem; }

@@ -7,77 +7,127 @@ if (!isset($_SESSION["jabatan"])) {
     exit();
 }
 
-// Hardcoded data arrays for profit analysis
-$totalKeuntunganTahun = 320000000;
+// Get current year and month
+$currentYear = date('Y');
+$currentMonth = date('n');
+
+// Get target and KPI data from database
+$queryKPI = "SELECT * FROM keuntungan_target_kpi WHERE tahun = $currentYear ORDER BY id DESC LIMIT 1";
+$resultKPI = mysqli_query($koneksi, $queryKPI);
+$kpiData = mysqli_fetch_assoc($resultKPI);
+
+// Get total keuntungan from layanan summary for current year
+$queryTotalKeuntungan = "SELECT SUM(total_keuntungan_tahun) as total_tahun FROM keuntungan_layanan_summary WHERE tahun = $currentYear";
+$resultTotalKeuntungan = mysqli_query($koneksi, $queryTotalKeuntungan);
+$totalKeuntunganData = mysqli_fetch_assoc($resultTotalKeuntungan);
+
+$totalKeuntunganTahun = $totalKeuntunganData['total_tahun'] ? $totalKeuntunganData['total_tahun'] : ($kpiData ? $kpiData['target_tahunan'] : 320000000);
 $rataBulan = $totalKeuntunganTahun / 12;
-$keuntunganBulanIni = 27000000;
-$pertumbuhanBulanan = 15;
 
-// Data for charts
-$dataKeuntunganBulanan = [
-    2025 => [40, 45, 50, 55, 52, 60, 65, 70, 68, 72, 75, 80],
-    2024 => [35, 40, 42, 50, 47, 55, 58, 60, 61, 63, 68, 70]
-];
+// Get current month profit data (try current month first, then latest available)
+$queryBulanIni = "SELECT total_keuntungan, pertumbuhan_vs_bulan_lalu 
+                  FROM keuntungan_bulanan_analytics 
+                  WHERE tahun = $currentYear AND bulan = $currentMonth 
+                  ORDER BY id DESC LIMIT 1";
+$resultBulanIni = mysqli_query($koneksi, $queryBulanIni);
+$bulanIniData = mysqli_fetch_assoc($resultBulanIni);
 
-$pieKeuntunganData = [
-    ['nama' => 'Penjualan Obat', 'nilai' => 180, 'color' => '#5A9BFF'],
-    ['nama' => 'Pemeriksaan Cepat', 'nilai' => 40, 'color' => '#5ACF85'],
-    ['nama' => 'Vaksinasi', 'nilai' => 25, 'color' => '#FFD350'],
-    ['nama' => 'Konsultasi Dokter', 'nilai' => 60, 'color' => '#E35B5B'],
-    ['nama' => 'Kesehatan Korporat', 'nilai' => 35, 'color' => '#8A5BFF'],
-    ['nama' => 'Alat Kesehatan & Vitamin', 'nilai' => 20, 'color' => '#FF9240']
-];
+// If no data for current month, get latest available month
+if (!$bulanIniData) {
+    $queryBulanTerakhir = "SELECT total_keuntungan, pertumbuhan_vs_bulan_lalu 
+                           FROM keuntungan_bulanan_analytics 
+                           WHERE tahun = $currentYear 
+                           ORDER BY bulan DESC LIMIT 1";
+    $resultBulanTerakhir = mysqli_query($koneksi, $queryBulanTerakhir);
+    $bulanIniData = mysqli_fetch_assoc($resultBulanTerakhir);
+}
 
-$breakdownKeuntungan = [
-    [
-        'layanan' => 'Penjualan Obat',
-        'sub_layanan' => 'Obat Resep, Obat Bebas (OTC)',
-        'keuntungan' => 180000000,
-        'transaksi' => '500 transaksi',
-        'icon' => 'fas fa-pills',
-        'color' => '#5A9BFF'
-    ],
-    [
-        'layanan' => 'Layanan Pemeriksaan Cepat',
-        'sub_layanan' => 'Cek Tekanan Darah, Gula Darah, Kolesterol',
-        'keuntungan' => 40000000,
-        'transaksi' => '200 pasien',
-        'icon' => 'fas fa-heartbeat',
-        'color' => '#5ACF85'
-    ],
-    [
-        'layanan' => 'Vaksinasi',
-        'sub_layanan' => 'Vaksin Flu, Hepatitis',
-        'keuntungan' => 25000000,
-        'transaksi' => '100 pasien',
-        'icon' => 'fas fa-syringe',
-        'color' => '#FFD350'
-    ],
-    [
-        'layanan' => 'Konsultasi Dokter',
-        'sub_layanan' => 'Konsultasi Umum',
-        'keuntungan' => 60000000,
-        'transaksi' => '150 pasien',
-        'icon' => 'fas fa-user-md',
-        'color' => '#E35B5B'
-    ],
-    [
-        'layanan' => 'Layanan Kesehatan Korporat',
-        'sub_layanan' => 'Medical Checkup Karyawan',
-        'keuntungan' => 35000000,
-        'transaksi' => '5 perusahaan',
-        'icon' => 'fas fa-building',
-        'color' => '#8A5BFF'
-    ],
-    [
-        'layanan' => 'Alat Kesehatan & Vitamin',
-        'sub_layanan' => 'Alat Medis Kecil, Vitamin',
-        'keuntungan' => 20000000,
-        'transaksi' => '80 transaksi',
-        'icon' => 'fas fa-first-aid',
-        'color' => '#FF9240'
-    ]
-];
+$keuntunganBulanIni = $bulanIniData ? $bulanIniData['total_keuntungan'] : 27000000;
+$pertumbuhanBulanan = $bulanIniData ? $bulanIniData['pertumbuhan_vs_bulan_lalu'] : 15;
+
+// Get monthly analytics data for charts
+$dataKeuntunganBulanan = [2025 => [], 2024 => []];
+
+// Get 2025 data
+$query2025 = "SELECT bulan, total_keuntungan FROM keuntungan_bulanan_analytics 
+              WHERE tahun = 2025 ORDER BY bulan";
+$result2025 = mysqli_query($koneksi, $query2025);
+while ($row = mysqli_fetch_assoc($result2025)) {
+    $dataKeuntunganBulanan[2025][$row['bulan'] - 1] = round($row['total_keuntungan'] / 1000000); // Convert to millions
+}
+
+// Get 2024 data
+$query2024 = "SELECT bulan, total_keuntungan FROM keuntungan_bulanan_analytics 
+              WHERE tahun = 2024 ORDER BY bulan";
+$result2024 = mysqli_query($koneksi, $query2024);
+while ($row = mysqli_fetch_assoc($result2024)) {
+    $dataKeuntunganBulanan[2024][$row['bulan'] - 1] = round($row['total_keuntungan'] / 1000000); // Convert to millions
+}
+
+// Fill missing months with 0
+for ($i = 0; $i < 12; $i++) {
+    if (!isset($dataKeuntunganBulanan[2025][$i])) {
+        $dataKeuntunganBulanan[2025][$i] = 0;
+    }
+    if (!isset($dataKeuntunganBulanan[2024][$i])) {
+        $dataKeuntunganBulanan[2024][$i] = 0;
+    }
+}
+
+// Get pie chart data from layanan summary
+$pieKeuntunganData = [];
+$queryPie = "SELECT layanan, total_keuntungan_tahun, color_theme 
+             FROM keuntungan_layanan_summary 
+             WHERE tahun = $currentYear 
+             ORDER BY total_keuntungan_tahun DESC";
+$resultPie = mysqli_query($koneksi, $queryPie);
+while ($row = mysqli_fetch_assoc($resultPie)) {
+    $pieKeuntunganData[] = [
+        'nama' => $row['layanan'],
+        'nilai' => round($row['total_keuntungan_tahun'] / 1000000), // Convert to millions
+        'color' => $row['color_theme']
+    ];
+}
+
+// Get breakdown data
+$breakdownKeuntungan = [];
+$queryBreakdown = "SELECT layanan, sub_layanan, total_keuntungan_tahun, total_transaksi_tahun, icon_class, color_theme 
+                   FROM keuntungan_layanan_summary 
+                   WHERE tahun = $currentYear 
+                   ORDER BY total_keuntungan_tahun DESC";
+$resultBreakdown = mysqli_query($koneksi, $queryBreakdown);
+while ($row = mysqli_fetch_assoc($resultBreakdown)) {
+    $breakdownKeuntungan[] = [
+        'layanan' => $row['layanan'],
+        'sub_layanan' => $row['sub_layanan'],
+        'keuntungan' => $row['total_keuntungan_tahun'],
+        'transaksi' => $row['total_transaksi_tahun'] . ' transaksi',
+        'icon' => $row['icon_class'],
+        'color' => $row['color_theme']
+    ];
+}
+
+// Get insights and recommendations from database
+$queryInsight = "SELECT insight_otomatis, nama_bulan FROM keuntungan_bulanan_analytics 
+                 WHERE tahun = $currentYear 
+                 ORDER BY bulan DESC LIMIT 1";
+$resultInsight = mysqli_query($koneksi, $queryInsight);
+$insightData = mysqli_fetch_assoc($resultInsight);
+
+$queryRekomendasi = "SELECT rekomendasi_strategis, bulan_terbaik, bulan_terburuk, layanan_andalan 
+                     FROM keuntungan_target_kpi 
+                     WHERE tahun = $currentYear 
+                     ORDER BY id DESC LIMIT 1";
+$resultRekomendasi = mysqli_query($koneksi, $queryRekomendasi);
+$rekomendasiData = mysqli_fetch_assoc($resultRekomendasi);
+
+// Get best performing month insight
+$queryBestMonth = "SELECT nama_bulan, total_keuntungan, insight_otomatis 
+                   FROM keuntungan_bulanan_analytics 
+                   WHERE tahun = $currentYear 
+                   ORDER BY total_keuntungan DESC LIMIT 1";
+$resultBestMonth = mysqli_query($koneksi, $queryBestMonth);
+$bestMonthData = mysqli_fetch_assoc($resultBestMonth);
 ?>
 
 <!DOCTYPE html>
@@ -666,15 +716,28 @@ $breakdownKeuntungan = [
                                 <div>
                                     <h6 class="insight-title mb-2">Insight Saran Cerdas Keuangan</h6>
                                     <p class="insight-desc mb-2">
-                                        📊 Sistem mendeteksi <strong>Penjualan Obat</strong> sebagai sumber keuntungan terbesar dengan kontribusi <strong>Rp 180 juta</strong>.
-                                        Bulan <strong>Desember</strong> mencatatkan keuntungan tertinggi sebesar <strong>80 juta</strong>.
-                                        Pertimbangkan optimasi <em>revenue management</em> untuk efisiensi maksimal.
+                                        <?php if ($insightData): ?>
+                                            📊 <strong><?= $insightData['insight_otomatis'] ?></strong>
+                                        <?php else: ?>
+                                            📊 Sistem mendeteksi <strong><?= $rekomendasiData['layanan_andalan'] ?? 'Penjualan Obat' ?></strong> sebagai sumber keuntungan utama.
+                                        <?php endif; ?>
+                                        <?php if ($bestMonthData): ?>
+                                            Bulan <strong><?= $bestMonthData['nama_bulan'] ?></strong> mencatatkan keuntungan tertinggi sebesar <strong>Rp <?= number_format($bestMonthData['total_keuntungan'] / 1000000, 0) ?> juta</strong>.
+                                        <?php endif; ?>
                                     </p>
                                     <ul class="insight-list mb-0">
-                                        <li>💊 <strong>Penjualan Obat</strong> adalah sumber revenue utama, fokuskan inventory management.</li>
-                                        <li>📈 Terdapat lonjakan keuntungan pada bulan <strong>Desember</strong>, evaluasi strategi promosi saat itu.</li>
-                                        <li>⚠️ Sektor <strong>Vaksinasi</strong> memiliki kontribusi kecil, pertimbangkan peningkatan promosi atau bundling layanan.</li>
-                                        <li>🎯 <strong>Konsultasi Dokter</strong> menunjukkan potensi besar, tingkatkan kapasitas layanan.</li>
+                                        <?php if ($rekomendasiData): ?>
+                                            <li>🎯 <strong>Rekomendasi Strategis:</strong> <?= $rekomendasiData['rekomendasi_strategis'] ?></li>
+                                            <li>🏆 <strong>Bulan Terbaik:</strong> <?= $rekomendasiData['bulan_terbaik'] ?> - analisis faktor keberhasilan untuk replikasi</li>
+                                            <li>� <strong>Layanan Andalan:</strong> <?= $rekomendasiData['layanan_andalan'] ?> sebagai tulang punggung revenue</li>
+                                            <?php if ($rekomendasiData['bulan_terburuk']): ?>
+                                            <li>⚠️ <strong>Perlu Perhatian:</strong> Evaluasi performa bulan <?= $rekomendasiData['bulan_terburuk'] ?> untuk improvement</li>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <li>💊 <strong>Penjualan Obat</strong> adalah sumber revenue utama, fokuskan inventory management.</li>
+                                            <li>📈 Evaluasi tren bulanan untuk optimalisasi strategi pemasaran.</li>
+                                            <li>🎯 <strong>Konsultasi Dokter</strong> menunjukkan potensi besar, tingkatkan kapasitas layanan.</li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>
                             </div>
@@ -692,7 +755,7 @@ $breakdownKeuntungan = [
                                     <div class="chart-wrapper">
                                         <canvas id="pieKeuntunganChart" class="demografi-chart-canvas"></canvas>
                                     </div>
-                                    <div class="chart-caption">� <strong>Penjualan Obat</strong> mendominasi revenue. Diversifikasi layanan untuk stabilitas.</div>
+                                    <div class="chart-caption">📊 <strong><?= $rekomendasiData['layanan_andalan'] ?? 'Penjualan Obat' ?></strong> mendominasi revenue. Diversifikasi layanan untuk stabilitas.</div>
                                 </div>
                             </div>
                         </div>
@@ -710,7 +773,7 @@ $breakdownKeuntungan = [
                                     <div class="chart-wrapper">
                                         <canvas id="keuntunganChart" class="demografi-chart-canvas"></canvas>
                                     </div>
-                                    <div class="chart-caption">� <strong>Desember</strong> menunjukkan performa terbaik. Analisis faktor penyebab untuk replikasi strategi.</div>
+                                    <div class="chart-caption">📈 <strong><?= $bestMonthData['nama_bulan'] ?? 'Juni' ?></strong> menunjukkan performa terbaik. Analisis faktor penyebab untuk replikasi strategi.</div>
                                 </div>
                             </div>
                         </div>
@@ -720,10 +783,10 @@ $breakdownKeuntungan = [
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
                     <script>
-                    // Hardcode Data Array
+                    // Data from PHP database queries
                     const dataKeuntunganBulanan = {
-                        2025: [40, 45, 50, 55, 52, 60, 65, 70, 68, 72, 75, 80],
-                        2024: [35, 40, 42, 50, 47, 55, 58, 60, 61, 63, 68, 70]
+                        2025: <?= json_encode(array_values($dataKeuntunganBulanan[2025])) ?>,
+                        2024: <?= json_encode(array_values($dataKeuntunganBulanan[2024])) ?>
                     };
                     const bulanLabels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
                     const barColors = [
@@ -732,14 +795,7 @@ $breakdownKeuntungan = [
                         '#9356A3', '#FF70A6', '#FFB347', '#FF8F8F'
                     ];
 
-                    const pieKeuntunganData = [
-                        { nama: 'Penjualan Obat', nilai: 180 },
-                        { nama: 'Pemeriksaan Cepat', nilai: 40 },
-                        { nama: 'Vaksinasi', nilai: 25 },
-                        { nama: 'Konsultasi Dokter', nilai: 60 },
-                        { nama: 'Kesehatan Korporat', nilai: 35 },
-                        { nama: 'Alat Kesehatan & Vitamin', nilai: 20 }
-                    ];
+                    const pieKeuntunganData = <?= json_encode($pieKeuntunganData) ?>;
                     const pieColors = [
                       'rgba(84,89,172,0.92)', 'rgba(111,195,208,0.92)', 'rgba(8,131,149,0.92)',
                       'rgba(111,195,208,0.65)', 'rgba(84,89,172,0.65)', 'rgba(8,131,149,0.65)'

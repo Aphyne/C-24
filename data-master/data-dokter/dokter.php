@@ -652,23 +652,38 @@ body, .summary-box, .summary-box * {
   margin-bottom: 18px;
   box-shadow: 0 2px 12px rgba(84,89,172,0.06);
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-    justify-content: space-between; /* Biar rata kiri-kanan */
+  justify-content: flex-start;
   gap: 12px;
   width: 100%;
 }
 .dokter-filter-bar input,
 .dokter-filter-bar select {
   border-radius: 8px;
-  border: 1px solid #e0e6ed;
+  border: 2px solid #6fc3d0;
   font-size: 1rem;
-  padding: 7px 14px;
-  min-width: 180px;
-  margin-right: 8px;
+  font-family: 'Poppins', Arial, sans-serif;
+  padding: 6px 12px;
   background: #fff;
-  flex: 1 1 180px;
-  max-width: 250px;
+  color: #222;
+  transition: border 0.18s;
+  box-shadow: 0 2px 8px rgba(8,131,149,0.08);
+  margin-right: 8px;
+}
+.dokter-filter-bar input {
+  min-width: 200px;
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+.dokter-filter-bar select {
+  min-width: 160px;
+  flex: 0 0 160px;
+}
+.dokter-filter-bar input:focus,
+.dokter-filter-bar select:focus {
+  border-color: #5459AC;
+  outline: none;
 }
 .dokter-filter-bar button {
   border-radius: 8px;
@@ -677,40 +692,36 @@ body, .summary-box, .summary-box * {
   padding: 7px 18px;
   margin-right: 8px;
   white-space: nowrap;
-}
-.dokter-filter-bar .btn-outline-primary {
-  border: 2px solid #5459ac;
-  color: #5459ac;
-  background: #fff;
-  transition: background 0.2s, color 0.2s;
-}
-.dokter-filter-bar .btn-outline-primary:hover {
-  background: #5459ac;
-  color: #fff;
-}
-.dokter-filter-bar .btn-secondary {
-  background: #e0e6ed;
-  color: #222;
-  border: none;
-}
-.dokter-filter-bar .btn-secondary:hover {
-  background: #5459ac;
-  color: #fff;
+  flex-shrink: 0;
 }
 @media (max-width: 991px) {
   .dokter-filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    overflow-x: visible;
   }
-  .dokter-filter-bar input,
-  .dokter-filter-bar select {
+  .dokter-filter-bar input {
+    min-width: 100%;
     max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  .dokter-filter-bar select {
+    min-width: calc(50% - 4px);
+    flex: 1 1 calc(50% - 4px);
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+  .dokter-filter-bar select:last-of-type {
     margin-right: 0;
   }
   .dokter-filter-bar button {
+    margin-right: 8px;
+    margin-bottom: 8px;
+    flex: 1 1 auto;
+  }
+  .dokter-filter-bar button:last-child {
     margin-right: 0;
-    width: 100%;
   }
 }
 /* --- TOP 3 DOKTER MODAL --- */
@@ -840,6 +851,43 @@ body, .summary-box, .summary-box * {
   to   { box-shadow: 0 0 20px #6fc3d0cc; }
 }
 
+/* === TABEL DOKTER MODERN DARI OBAT.PHP === */
+.table, .dataTable {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 1rem;
+    box-shadow: 0 4px 24px rgba(8,131,149,0.08);
+}
+.table thead th, .dataTable thead th {
+    background: #5459AC !important;
+    color: #fff !important;
+    font-weight: 700;
+    border: none;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+}
+.table tbody td, .dataTable tbody td {
+    color: #222;
+    background: #fff;
+    border: none;
+    vertical-align: middle;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background: #f8fafc;
+}
+.table-bordered {
+    border: none;
+}
+.table-bordered th, .table-bordered td {
+    border: none !important;
+}
+.table-hover tbody tr:hover {
+    background: rgba(111,195,208,0.12) !important;
+    transition: background 0.18s;
+}
+
 .table-master-dokter {
   border-radius: 16px;
   overflow: hidden;
@@ -910,6 +958,104 @@ body, .summary-box, .summary-box * {
   font-size: 1.18rem;
   font-weight: 700;
   margin-bottom: 0;
+}
+
+/* DataTables Filter dan Wrapper - Style dari obat.php */
+.dataTables_wrapper .dataTables_filter {
+    margin: 12px 0 !important;
+    float: right;
+    text-align: right;
+}
+.dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #5459AC;
+    font-family: 'Poppins', Arial, sans-serif;
+    margin-bottom: 0;
+}
+.dataTables_filter input[type="search"] {
+    border-radius: 8px;
+    border: 2px solid #6fc3d0;
+    padding: 6px 12px;
+    font-size: 1rem;
+    font-family: 'Poppins', Arial, sans-serif;
+    margin-left: 8px;
+    background: #fff;
+    color: #222;
+    transition: border 0.18s;
+    box-shadow: 0 2px 8px rgba(8,131,149,0.08);
+}
+.dataTables_filter input[type="search"]:focus {
+    border-color: #5459AC;
+    outline: none;
+}
+
+/* DataTables Pagination - Style dari obat.php */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: #fff;
+    color: #5459AC !important;
+    border: 2px solid #6fc3d0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0 2px;
+    padding: 4px 18px;
+    transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.18s;
+    box-shadow: 0 2px 8px rgba(8,131,149,0.08);
+    outline: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+    outline: none !important;
+    box-shadow: 0 2px 8px rgba(8,131,149,0.08) !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #5459AC !important;
+    color: #fff !important;
+    border-color: #5459AC;
+    box-shadow: 0 4px 18px rgba(8,131,149,0.13);
+    outline: none !important;
+}
+
+/* Fix untuk menghilangkan kotak ganda pada pagination links */
+.dataTables_wrapper .dataTables_paginate .paginate_button a {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button a:focus,
+.dataTables_wrapper .dataTables_paginate .paginate_button a:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button a:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+}
+.dataTables_wrapper .dataTables_info {
+    font-size: 0.98rem;
+    color: #5459AC;
+    font-family: 'Poppins', Arial, sans-serif;
+    margin-top: 10px;
 }
     </style>
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
@@ -1160,32 +1306,32 @@ body, .summary-box, .summary-box * {
             }
             ?>
 
-           <div class="d-flex justify-content-between mb-3">
-    <div>
-                <h4 class="font-weight-bold text-secondary mb-2">Performance Review Dokter</h4>
-                <!-- Form pencarian dan filter -->
-                <div class="dokter-filter-bar mb-3 w-100 d-flex align-items-center" style="gap:12px;">
-    <input type="text" id="searchDokter" placeholder="Cari nama atau spesialis">
-    <select id="filterKinerja">
-        <option value="">Semua Kinerja</option>
-        <option value="Sangat Baik">Sangat Baik</option>
-        <option value="Top Performer">Top Performer</option>
-        <option value="Perlu Monitoring">Perlu Monitoring</option>
-    </select>
-    <select id="filterSpesialis">
-        <option value="">Semua Spesialis</option>
-        <option value="Spesialis Umum">Spesialis Umum</option>
-        <option value="Spesialis Anak">Spesialis Anak</option>
-        <option value="Spesialis Gigi">Spesialis Gigi</option>
-    </select>
-    <button class="btn btn-secondary" id="resetDokterFilter"><i class="fas fa-undo mr-1"></i> Reset</button>
-    <div class="flex-grow-1"></div>
-    <button class="btn btn-outline-primary font-weight-bold" style="min-width:220px;" data-toggle="modal" data-target="#topDokterModal">
-        <i class="fas fa-trophy mr-2"></i>Lihat Top 3 Dokter Terbaik
-    </button>
-</div>
-            </div>
-            
+            <!-- Performance Review Dokter Section -->
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="font-weight-bold text-secondary mb-3">Performance Review Dokter</h4>
+                    <!-- Form pencarian dan filter -->
+                    <div class="dokter-filter-bar mb-4">
+                        <input type="text" id="searchDokter" placeholder="Cari nama atau spesialis">
+                        <select id="filterKinerja">
+                            <option value="">Semua Kinerja</option>
+                            <option value="Sangat Baik">Sangat Baik</option>
+                            <option value="Top Performer">Top Performer</option>
+                            <option value="Perlu Monitoring">Perlu Monitoring</option>
+                        </select>
+                        <select id="filterSpesialis">
+                            <option value="">Semua Spesialis</option>
+                            <option value="Spesialis Umum">Spesialis Umum</option>
+                            <option value="Spesialis Anak">Spesialis Anak</option>
+                            <option value="Spesialis Gigi">Spesialis Gigi</option>
+                        </select>
+                        <button class="btn btn-gradient-outline btn-sm px-3 font-weight-bold shadow-custom" id="resetDokterFilter"><i class="fas fa-undo mr-1"></i> Reset</button>
+                        <div class="flex-grow-1"></div>
+                        <button class="btn btn-gradient-outline font-weight-bold px-4 shadow-custom" style="min-width:220px;" data-toggle="modal" data-target="#topDokterModal">
+                            <i class="fas fa-trophy mr-2"></i>Lihat Top 3 Dokter Terbaik
+                        </button>
+                    </div>
+                </div>
             </div>
 
 
