@@ -1715,9 +1715,8 @@ body, .summary-box, .summary-box * {
                     const posisiLabels = <?= json_encode($positions) ?>;
                     const posisiJumlah = <?= json_encode($counts) ?>;
                     const donutColors = [
-                      'rgba(84,89,172,0.92)', 'rgba(111,195,208,0.92)', 'rgba(8,131,149,0.92)',
-                      'rgba(111,195,208,0.65)', 'rgba(84,89,172,0.65)', 'rgba(255,193,7,0.8)',
-                      'rgba(40,167,69,0.8)', 'rgba(220,53,69,0.8)', 'rgba(23,162,184,0.8)'
+                      'rgba(84,89,172,0.9)', 'rgba(111,195,208,0.9)', 'rgba(61,191,211,0.9)',
+                      'rgba(8,131,149,0.9)', 'rgba(0,255,202,0.75)', 'rgba(111,195,208,0.7)'
                     ];
 
                     new Chart(document.getElementById('donutChart'), {

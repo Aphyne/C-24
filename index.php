@@ -927,11 +927,11 @@ body {
     </div>
   </div>
   <!-- Kanan: Notes (tanpa container background) -->
-  <div class="col-lg-3 mb-3 d-flex flex-column justify-content-start" style="height: fit-content;"> <!-- TAMBAHKAN justify-content-start -->
+  <div class="col-lg-3 mb-3 d-flex flex-column" style="height: 100%;"> <!-- Perbaiki height -->
     <!-- Note Card: Detail Bulanan (langsung tanpa container) -->
-    <div id="noteCard" class="note-detail-card mb-0 flex-fill" style="height: 248px; margin-bottom: 3px;"></div>
+    <div id="noteCard" class="note-detail-card mb-2 flex-fill" style="height: calc(50% - 6px);"></div>
     <!-- Summary Card: Ringkasan Tahunan (langsung tanpa container) -->
-    <div id="summaryCard" class="summary-detail-card" style="height: 248px;"></div>
+    <div id="summaryCard" class="summary-detail-card flex-fill" style="height: calc(50% - 6px);"></div>
   </div>
 </div>
 
@@ -1247,55 +1247,150 @@ createChart(tahunAktif, <?php echo ($currentMonth - 1); ?>);
 <div class="row mt-1 align-items-stretch" style="margin-left: 0; margin-right: 0;"> <!-- TAMBAHKAN align-items-stretch -->
   <div class="col-md-6 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
     <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
-      <div class="card-header px-4 py-3" style="background: #3dbfd3; border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
-        <i class="fas fa-calendar-alt me-2"></i> Kalender Mini (Agenda Hari Ini)
+      <div class="card-header px-4 py-3" style="background: linear-gradient(135deg, #3dbfd3 0%, #5459AC 100%); border-radius: 15px 15px 0 0; color:#fff; font-weight:700;">
+        <i class="fas fa-calendar-alt me-2"></i> Kalender Mini - <?php echo date('d F Y'); ?>
       </div>
       <div class="card-body" style="background:#f8fcff; border-radius:0 0 15px 15px;">
+        <!-- Tanggal Header -->
+        <div class="text-center mb-3 p-2" style="background: rgba(61,191,211,0.1); border-radius: 10px;">
+          <h6 class="mb-1" style="color: #5459AC; font-weight: 700;"><?php echo strtoupper(date('l')); ?></h6>
+          <div style="color: #3dbfd3; font-size: 1.5rem; font-weight: 700;"><?php echo date('d'); ?></div>
+          <small style="color: #5459AC;"><?php echo date('F Y'); ?></small>
+        </div>
+        
+        <!-- Agenda List -->
         <ul class="mb-0" style="list-style:none;padding-left:0;">
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-user-md"></i></span> <span style="color:#5459AC;">08:00 - <?php echo $dokterAktifHariIni; ?> Dokter bertugas hari ini</span></li>
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-calendar-check"></i></span> <span style="color:#5459AC;">Jadwal: <?php echo $jadwalHariIni; ?> pemeriksaan menunggu</span></li>
-          <li class="mb-2"><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-file-invoice"></i></span> <span style="color:#5459AC;">13:00 - Audit Internal</span></li>
-          <li><span style="font-size:1.2rem;color:#3dbfd3;"><i class="fas fa-pills"></i></span> <span style="color:#5459AC;">15:00 - Cek Stok: <?php echo $jumlahObatKritis; ?> obat kritis</span></li>
+          <li class="mb-3 p-2" style="background: rgba(255,255,255,0.7); border-radius: 8px; border-left: 4px solid #3dbfd3;">
+            <div class="d-flex align-items-center">
+              <span style="background: linear-gradient(135deg, #3dbfd3, #5459AC); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                <i class="fas fa-user-md" style="font-size: 14px;"></i>
+              </span>
+              <div>
+                <div style="color:#5459AC; font-weight: 600;">08:00 - Shift Pagi</div>
+                <small style="color:#6c757d;"><?php echo $dokterAktifHariIni; ?> Dokter bertugas hari ini</small>
+              </div>
+            </div>
+          </li>
+          
+          <li class="mb-3 p-2" style="background: rgba(255,255,255,0.7); border-radius: 8px; border-left: 4px solid #5459AC;">
+            <div class="d-flex align-items-center">
+              <span style="background: linear-gradient(135deg, #5459AC, #3dbfd3); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                <i class="fas fa-calendar-check" style="font-size: 14px;"></i>
+              </span>
+              <div>
+                <div style="color:#5459AC; font-weight: 600;">Antrian Aktif</div>
+                <small style="color:#6c757d;"><?php echo $jadwalHariIni; ?> pemeriksaan menunggu</small>
+              </div>
+            </div>
+          </li>
+          
+          <li class="mb-3 p-2" style="background: rgba(255,255,255,0.7); border-radius: 8px; border-left: 4px solid #00FFCA;">
+            <div class="d-flex align-items-center">
+              <span style="background: linear-gradient(135deg, #00FFCA, #3dbfd3); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                <i class="fas fa-pills" style="font-size: 14px;"></i>
+              </span>
+              <div>
+                <div style="color:#5459AC; font-weight: 600;">15:00 - Cek Stok</div>
+                <small style="color:#6c757d;"><?php echo $jumlahObatKritis; ?> obat perlu restok</small>
+              </div>
+            </div>
+          </li>
+          
+          <li class="p-2" style="background: rgba(255,255,255,0.7); border-radius: 8px; border-left: 4px solid #FFD700;">
+            <div class="d-flex align-items-center">
+              <span style="background: linear-gradient(135deg, #FFD700, #5459AC); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                <i class="fas fa-chart-line" style="font-size: 14px;"></i>
+              </span>
+              <div>
+                <div style="color:#5459AC; font-weight: 600;">17:00 - Laporan Harian</div>
+                <small style="color:#6c757d;"><?php echo $pasienHariIni; ?> pasien terdaftar hari ini</small>
+              </div>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
   </div>
+  
   <div class="col-lg-6 mb-3 d-flex"> <!-- TAMBAHKAN d-flex -->
     <div class="card shadow-sm border-0 flex-fill" style="border-radius:15px;">
-      <div class="card-header px-4 py-3" style="background: #05BFDB; border-radius: 15px 15px 0 0;">
+      <div class="card-header px-4 py-3" style="background: linear-gradient(135deg, #088395 0%, #5459AC 100%); border-radius: 15px 15px 0 0;">
         <h5 class="mb-0" style="color:#fff;font-weight:700;">
           <i class="fas fa-bell" style="margin-right:8px;"></i> Insight & Notifikasi Strategis
         </h5>
       </div>
       <div class="card-body px-4 py-3" style="background:#f8fcff;">
         <ul class="mb-0" style="list-style:none;padding-left:0;">
-          <li class="d-flex align-items-center mb-2">
-            <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-capsules"></i></span>
-            <span style="color:#5459AC;"> <strong><?php echo $obatKritisDetail['nama_obat'] ?? 'Paracetamol'; ?></strong> stok tinggal <strong><?php echo $obatKritisDetail['stok'] ?? '5'; ?> unit</strong> – segera lakukan pemesanan ulang.</span>
+          <!-- Alert Stok Obat Kritis -->
+          <li class="mb-3 p-3" style="background: rgba(220, 53, 69, 0.1); border-radius: 10px; border-left: 4px solid #dc3545;">
+            <div class="d-flex align-items-start">
+              <span style="background: linear-gradient(135deg,#dc3545 0%,#5459AC 100%); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 16px;"></i>
+              </span>
+              <div>
+                <div style="color:#dc3545; font-weight: 700; margin-bottom: 5px;">🚨 URGENT - Stok Kritis!</div>
+                <span style="color:#5459AC; font-size: 14px;">
+                  <strong><?php echo $obatKritisDetail['nama_obat'] ?? 'Paracetamol'; ?></strong> hanya tersisa <strong><?php echo $obatKritisDetail['stok'] ?? '5'; ?> unit</strong>. Segera lakukan pemesanan ulang sebelum stok habis.
+                </span>
+              </div>
+            </div>
           </li>
-          <li class="d-flex align-items-center mb-2">
-            <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-clock"></i></span>
-            <span style="color:#5459AC;">Waktu tunggu tertinggi hari <strong>Jumat pukul 18:00</strong> – pertimbangkan tambahan tenaga medis.</span>
+          
+          <!-- Insight Operasional -->
+          <li class="mb-3 p-3" style="background: rgba(255, 193, 7, 0.1); border-radius: 10px; border-left: 4px solid #ffc107;">
+            <div class="d-flex align-items-start">
+              <span style="background: linear-gradient(135deg,#ffc107 0%,#5459AC 100%); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                <i class="fas fa-clock" style="font-size: 16px;"></i>
+              </span>
+              <div>
+                <div style="color:#ffc107; font-weight: 700; margin-bottom: 5px;">⏰ Optimasi Jadwal</div>
+                <span style="color:#5459AC; font-size: 14px;">
+                  Antrian tertinggi biasanya pada <strong>Senin 08:00-10:00</strong>. Pertimbangkan menambah 1 dokter pada jam tersebut.
+                </span>
+              </div>
+            </div>
           </li>
-          <li class="d-flex align-items-center mb-2">
-            <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-chart-line"></i></span>
-            <span style="color:#5459AC;"><?php 
-            if (count($pemeriksaan3Hari) >= 3 && $pemeriksaan3Hari[2] < $pemeriksaan3Hari[1] && $pemeriksaan3Hari[1] < $pemeriksaan3Hari[0]) {
-                echo 'Pemeriksaan harian menurun selama <strong>3 hari berturut-turut</strong>.';
-            } else {
-                echo 'Tren pemeriksaan stabil dalam 3 hari terakhir.';
-            }
-            ?></span>
+          
+          <!-- Insight Tren -->
+          <li class="mb-3 p-3" style="background: rgba(61, 191, 211, 0.1); border-radius: 10px; border-left: 4px solid #3dbfd3;">
+            <div class="d-flex align-items-start">
+              <span style="background: linear-gradient(135deg,#3dbfd3 0%,#5459AC 100%); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                <i class="fas fa-chart-line" style="font-size: 16px;"></i>
+              </span>
+              <div>
+                <div style="color:#3dbfd3; font-weight: 700; margin-bottom: 5px;">📈 Analisis Tren</div>
+                <span style="color:#5459AC; font-size: 14px;">
+                  <?php 
+                  if (count($pemeriksaan3Hari) >= 3 && $pemeriksaan3Hari[2] < $pemeriksaan3Hari[1] && $pemeriksaan3Hari[1] < $pemeriksaan3Hari[0]) {
+                      echo 'Tren pemeriksaan menurun <strong>3 hari berturut-turut</strong>. Evaluasi strategi pemasaran diperlukan.';
+                  } else {
+                      echo 'Tren pemeriksaan stabil. Diagnosis tertinggi: <strong>' . ($diagnosaTertinggi['diagnosa'] ?? 'Flu') . '</strong> (' . ($diagnosaTertinggi['jumlah'] ?? '25') . ' kasus).';
+                  }
+                  ?>
+                </span>
+              </div>
+            </div>
           </li>
-          <li class="d-flex align-items-center">
-            <span class="summary-icon me-2" style="background:linear-gradient(135deg,#088395 0%,#5459AC 100%);font-size:18px;"><i class="fas fa-user-md"></i></span>
-            <span style="color:#5459AC;"><?php 
-            if ($dokterTidakHadir) {
-                echo $dokterTidakHadir['nama_dokter'] . ' tidak hadir hari ini – sesuaikan jadwal pemeriksaan.';
-            } else {
-                echo 'Semua dokter aktif bertugas hari ini.';
-            }
-            ?></span>
+          
+          <!-- Status Dokter -->
+          <li class="p-3" style="background: rgba(40, 167, 69, 0.1); border-radius: 10px; border-left: 4px solid #28a745;">
+            <div class="d-flex align-items-start">
+              <span style="background: linear-gradient(135deg,#28a745 0%,#5459AC 100%); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                <i class="fas fa-user-check" style="font-size: 16px;"></i>
+              </span>
+              <div>
+                <div style="color:#28a745; font-weight: 700; margin-bottom: 5px;">👨‍⚕️ Status Tim Medis</div>
+                <span style="color:#5459AC; font-size: 14px;">
+                  <?php 
+                  if ($dokterTidakHadir) {
+                      echo '<strong>' . $dokterTidakHadir['nama_dokter'] . '</strong> tidak hadir hari ini. Pastikan coverage pemeriksaan tetap optimal.';
+                  } else {
+                      echo 'Semua <strong>' . $dokterAktif . ' dokter aktif</strong> bertugas hari ini. Tim medis lengkap dan siap melayani.';
+                  }
+                  ?>
+                </span>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
