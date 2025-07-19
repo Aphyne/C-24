@@ -18,7 +18,7 @@ if (!isset($_SESSION["jabatan"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Data Master - Obat</title>
+    <title>Apothecary | Data Master - Obat</title>
     <link href="../../assets/css/styles.css" rel="stylesheet" />
     <link href="../../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="../../assets/js/all.min.js"></script>
@@ -1398,7 +1398,7 @@ body, .summary-box, .summary-box * {
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -1424,7 +1424,7 @@ body, .summary-box, .summary-box * {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -1444,9 +1444,9 @@ body, .summary-box, .summary-box * {
                                     <a class="nav-link" href="../data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="../../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="../../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -1734,36 +1734,258 @@ body, .summary-box, .summary-box * {
                     <!-- 🟠 Row 2: Insight MIS Obat -->
                     <div class="mb-4">
                         <div class="insight-card shadow-sm">
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-start">
                                 <div class="insight-icon mr-3">
                                     <i class="fas fa-lightbulb"></i>
                                 </div>
-                                <div>
-                                    <h6 class="insight-title mb-2">Insight MIS Obat</h6>
-                                    <p class="insight-desc mb-2">
-                                        📊 Sistem mendeteksi <strong><?= $obatKritis ?> jenis obat</strong> memerlukan restok dalam 14 hari ke depan. 
-                                        Terdapat <strong><?= $obatKadaluarsa ?> obat</strong> yang akan kadaluarsa bulan ini. 
-                                        Pertimbangkan optimasi <em>inventory management</em> untuk efisiensi stok.
+                                <div class="flex-grow-1">
+                                    <h5 class="insight-title mb-3">🤖 Insight AI Saran Cerdas Obat</h5>
+                                    <p class="insight-desc mb-3">
+                                        Berdasarkan analisis otomatis seluruh data obat, berikut insight dan rekomendasi strategis untuk pengelolaan inventory klinik:
                                     </p>
-                                    <ul class="insight-list mb-0">
-                                        <?php
-                                        // Query untuk obat dengan kategori terlaris
-                                        $queryTopKategori = mysqli_query($koneksi, "SELECT kategori, COUNT(*) as total FROM tb_obat WHERE status_obat = 'aktif' GROUP BY kategori ORDER BY total DESC LIMIT 2");
-                                        $kategoriData = [];
-                                        while($kat = mysqli_fetch_assoc($queryTopKategori)) {
-                                            $kategoriData[] = $kat['kategori'];
+                                    <ul class="insight-list">
+                                    <?php
+                                    // Ambil seluruh data obat dari database
+                                    $obatData = [];
+                                    $qObat = mysqli_query($koneksi, "SELECT * FROM tb_obat WHERE status_obat = 'aktif'");
+                                    while($row = mysqli_fetch_assoc($qObat)) {
+                                        $obatData[] = $row;
+                                    }
+
+                                    // 1. Stok Kritis
+                                    $obatStokKritis = array_filter($obatData, fn($d) => $d['stok'] <= $d['stok_minimum']);
+                                    if (count($obatStokKritis) > 0) {
+                                        echo '<li><b>Stok Kritis:</b> '.count($obatStokKritis).' obat perlu restok segera: <span class="text-danger">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($obatStokKritis,0,5))).(count($obatStokKritis)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 2. Hampir Kadaluarsa (<= 30 hari)
+                                    $obatKadaluarsa = array_filter($obatData, function($d) {
+                                        $days = (strtotime($d['expired_date']) - strtotime(date('Y-m-d')))/86400;
+                                        return $days <= 30 && $days > 0;
+                                    });
+                                    if (count($obatKadaluarsa) > 0) {
+                                        echo '<li><b>Kadaluarsa &lt; 30 hari:</b> '.count($obatKadaluarsa).' obat perlu diprioritaskan: <span class="text-warning">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($obatKadaluarsa,0,5))).(count($obatKadaluarsa)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 3. Sudah Kadaluarsa (expired)
+                                    $obatExpired = array_filter($obatData, function($d) {
+                                        $days = (strtotime($d['expired_date']) - strtotime(date('Y-m-d')))/86400;
+                                        return $days <= 0;
+                                    });
+                                    if (count($obatExpired) > 0) {
+                                        echo '<li><b>Obat Expired:</b> '.count($obatExpired).' jenis sudah kadaluarsa, segera keluarkan dari stok: <span class="text-danger">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($obatExpired,0,5))).(count($obatExpired)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 4. Prediksi Restok (stok < 2x minimum)
+                                    $obatPerluRestok = array_filter($obatData, fn($d) => $d['stok'] < 2*$d['stok_minimum'] && $d['stok'] > $d['stok_minimum']);
+                                    if (count($obatPerluRestok) > 0) {
+                                        echo '<li><b>Prediksi Restok:</b> '.count($obatPerluRestok).' obat mendekati batas restok: <span class="text-orange">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($obatPerluRestok,0,5))).(count($obatPerluRestok)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 5. Anomali Harga (harga < 1000 atau > 10x median)
+                                    $hargaArr = array_column($obatData, 'harga_satuan');
+                                    $medianHarga = 0;
+                                    if (count($hargaArr) > 0) {
+                                        sort($hargaArr);
+                                        $mid = floor(count($hargaArr)/2);
+                                        $medianHarga = (count($hargaArr)%2) ? $hargaArr[$mid] : ($hargaArr[$mid-1]+$hargaArr[$mid])/2;
+                                    }
+                                    $obatHargaAnomali = array_filter($obatData, fn($d) => $d['harga_satuan'] < 1000 || $d['harga_satuan'] > 10*$medianHarga);
+                                    if (count($obatHargaAnomali) > 0) {
+                                        echo '<li><b>Anomali Harga:</b> '.count($obatHargaAnomali).' obat harga tidak wajar: <span class="text-danger">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($obatHargaAnomali,0,5))).(count($obatHargaAnomali)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 6. Supplier Kritis (obat kritis dari supplier sama)
+                                    $supplierKritis = [];
+                                    foreach ($obatStokKritis as $d) {
+                                        $supplierKritis[$d['produsen']][] = $d['nama_obat'];
+                                    }
+                                    foreach ($supplierKritis as $supp => $list) {
+                                        if (count($list) > 2) {
+                                            echo '<li><b>Supplier Perlu Dihubungi:</b> '.count($list).' obat dari <span class="text-primary">'.$supp.'</span> stok kritis.</li>';
                                         }
-                                        $topKategori = implode(' & ', $kategoriData);
-                                        ?>
-                                        <li>💊 <strong><?= $topKategori ?></strong> adalah kategori obat dengan stok terbanyak.</li>
-                                        <li>⚠️ <strong><?= $obatKritis ?> obat</strong> memiliki stok di bawah batas minimum, perlu <strong>pengadaan segera</strong>.</li>
-                                        <li>📅 <strong><?= $obatKadaluarsa ?> obat</strong> akan kadaluarsa dalam 30 hari, pertimbangkan <strong>promosi atau diskon</strong>.</li>
-                                        <li>📈 Kategori <strong><?php 
-                                            // Ambil kategori dengan stok tertinggi berdasarkan total stok
-                                            $queryHighDemand = mysqli_query($koneksi, "SELECT kategori, SUM(stok) as total_stok FROM tb_obat WHERE status_obat = 'aktif' GROUP BY kategori ORDER BY total_stok DESC LIMIT 1");
-                                            $highDemandCategory = mysqli_fetch_assoc($queryHighDemand);
-                                            echo $highDemandCategory['kategori'] ?? 'Analgesik';
-                                        ?></strong> memiliki demand tertinggi, pastikan stok selalu tersedia.</li>
+                                    }
+
+                                    // 7. Duplikat Nama Obat (nama sama, kode beda)
+                                    $namaMap = [];
+                                    foreach ($obatData as $d) {
+                                        $namaMap[$d['nama_obat']][] = $d['kode_obat'];
+                                    }
+                                    $duplikatNama = [];
+                                    foreach ($namaMap as $nama => $kodeList) {
+                                        if (count(array_unique($kodeList)) > 1) $duplikatNama[] = $nama;
+                                    }
+                                    if (count($duplikatNama) > 0) {
+                                        echo '<li><b>Duplikat Nama Obat:</b> '.implode(', ', array_slice($duplikatNama,0,5)).(count($duplikatNama)>5?' ...':'').'</li>';
+                                    }
+
+                                    // 8. Segmentasi Bentuk Obat
+                                    $segBentuk = [];
+                                    foreach ($obatData as $d) {
+                                        $segBentuk[$d['bentuk_obat']] = ($segBentuk[$d['bentuk_obat']] ?? 0) + 1;
+                                    }
+                                    $segList = [];
+                                    foreach ($segBentuk as $bentuk => $jumlah) {
+                                        $segList[] = "$bentuk: <span class='text-info'>$jumlah</span>";
+                                    }
+                                    echo '<li><b>Segmentasi Bentuk:</b> '.implode(', ', $segList).'</li>';
+
+                                    // 9. Segmentasi Kategori Obat
+                                    $segKategori = [];
+                                    foreach ($obatData as $d) {
+                                        $segKategori[$d['kategori']] = ($segKategori[$d['kategori']] ?? 0) + 1;
+                                    }
+                                    $segListKat = [];
+                                    foreach ($segKategori as $kat => $jumlah) {
+                                        $segListKat[] = "$kat: <span class='text-info'>$jumlah</span>";
+                                    }
+                                    echo '<li><b>Segmentasi Kategori:</b> '.implode(', ', $segListKat).'</li>';
+
+                                    // 10. Obat Stok Terbanyak (Top 1)
+                                    if (count($obatData) > 0) {
+                                        usort($obatData, fn($a,$b) => $b['stok'] - $a['stok']);
+                                        $topObat = $obatData[0];
+                                        echo '<li><b>Obat Stok Terbanyak:</b> <span class="text-success">'.$topObat['nama_obat'].' ('.$topObat['stok'].')</span></li>';
+                                    }
+
+                                    // 11. Obat Stok Paling Sedikit (Top 1, exclude kritis)
+                                    $obatStokSedikit = array_filter($obatData, fn($d) => $d['stok'] > $d['stok_minimum']);
+                                    if (count($obatStokSedikit) > 0) {
+                                        usort($obatStokSedikit, fn($a,$b) => $a['stok'] - $b['stok']);
+                                        $minObat = $obatStokSedikit[0];
+                                        echo '<li><b>Obat Stok Paling Sedikit (non-kritis):</b> <span class="text-warning">'.$minObat['nama_obat'].' ('.$minObat['stok'].')</span></li>';
+                                    }
+
+                                    // 12. Obat Sering Restok (simulasi: stok_minimum < 10)
+                                    $seringRestok = array_filter($obatData, fn($d) => $d['stok_minimum'] < 10);
+                                    if (count($seringRestok) > 0) {
+                                        echo '<li><b>Obat Sering Restok:</b> '.count($seringRestok).' jenis perlu monitoring restok: <span class="text-warning">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($seringRestok,0,5))).(count($seringRestok)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 13. Stok Berlebih (stok > 10x minimum)
+                                    $obatStokTinggi = array_filter($obatData, fn($d) => $d['stok'] > 10*$d['stok_minimum']);
+                                    if (count($obatStokTinggi) > 0) {
+                                        echo '<li><b>Stok Berlebih:</b> '.count($obatStokTinggi).' obat stok berlebih, pertimbangkan promo/rotasi: <span class="text-primary">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($obatStokTinggi,0,5))).(count($obatStokTinggi)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 14. Slow Moving (stok tidak turun dalam 3 bulan, simulasi: stok > 0 dan stok_minimum > 0 dan stok % stok_minimum > 3)
+                                    $slowMoving = array_filter($obatData, fn($d) => $d['stok'] > 0 && $d['stok_minimum'] > 0 && ($d['stok']/$d['stok_minimum']) > 3);
+                                    if (count($slowMoving) > 0) {
+                                        echo '<li><b>Obat Slow Moving:</b> '.count($slowMoving).' jenis jarang bergerak, evaluasi promosi atau pengurangan stok: <span class="text-warning">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($slowMoving,0,5))).(count($slowMoving)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 15. Fast Moving (stok < 1.2x minimum dan stok_minimum > 0)
+                                    $fastMoving = array_filter($obatData, fn($d) => $d['stok_minimum'] > 0 && $d['stok'] < 1.2*$d['stok_minimum']);
+                                    if (count($fastMoving) > 0) {
+                                        echo '<li><b>Obat Fast Moving:</b> '.count($fastMoving).' jenis sering habis, pertimbangkan restok lebih sering: <span class="text-success">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($fastMoving,0,5))).(count($fastMoving)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 16. Tidak Pernah Restok (simulasi: created_at > 90 hari lalu dan stok tetap tinggi)
+                                    $neverRestock = array_filter($obatData, function($d) {
+                                        if (empty($d['created_at'])) return false;
+                                        $days = (strtotime(date('Y-m-d')) - strtotime($d['created_at']))/86400;
+                                        return $days > 90 && $d['stok'] > 2*$d['stok_minimum'];
+                                    });
+                                    if (count($neverRestock) > 0) {
+                                        echo '<li><b>Obat Tidak Pernah Restok:</b> '.count($neverRestock).' jenis stok tetap tinggi >3 bulan, evaluasi kebutuhan: <span class="text-info">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($neverRestock,0,5))).(count($neverRestock)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 17. Margin Keuntungan (jika ada harga_beli, tampilkan margin rata-rata)
+                                    $marginList = [];
+                                    foreach ($obatData as $d) {
+                                        if (isset($d['harga_beli']) && $d['harga_beli'] > 0) {
+                                            $marginList[] = ($d['harga_satuan'] - $d['harga_beli']) / $d['harga_beli'] * 100;
+                                        }
+                                    }
+                                    if (count($marginList) > 0) {
+                                        $avgMargin = round(array_sum($marginList)/count($marginList),1);
+                                        echo '<li><b>Margin Keuntungan Rata-rata:</b> <span class="text-success">'.$avgMargin.'%</span> (simulasi dari data harga beli)</li>';
+                                    }
+
+                                    // 18. Substitusi Obat (jika stok kritis, tampilkan alternatif dari kategori/bentuk sama)
+                                    foreach ($obatStokKritis as $obat) {
+                                        $alternatif = array_filter($obatData, fn($d) => $d['kategori'] == $obat['kategori'] && $d['bentuk_obat'] == $obat['bentuk_obat'] && $d['stok'] > $d['stok_minimum'] && $d['kode_obat'] != $obat['kode_obat']);
+                                        if (count($alternatif) > 0) {
+                                            echo '<li><b>Alternatif untuk '.$obat['nama_obat'].':</b> '.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($alternatif,0,3))).'</li>';
+                                        }
+                                    }
+
+                                    // 19. Waste/Expired (jumlah obat expired bulan ini)
+                                    $waste = array_filter($obatData, function($d) {
+                                        $days = (strtotime($d['expired_date']) - strtotime(date('Y-m-d')))/86400;
+                                        return $days <= 0 && date('Y-m', strtotime($d['expired_date'])) == date('Y-m');
+                                    });
+                                    if (count($waste) > 0) {
+                                        echo '<li><b>Obat Expired Bulan Ini:</b> '.count($waste).' jenis, evaluasi pengelolaan stok dan pembelian.</li>';
+                                    }
+
+                                    // 20. Obat Tidak Pernah Terjual (simulasi: stok tetap sama sejak created_at)
+                                    $neverSold = array_filter($obatData, function($d) {
+                                        if (empty($d['created_at'])) return false;
+                                        $days = (strtotime(date('Y-m-d')) - strtotime($d['created_at']))/86400;
+                                        return $days > 60 && $d['stok'] == $d['stok_awal'];
+                                    });
+                                    if (count($neverSold) > 0) {
+                                        echo '<li><b>Obat Tidak Pernah Terjual:</b> '.count($neverSold).' jenis tidak pernah keluar sejak masuk stok: <span class="text-danger">'.implode(', ', array_map(fn($d) => $d['nama_obat'], array_slice($neverSold,0,5))).(count($neverSold)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 21. Obat Sering Kadaluarsa (simulasi: expired_date < 1 tahun dari created_at)
+                                    $seringExpired = array_filter($obatData, function($d) {
+                                        if (empty($d['created_at'])) return false;
+                                        $exp = strtotime($d['expired_date']);
+                                        $crt = strtotime($d['created_at']);
+                                        return ($exp - $crt) < (365*86400);
+                                    });
+                                    if (count($seringExpired) > 0) {
+                                        echo '<li><b>Obat Sering Kadaluarsa Cepat:</b> '.count($seringExpired).' jenis expired &lt; 1 tahun dari pembelian, evaluasi supplier/rotasi.</li>';
+                                    }
+
+                                    // 22. Obat Sering Promo (simulasi: harga_satuan < 1.1*harga_beli)
+                                    $seringPromo = array_filter($obatData, function($d) {
+                                        return isset($d['harga_beli']) && $d['harga_beli'] > 0 && $d['harga_satuan'] < 1.1*$d['harga_beli'];
+                                    });
+                                    if (count($seringPromo) > 0) {
+                                        echo '<li><b>Obat Sering Promo:</b> '.count($seringPromo).' jenis sering dijual hampir tanpa margin, evaluasi strategi harga.</li>';
+                                    }
+
+                                    // 23. Obat Sering Ganti Supplier (simulasi: nama_obat sama, produsen beda)
+                                    $namaSuppMap = [];
+                                    foreach ($obatData as $d) {
+                                        $namaSuppMap[$d['nama_obat']][] = $d['produsen'];
+                                    }
+                                    $gantiSupp = [];
+                                    foreach ($namaSuppMap as $nama => $suppList) {
+                                        if (count(array_unique($suppList)) > 1) $gantiSupp[] = $nama;
+                                    }
+                                    if (count($gantiSupp) > 0) {
+                                        echo '<li><b>Obat Sering Ganti Supplier:</b> '.implode(', ', array_slice($gantiSupp,0,5)).(count($gantiSupp)>5?' ...':'').'</li>';
+                                    }
+
+                                    // 24. Obat Sering Ganti Harga (simulasi: harga_satuan != harga_awal)
+                                    $gantiHarga = array_filter($obatData, function($d) {
+                                        return isset($d['harga_awal']) && $d['harga_awal'] > 0 && $d['harga_satuan'] != $d['harga_awal'];
+                                    });
+                                    if (count($gantiHarga) > 0) {
+                                        echo '<li><b>Obat Sering Ganti Harga:</b> '.count($gantiHarga).' jenis harga berubah dari awal masuk stok.</li>';
+                                    }
+
+                                    // 25. Obat Sering Ganti Bentuk (simulasi: nama_obat sama, bentuk_obat beda)
+                                    $namaBentukMap = [];
+                                    foreach ($obatData as $d) {
+                                        $namaBentukMap[$d['nama_obat']][] = $d['bentuk_obat'];
+                                    }
+                                    $gantiBentuk = [];
+                                    foreach ($namaBentukMap as $nama => $bentukList) {
+                                        if (count(array_unique($bentukList)) > 1) $gantiBentuk[] = $nama;
+                                    }
+                                    if (count($gantiBentuk) > 0) {
+                                        echo '<li><b>Obat Sering Ganti Bentuk:</b> '.implode(', ', array_slice($gantiBentuk,0,5)).(count($gantiBentuk)>5?' ...':'').'</li>';
+                                    }
+
+                                    if (count($obatData) == 0) {
+                                        echo '<li>Data obat belum tersedia untuk insight AI.</li>';
+                                    }
+                                    ?>
                                     </ul>
                                 </div>
                             </div>
@@ -2083,7 +2305,7 @@ body, .summary-box, .summary-box * {
                             </div>
                             
                             <div class="inventory-actions">
-                                <a href="obat_tambah.php" class="add-medicine-btn">
+                                <a href="obat_input.php" class="add-medicine-btn">
                                     <i class="fas fa-plus"></i>
                                     Add Medicine
                                 </a>
@@ -2499,7 +2721,7 @@ body, .summary-box, .summary-box * {
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2024</div>
                     </div>
                 </div>
             </footer>

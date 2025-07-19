@@ -42,8 +42,151 @@ if (!$bulanIniData) {
     $bulanIniData = mysqli_fetch_assoc($resultBulanTerakhir);
 }
 
+
+
+// Get breakdown data (PASTIKAN INI DI ATAS BLOK INSIGHT)
+$breakdownKeuntungan = [];
+$queryBreakdown = "SELECT layanan, sub_layanan, total_keuntungan_tahun, total_transaksi_tahun, icon_class, color_theme 
+                   FROM keuntungan_layanan_summary 
+                   WHERE tahun = $currentYear 
+                   ORDER BY total_keuntungan_tahun DESC";
+$resultBreakdown = mysqli_query($koneksi, $queryBreakdown);
+while ($row = mysqli_fetch_assoc($resultBreakdown)) {
+    $breakdownKeuntungan[] = [
+        'layanan' => $row['layanan'],
+        'sub_layanan' => $row['sub_layanan'],
+        'keuntungan' => $row['total_keuntungan_tahun'],
+        'transaksi' => $row['total_transaksi_tahun'] . ' transaksi',
+        'icon' => $row['icon_class'],
+        'color' => $row['color_theme']
+    ];
+}
+
 $keuntunganBulanIni = $bulanIniData ? $bulanIniData['total_keuntungan'] : 27000000;
 $pertumbuhanBulanan = $bulanIniData ? $bulanIniData['pertumbuhan_vs_bulan_lalu'] : 15;
+
+// ====== AI FEATURE: Prediksi Keuntungan Bulan Depan (Forecast Sederhana) ======
+// Ambil data keuntungan bulanan tahun berjalan
+$queryForecast = "SELECT bulan, total_keuntungan FROM keuntungan_bulanan_analytics WHERE tahun = $currentYear ORDER BY bulan";
+$resultForecast = mysqli_query($koneksi, $queryForecast);
+$keuntunganBulanArr = [];
+while ($row = mysqli_fetch_assoc($resultForecast)) {
+    $keuntunganBulanArr[] = $row['total_keuntungan'];
+}
+// Prediksi sederhana: rata-rata pertumbuhan antar bulan (jika data cukup)
+$prediksiBulanDepan = null;
+if (count($keuntunganBulanArr) >= 2) {
+    $growths = [];
+    for ($i = 1; $i < count($keuntunganBulanArr); $i++) {
+        if ($keuntunganBulanArr[$i-1] > 0) {
+            $growths[] = ($keuntunganBulanArr[$i] - $keuntunganBulanArr[$i-1]) / $keuntunganBulanArr[$i-1];
+        }
+    }
+    $avgGrowth = count($growths) > 0 ? array_sum($growths) / count($growths) : 0;
+    $prediksiBulanDepan = end($keuntunganBulanArr) * (1 + $avgGrowth);
+}
+
+// ====== AI FEATURE: Deteksi Anomali Pertumbuhan Bulanan ======
+$anomaliBulan = null;
+if (count($keuntunganBulanArr) >= 3) {
+    $mean = array_sum($keuntunganBulanArr) / count($keuntunganBulanArr);
+    $variance = array_sum(array_map(function($v) use ($mean) { return pow($v - $mean, 2); }, $keuntunganBulanArr)) / count($keuntunganBulanArr);
+    $stddev = sqrt($variance);
+    foreach ($keuntunganBulanArr as $idx => $val) {
+        if ($stddev > 0 && (abs($val - $mean) > 2 * $stddev)) {
+            $anomaliBulan = $idx + 1; // bulan ke-n
+            break;
+        }
+    }
+}
+
+$layananTertinggi = null;
+$layananKontribusiTurun = null;
+$layananDominan = null;
+
+// Cek pertumbuhan layanan (jika ada data tahun lalu)
+if (!empty($breakdownKeuntungan)) {
+    $queryLastYear = "SELECT layanan, total_keuntungan_tahun FROM keuntungan_layanan_summary WHERE tahun = ".($currentYear-1);
+    $resultLastYear = mysqli_query($koneksi, $queryLastYear);
+    $lastYearData = [];
+    while ($row = mysqli_fetch_assoc($resultLastYear)) {
+        $lastYearData[$row['layanan']] = $row['total_keuntungan_tahun'];
+    }
+    $maxGrowth = null;
+    $maxGrowthLayanan = null;
+    $minGrowth = null;
+    $minGrowthLayanan = null;
+    foreach ($breakdownKeuntungan as $service) {
+        $nama = $service['layanan'];
+        $now = $service['keuntungan'];
+        $last = isset($lastYearData[$nama]) ? $lastYearData[$nama] : null;
+        if ($last && $last > 0) {
+            $growth = ($now - $last) / $last;
+            if ($maxGrowth === null || $growth > $maxGrowth) {
+                $maxGrowth = $growth;
+                $maxGrowthLayanan = $nama;
+            }
+            if ($minGrowth === null || $growth < $minGrowth) {
+                $minGrowth = $growth;
+                $minGrowthLayanan = $nama;
+            }
+        }
+    }
+    if ($maxGrowthLayanan && $maxGrowth > 0.05) {
+        $layananTertinggi = [$maxGrowthLayanan, $maxGrowth];
+    }
+    if ($minGrowthLayanan && $minGrowth < -0.05) {
+        $layananKontribusiTurun = [$minGrowthLayanan, $minGrowth];
+    }
+    // Cek layanan dominan (kontribusi > 50%)
+    $totalAll = array_sum(array_column($breakdownKeuntungan, 'keuntungan'));
+    foreach ($breakdownKeuntungan as $service) {
+        if ($totalAll > 0 && $service['keuntungan']/$totalAll > 0.5) {
+            $layananDominan = [$service['layanan'], $service['keuntungan']/$totalAll];
+            break;
+        }
+    }
+}
+
+// ====== AI FEATURE: Prediksi Tren Jangka Panjang (Linear Regression Sederhana) ======
+$trendForecast = null;
+if (count($keuntunganBulanArr) >= 6) {
+    // Linear regression: y = a + b*x
+    $n = count($keuntunganBulanArr);
+    $sumX = 0; $sumY = 0; $sumXY = 0; $sumX2 = 0;
+    for ($i = 0; $i < $n; $i++) {
+        $x = $i+1; $y = $keuntunganBulanArr[$i];
+        $sumX += $x; $sumY += $y; $sumXY += $x*$y; $sumX2 += $x*$x;
+    }
+    $b = ($n*$sumXY - $sumX*$sumY) / ($n*$sumX2 - $sumX*$sumX);
+    $a = ($sumY - $b*$sumX) / $n;
+    $nextX = $n+1;
+    $trendForecast = $a + $b*$nextX;
+}
+
+// ====== AI FEATURE: Korelasi Volume Transaksi vs Keuntungan per Layanan ======
+$korelasiTransaksiKeuntungan = null;
+if (!empty($breakdownKeuntungan)) {
+    $arrTransaksi = [];
+    $arrKeuntungan = [];
+    foreach ($breakdownKeuntungan as $service) {
+        $arrKeuntungan[] = $service['keuntungan'];
+        $arrTransaksi[] = (int) filter_var($service['transaksi'], FILTER_SANITIZE_NUMBER_INT);
+    }
+    $n = count($arrKeuntungan);
+    if ($n > 1) {
+        $meanK = array_sum($arrKeuntungan)/$n;
+        $meanT = array_sum($arrTransaksi)/$n;
+        $cov = 0; $varK = 0; $varT = 0;
+        for ($i=0;$i<$n;$i++) {
+            $cov += ($arrKeuntungan[$i]-$meanK)*($arrTransaksi[$i]-$meanT);
+            $varK += pow($arrKeuntungan[$i]-$meanK,2);
+            $varT += pow($arrTransaksi[$i]-$meanT,2);
+        }
+        $corr = ($varK > 0 && $varT > 0) ? $cov / sqrt($varK*$varT) : 0;
+        $korelasiTransaksiKeuntungan = $corr;
+    }
+}
 
 // Get monthly analytics data for charts
 $dataKeuntunganBulanan = [2025 => [], 2024 => []];
@@ -138,7 +281,7 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Laporan Keuntungan</title>
+    <title>Apothecary | Laporan Keuntungan</title>
     <link href="../assets/css/styles.css" rel="stylesheet" />
     <link href="../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="../assets/js/all.min.js"></script>
@@ -565,7 +708,7 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -592,7 +735,7 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -612,9 +755,9 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
                                     <a class="nav-link" href="../data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -738,6 +881,22 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
                                             <li>📈 Evaluasi tren bulanan untuk optimalisasi strategi pemasaran.</li>
                                             <li>🎯 <strong>Konsultasi Dokter</strong> menunjukkan potensi besar, tingkatkan kapasitas layanan.</li>
                                         <?php endif; ?>
+                                        <!-- AI Insight Tambahan -->
+                                        <?php if ($prediksiBulanDepan): ?>
+                                            <li>🤖 <strong>Prediksi AI:</strong> Estimasi keuntungan bulan depan sekitar <strong>Rp <?= number_format($prediksiBulanDepan, 0, ',', '.') ?></strong></li>
+                                        <?php endif; ?>
+                                        <?php if ($anomaliBulan): ?>
+                                            <li>🚨 <strong>Anomali Terdeteksi:</strong> Keuntungan bulan <?= date('F', mktime(0,0,0,$anomaliBulan,1)) ?> berbeda signifikan dari rata-rata. Perlu analisis lebih lanjut.</li>
+                                        <?php endif; ?>
+                                        <?php if ($layananTertinggi): ?>
+                                            <li>📈 <strong>Layanan dengan pertumbuhan tertinggi:</strong> <?= $layananTertinggi[0] ?> (naik <?= number_format($layananTertinggi[1]*100,1) ?>% dibanding tahun lalu)</li>
+                                        <?php endif; ?>
+                                        <?php if ($layananKontribusiTurun): ?>
+                                            <li>🔻 <strong>Layanan dengan kontribusi menurun:</strong> <?= $layananKontribusiTurun[0] ?> (turun <?= number_format(abs($layananKontribusiTurun[1]*100),1) ?>% dibanding tahun lalu)</li>
+                                        <?php endif; ?>
+                                        <li>🏅 <strong>Layanan Dominan:</strong> <?php if ($layananDominan) { ?><?= $layananDominan[0] ?> menyumbang lebih dari <?= number_format($layananDominan[1]*100,1) ?>% total keuntungan tahun ini.<?php } else { ?>Belum ada layanan yang menyumbang lebih dari 50% total keuntungan tahun ini.<?php } ?></li>
+                                        <li>📊 <strong>Prediksi Tren Jangka Panjang:</strong> <?php if (isset($trendForecast)) { ?>Jika tren saat ini berlanjut, estimasi keuntungan bulan depan (regresi linier) sekitar <strong>Rp <?= number_format($trendForecast, 0, ',', '.') ?></strong><?php } else { ?>Data keuntungan bulanan belum cukup untuk analisis tren jangka panjang.<?php } ?></li>
+                                        <li>🔗 <strong>Korelasi Transaksi-Keuntungan:</strong> <?php if (isset($korelasiTransaksiKeuntungan)) { ?><?= ($korelasiTransaksiKeuntungan > 0.7 ? 'Sangat kuat' : ($korelasiTransaksiKeuntungan > 0.4 ? 'Cukup kuat' : ($korelasiTransaksiKeuntungan < -0.4 ? 'Negatif' : 'Lemah'))) ?> (<?= number_format($korelasiTransaksiKeuntungan,2) ?>). <?= $korelasiTransaksiKeuntungan > 0.4 ? 'Semakin banyak transaksi, semakin besar keuntungan.' : ($korelasiTransaksiKeuntungan < -0.4 ? 'Volume transaksi tinggi tidak selalu berarti keuntungan tinggi.' : 'Hubungan transaksi dan keuntungan tidak signifikan.') ?><?php } else { ?>Data transaksi dan keuntungan per layanan belum cukup untuk analisis korelasi.<?php } ?></li>
                                     </ul>
                                 </div>
                             </div>
@@ -992,6 +1151,13 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
                         </div>
                     </div>
 
+                    <!-- Button Input Data Keuntungan -->
+                    <div class="d-flex justify-content-end mb-4">
+                        <a href="keuntungan_input.php" class="btn btn-primary btn-lg font-weight-bold" style="border-radius: 10px; background: linear-gradient(90deg, #5459AC 70%, #6fc3d0 100%); border: none;">
+                            <i class="fas fa-plus-circle mr-2"></i> Input Data Keuntungan
+                        </a>
+                    </div>
+
                     <!-- Search Script for Detail Table -->
                     <script>
                     document.getElementById('serviceDetailSearch').addEventListener('keyup', function() {
@@ -1017,7 +1183,7 @@ $bestMonthData = mysqli_fetch_assoc($resultBestMonth);
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2025</div>
                     </div>
                 </div>
             </footer>

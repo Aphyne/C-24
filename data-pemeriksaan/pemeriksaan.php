@@ -17,7 +17,7 @@ if (!isset($_SESSION["jabatan"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Data Pemeriksaan</title>
+    <title>Apothecary | Data Pemeriksaan</title>
     <link href="../assets/css/styles.css" rel="stylesheet" />
     <link href="../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="../assets/js/all.min.js"></script>
@@ -948,7 +948,7 @@ if (!isset($_SESSION["jabatan"])) {
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Clinic4</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -974,7 +974,7 @@ if (!isset($_SESSION["jabatan"])) {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -994,9 +994,9 @@ if (!isset($_SESSION["jabatan"])) {
                                     <a class="nav-link" href="../data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link active" href="data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -1058,6 +1058,126 @@ if (!isset($_SESSION["jabatan"])) {
                                 "durasi" => 15 + ($row['id_pemeriksaan'] % 16), // simulasi durasi 15-30 menit
                                 "status" => ucfirst($row['status_pemeriksaan'])
                             ];
+                        }
+                    }
+
+                    // Ambil data diagnosa per hari dari database (HARUS sebelum AI Insight)
+                    $dataDiagnosaPerHari = [];
+                    $hariArray = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+                    foreach($hariArray as $hari) {
+                        $dayNumberMap = [
+                            "Minggu" => 1,
+                            "Senin" => 2, 
+                            "Selasa" => 3,
+                            "Rabu" => 4,
+                            "Kamis" => 5,
+                            "Jumat" => 6,
+                            "Sabtu" => 7
+                        ];
+                        $dayNumber = $dayNumberMap[$hari];
+                        $queryDiagnosa = mysqli_query($koneksi,
+                            "SELECT diagnosa, COUNT(*) as jumlah " .
+                            " FROM tb_pemeriksaan " .
+                            " WHERE DAYOFWEEK(tanggal_pemeriksaan) = $dayNumber " .
+                            " AND diagnosa IS NOT NULL AND diagnosa != '' " .
+                            " AND status_pemeriksaan = 'selesai' " .
+                            " GROUP BY diagnosa " .
+                            " ORDER BY jumlah DESC " .
+                            " LIMIT 5"
+                        );
+                        $dataDiagnosaPerHari[$hari] = [];
+                        if($queryDiagnosa && mysqli_num_rows($queryDiagnosa) > 0) {
+                            while($row = mysqli_fetch_assoc($queryDiagnosa)) {
+                                $dataDiagnosaPerHari[$hari][$row['diagnosa']] = $row['jumlah'];
+                            }
+                        }
+                        if(empty($dataDiagnosaPerHari[$hari])) {
+                            $dataDiagnosaPerHari[$hari] = ["Tidak ada data" => 0];
+                        }
+                    }
+
+                    // Ambil data waktu tunggu dari database tb_laporan_waktu_tunggu
+                    $waktuTungguPerHari = [];
+                    foreach($hariArray as $hari) {
+                        $queryWaktuTunggu = mysqli_query($koneksi,
+                            "SELECT TIME_FORMAT(jam_laporan, '%H:%i') as jam, " .
+                            "waktu_tunggu_rata as rata_tunggu " .
+                            "FROM tb_laporan_waktu_tunggu " .
+                            "WHERE hari = '$hari' " .
+                            "ORDER BY jam_laporan"
+                        );
+                        $waktuTungguPerHari[$hari] = [];
+                        if($queryWaktuTunggu && mysqli_num_rows($queryWaktuTunggu) > 0) {
+                            while($row = mysqli_fetch_assoc($queryWaktuTunggu)) {
+                                $waktuTungguPerHari[$hari][$row['jam']] = round($row['rata_tunggu'], 1);
+                            }
+                        }
+                        if(empty($waktuTungguPerHari[$hari])) {
+                            $waktuTungguPerHari[$hari] = ["08:00" => 0, "17:00" => 0];
+                        }
+                    }
+
+                    // Implementasi AI Insight (khusus pemeriksaan.php)
+                    $ai_insight = null;
+                    if (file_exists(__DIR__ . '/../ai-insights/classes/GeminiInsightGenerator.php')) {
+                        include_once __DIR__ . '/../ai-insights/classes/GeminiInsightGenerator.php';
+                        if (class_exists('GeminiInsightGenerator')) {
+                            $generator = new GeminiInsightGenerator();
+                            // Kumpulkan seluruh data statistik yang sudah dihitung
+                            $topDiagnosaQuery = mysqli_query($koneksi, "SELECT diagnosa, COUNT(*) as total, MIN(tanggal_pemeriksaan) as first_date, MAX(tanggal_pemeriksaan) as last_date FROM tb_pemeriksaan WHERE diagnosa IS NOT NULL AND diagnosa != '' AND status_pemeriksaan = 'selesai' GROUP BY diagnosa ORDER BY total DESC LIMIT 1");
+                            $topDiagnosa = ($topDiagnosaQuery && mysqli_num_rows($topDiagnosaQuery) > 0) ? mysqli_fetch_assoc($topDiagnosaQuery) : null;
+
+                            $maxWaktuQuery = mysqli_query($koneksi, "SELECT hari, TIME_FORMAT(jam_laporan, '%H:%i') as jam, waktu_tunggu_rata FROM tb_laporan_waktu_tunggu ORDER BY waktu_tunggu_rata DESC LIMIT 1");
+                            $maxWaktu = ($maxWaktuQuery && mysqli_num_rows($maxWaktuQuery) > 0) ? mysqli_fetch_assoc($maxWaktuQuery) : null;
+
+                            $data_ai = [
+                                'total_pemeriksaan' => $totalPemeriksaan,
+                                'pasien_batal' => $pasienBatal,
+                                'rata_durasi' => round($rataDurasi, 1),
+                                'keluhan_terbanyak' => $keluhanTerbanyak,
+                                'jumlah_keluhan_terbanyak' => $jumlahKeluhanTerbanyak,
+                                'diagnosa_per_hari' => $dataDiagnosaPerHari,
+                                'waktu_tunggu_per_hari' => $waktuTungguPerHari,
+                                'diagnosa_teratas' => $topDiagnosa,
+                                'waktu_tunggu_tertinggi' => $maxWaktu,
+                                'data_pemeriksaan' => $dataPemeriksaan,
+                                // Anda bisa menambah data lain yang relevan di sini
+                            ];
+                            // Prompt lebih detail agar insight AI lebih actionable dan spesifik
+                            $prompt = "Berdasarkan data statistik klinik berikut, berikan insight operasional yang spesifik dan actionable. Analisa tren penyakit, jam sibuk, waktu tunggu tertinggi, keluhan terbanyak, dan rekomendasikan tindakan nyata untuk efisiensi klinik, pengelolaan stok obat, serta peningkatan pelayanan pasien. Sertakan minimal 3 insight yang benar-benar relevan dan berbasis data real berikut. Jangan hanya menyimpulkan normal, berikan saran konkret dan analisis mendalam.";
+                            // Buat ringkasan statistik utama untuk prompt
+                            $stat_summary = "\nRingkasan statistik:\n" .
+                                "- Total pemeriksaan: {$totalPemeriksaan}\n" .
+                                "- Pasien batal: {$pasienBatal}\n" .
+                                "- Rata-rata durasi konsultasi: " . round($rataDurasi, 1) . " menit\n" .
+                                "- Keluhan terbanyak: {$keluhanTerbanyak} ({$jumlahKeluhanTerbanyak} kasus)\n" .
+                                "- Diagnosa teratas: " . ($topDiagnosa ? $topDiagnosa['diagnosa'] . " ({$topDiagnosa['total']} kasus)" : '-') . "\n" .
+                                "- Waktu tunggu tertinggi: " . ($maxWaktu ? $maxWaktu['hari'] . " jam " . $maxWaktu['jam'] . " ({$maxWaktu['waktu_tunggu_rata']} menit)" : '-') . "\n";
+
+                            // Format data per hari (diagnosa dan waktu tunggu)
+                            $stat_summary .= "\nDiagnosa per hari:\n";
+                            foreach($dataDiagnosaPerHari as $hari => $diagnosaList) {
+                                $stat_summary .= "- {$hari}: ";
+                                $diagnosaStr = [];
+                                foreach($diagnosaList as $diag => $jumlah) {
+                                    if($diag !== "Tidak ada data") $diagnosaStr[] = "$diag ($jumlah)";
+                                }
+                                $stat_summary .= (count($diagnosaStr) ? implode(', ', $diagnosaStr) : 'Tidak ada data') . "\n";
+                            }
+
+                            $stat_summary .= "\nWaktu tunggu per hari:\n";
+                            foreach($waktuTungguPerHari as $hari => $jamList) {
+                                $stat_summary .= "- {$hari}: ";
+                                $jamStr = [];
+                                foreach($jamList as $jam => $rata) {
+                                    $jamStr[] = "$jam ($rata menit)";
+                                }
+                                $stat_summary .= (count($jamStr) ? implode(', ', $jamStr) : 'Tidak ada data') . "\n";
+                            }
+
+                            // Gabungkan prompt dan statistik
+                            $full_prompt = $prompt . "\n" . $stat_summary;
+                            $ai_insight = $generator->generateInsight($full_prompt, []);
                         }
                     }
                     ?>
@@ -1139,26 +1259,11 @@ if (!isset($_SESSION["jabatan"])) {
                                 <p class="insight-desc mb-2">Berdasarkan data pemeriksaan terkini, sistem mendeteksi beberapa pola penting:</p>
                                 <ul class="insight-list mb-0">
                                     <?php
-                                    // Analisis durasi pemeriksaan
-                                    $avgDurasi = round($rataDurasi, 1);
-                                    if($avgDurasi > 20) {
-                                        echo "<li>Rata-rata durasi pemeriksaan <strong>{$avgDurasi} menit</strong> di atas target 20 menit, pertimbangkan optimalisasi alur pelayanan</li>";
+                                    // Tampilkan hanya insight AI
+                                    if (!empty($ai_insight)) {
+                                        echo '<li>' . htmlspecialchars($ai_insight) . '</li>';
                                     } else {
-                                        echo "<li>Durasi pemeriksaan rata-rata <strong>{$avgDurasi} menit</strong> sudah dalam target yang baik</li>";
-                                    }
-                                    ?>
-                                    <li>Sistem mendeteksi <strong><?= $pasienBatal ?> pasien batal</strong> dalam periode terkini - perlu evaluasi sistem pendaftaran</li>
-                                    <?php
-                                    // Analisis keluhan terbanyak
-                                    if($keluhanTerbanyak != 'Tidak ada data') {
-                                        echo "<li>Keluhan <strong>\"{$keluhanTerbanyak}\"</strong> menjadi yang tertinggi dengan {$jumlahKeluhanTerbanyak} kasus - pastikan protokol penanganan optimal</li>";
-                                    }
-                                    
-                                    // Analisis berdasarkan jam sibuk (simulasi)
-                                    $queryJamSibuk = mysqli_query($koneksi, "SELECT HOUR(jam_pemeriksaan) as jam, COUNT(*) as jumlah FROM tb_pemeriksaan GROUP BY HOUR(jam_pemeriksaan) ORDER BY jumlah DESC LIMIT 1");
-                                    $jamSibuk = mysqli_fetch_assoc($queryJamSibuk);
-                                    if($jamSibuk) {
-                                        echo "<li>Jam tersibuk: <strong>{$jamSibuk['jam']}:00</strong> dengan {$jamSibuk['jumlah']} pemeriksaan - pertimbangkan penambahan tenaga medis</li>";
+                                        echo '<li><em>Insight AI tidak tersedia.</em></li>';
                                     }
                                     ?>
                                 </ul>
@@ -1598,7 +1703,7 @@ if (!isset($_SESSION["jabatan"])) {
                                 <div class="search-filter">
                                     <input type="text" id="tableSearch" class="form-control" placeholder="Cari data pemeriksaan..." style="width: 250px; margin-right: 15px;">
                                 </div>
-                                <a href="pemeriksaan_tambah.php" class="add-btn">
+                                <a href="pemeriksaan_input.php" class="add-btn">
                                     <i class="fas fa-plus mr-1"></i> Tambah Data Periksa
                                 </a>
                             </div>
@@ -1667,10 +1772,11 @@ if (!isset($_SESSION["jabatan"])) {
                     </div>
                 </div>
             </main>
+            <!-- Button Input Data Pemeriksaan -->
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2024</div>
                     </div>
                 </div>
             </footer>

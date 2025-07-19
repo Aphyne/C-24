@@ -18,7 +18,7 @@ if (!isset($_SESSION["jabatan"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Data Master - Poli</title>
+    <title>Apothecary | Data Master - Staff</title>
     <link href="../../assets/css/styles.css" rel="stylesheet" />
     <link href="../../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="../../assets/js/all.min.js"></script>
@@ -1057,7 +1057,7 @@ body, .summary-box, .summary-box * {
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -1083,7 +1083,7 @@ body, .summary-box, .summary-box * {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -1103,9 +1103,9 @@ body, .summary-box, .summary-box * {
                                     <a class="nav-link active" href="data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="../../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="../../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -1320,30 +1320,113 @@ body, .summary-box, .summary-box * {
                     <!-- 🔮 Insight MIS -->
                     <div class="mb-4">
                         <div class="insight-card shadow-sm">
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-start">
                                 <div class="insight-icon mr-3">
                                     <i class="fas fa-lightbulb"></i>
                                 </div>
-                                <div>
-                                    <h6 class="insight-title mb-2">Insight MIS</h6>
-                                    <p class="insight-desc mb-2">
-                                        📈 Jumlah staff meningkat sebesar <strong><?= $kenaikanStaffBulanIni ?>%</strong> dibanding bulan lalu.
-                                        Kehadiran rata-rata <strong><?= $rataKehadiran ?>%</strong> menunjukkan disiplin yang baik. Pertimbangkan
-                                        <em>program reward</em> untuk staff dengan performa terbaik.
+                                <div class="flex-grow-1">
+                                    <h5 class="insight-title mb-3">🤖 Insight AI Saran Cerdas Staff</h5>
+                                    <p class="insight-desc mb-3">
+                                        Berdasarkan analisis otomatis seluruh data staff, berikut insight dan rekomendasi strategis untuk pengelolaan SDM klinik:
                                     </p>
-                                    <ul class="insight-list mb-0">
-                                        <?php if ($staffBaru): ?>
-                                        <li>👥 Rekrutmen staff baru berhasil, pastikan <strong>orientasi & training</strong> berjalan optimal.</li>
-                                        <?php endif; ?>
-                                        <?php if ($staffKurangPerforma > 0): ?>
-                                        <li>⚠️ <strong><?= $staffKurangPerforma ?> staff</strong> memiliki performa di bawah standar, perlu <strong>evaluasi & coaching</strong>.</li>
-                                        <?php endif; ?>
-                                        <?php if ($rasioStaffPria < 50): ?>
-                                        <li>👨 Rasio staff pria hanya <strong><?= $rasioStaffPria ?>%</strong>. Pertimbangkan <strong>keseimbangan gender</strong> dalam rekrutmen.</li>
-                                        <?php endif; ?>
-                                        <?php if ($rataKehadiran > 90): ?>
-                                        <li>✅ Tingkat kehadiran sangat baik, pertahankan dengan <strong>sistem reward</strong> dan <strong>work-life balance</strong>.</li>
-                                        <?php endif; ?>
+                                    <ul class="insight-list">
+                                    <?php
+                                    // 1. Prediksi Staff Berisiko Performa Turun
+                                    $staffTurun = [];
+                                    foreach ($staffData as $d) {
+                                        if ($d['persentase_kehadiran'] < 90 || $d['rating_kinerja'] < 4.0) $staffTurun[] = $d['nama_staff'];
+                                    }
+                                    if (count($staffTurun) > 0) {
+                                        echo '<li><b>Prediksi Performa Turun:</b> ' . count($staffTurun) . ' staff berpotensi turun performa (kehadiran < 90% atau rating < 4.0): <span class="text-info">' . implode(', ', array_slice($staffTurun,0,5)) . (count($staffTurun)>5?' ...':'') . '</span></li>';
+                                    }
+
+                                    // 2. Rekomendasi Penjadwalan Shift/Lembur
+                                    $overload = [];
+                                    foreach ($staffData as $d) {
+                                        if ($d['total_jam_kerja'] > $d['target_jam_kerja'] || $d['total_lembur_jam'] > 10) $overload[] = $d['nama_staff'];
+                                    }
+                                    if (count($overload) > 0) {
+                                        echo '<li><b>Rekomendasi Penjadwalan:</b> ' . count($overload) . ' staff overload jam kerja/lembur, sebaiknya distribusi ulang shift: <span class="text-warning">' . implode(', ', array_slice($overload,0,5)) . (count($overload)>5?' ...':'') . '</span></li>';
+                                    }
+
+                                    // 3. Deteksi Anomali Data Staff (NIP ganda, rating outlier)
+                                    $nipSet = [];
+                                    $nipDuplikat = [];
+                                    $ratingOutlier = [];
+                                    foreach ($staffData as $d) {
+                                        if (!empty($d['nip'])) {
+                                            if (isset($nipSet[$d['nip']])) $nipDuplikat[] = $d['nama_staff'];
+                                            $nipSet[$d['nip']] = true;
+                                        }
+                                        if ($d['rating_kinerja'] > 5.0 || $d['rating_kinerja'] < 1.0) $ratingOutlier[] = $d['nama_staff'];
+                                    }
+                                    if (count($nipDuplikat)>0)
+                                        echo '<li><b>Deteksi NIP Ganda:</b> <span class="text-danger">'.implode(', ', array_slice($nipDuplikat,0,5)).(count($nipDuplikat)>5?' ...':'').'</span></li>';
+                                    if (count($ratingOutlier)>0)
+                                        echo '<li><b>Deteksi Rating Outlier:</b> <span class="text-danger">'.implode(', ', array_slice($ratingOutlier,0,5)).(count($ratingOutlier)>5?' ...':'').'</span></li>';
+
+                                    // 4. Segmentasi Kinerja Staff
+                                    $segSangatBaik = $segBaik = $segCukup = $segPerlu = 0;
+                                    foreach ($staffData as $d) {
+                                        if ($d['status_kinerja'] == 'Sangat Baik') $segSangatBaik++;
+                                        elseif ($d['status_kinerja'] == 'Baik') $segBaik++;
+                                        elseif ($d['status_kinerja'] == 'Cukup') $segCukup++;
+                                        elseif ($d['status_kinerja'] == 'Perlu Monitoring') $segPerlu++;
+                                    }
+                                    echo '<li><b>Segmentasi Kinerja:</b> Sangat Baik: <span class="text-success">'.$segSangatBaik.'</span>, Baik: <span class="text-primary">'.$segBaik.'</span>, Cukup: <span class="text-warning">'.$segCukup.'</span>, Perlu Monitoring: <span class="text-danger">'.$segPerlu.'</span></li>';
+
+                                    // 5. Prediksi Kebutuhan Rekrutmen
+                                    $rasio = $totalStaff > 0 ? round($staffAktif/$totalStaff,2) : 0;
+                                    if ($rasio < 0.8) {
+                                        echo '<li><b>Prediksi Rekrutmen:</b> Rasio staff aktif/total rendah ('.$rasio.'), pertimbangkan rekrutmen staff baru.</li>';
+                                    }
+
+                                    // 6. Analisis Kepuasan & Review Staff
+                                    $ratingTertinggi = null; $ratingTerendah = null;
+                                    foreach ($staffData as $d) {
+                                        if ($ratingTertinggi === null || $d['rating_kinerja'] > $ratingTertinggi['rating_kinerja']) $ratingTertinggi = $d;
+                                        if ($ratingTerendah === null || $d['rating_kinerja'] < $ratingTerendah['rating_kinerja']) $ratingTerendah = $d;
+                                    }
+                                    if ($ratingTertinggi && $ratingTerendah) {
+                                        echo '<li><b>Kepuasan Staff:</b> Rating tertinggi: <span class="text-success">'.$ratingTertinggi['nama_staff'].' ('.$ratingTertinggi['rating_kinerja'].'/5)</span>, terendah: <span class="text-danger">'.$ratingTerendah['nama_staff'].' ('.$ratingTerendah['rating_kinerja'].'/5)</span></li>';
+                                    }
+
+                                    // 7. Saran Pengembangan Karir
+                                    $stagnan = [];
+                                    foreach ($staffData as $d) {
+                                        if ($d['status_kinerja'] == 'Perlu Monitoring' || $d['rating_kinerja'] < 3.5) $stagnan[] = $d['nama_staff'];
+                                    }
+                                    if (count($stagnan) > 0) {
+                                        echo '<li><b>Pengembangan Karir:</b> Rekomendasi pelatihan untuk '.count($stagnan).' staff: <span class="text-info">'.implode(', ', array_slice($stagnan,0,5)).(count($stagnan)>5?' ...':'').'</span></li>';
+                                    }
+
+                                    // 8. Forecasting Kebutuhan Shift Bulan Depan
+                                    $prediksiShift = $staffAktif > 0 ? round($staffAktif * 1.05) : 0;
+                                    echo '<li><b>Forecasting Shift Bulan Depan:</b> <span class="text-primary">Perkiraan kebutuhan shift: '.$prediksiShift.'</span></li>';
+
+                                    // 9. Deteksi Staff Baru & Turnover
+                                    $staffBaruList = [];
+                                    foreach ($staffData as $d) {
+                                        if (isset($d['created_at']) && date('Y-m', strtotime($d['created_at'])) == date('Y-m')) $staffBaruList[] = $d['nama_staff'];
+                                    }
+                                    if (count($staffBaruList)>0)
+                                        echo '<li><b>Staff Baru Bulan Ini:</b> <span class="text-success">'.implode(', ', array_slice($staffBaruList,0,5)).(count($staffBaruList)>5?' ...':'').'</span></li>';
+                                    if ($staffCuti > 0)
+                                        echo '<li><b>Staff Cuti:</b> <span class="text-warning">'.$staffCuti.' staff cuti</span></li>';
+
+                                    // 10. Rekomendasi Insentif/Reward
+                                    $reward = [];
+                                    foreach ($staffData as $d) {
+                                        if ($d['status_kinerja'] == 'Sangat Baik' && $d['rating_kinerja'] >= 4.7) $reward[] = $d['nama_staff'];
+                                    }
+                                    if (count($reward)>0)
+                                        echo '<li><b>Rekomendasi Reward:</b> <span class="text-success">'.implode(', ', array_slice($reward,0,5)).(count($reward)>5?' ...':'').'</span></li>';
+
+                                    // Jika tidak ada insight khusus
+                                    if (count($staffData) == 0) {
+                                        echo '<li>Data staff belum tersedia untuk insight AI.</li>';
+                                    }
+                                    ?>
                                     </ul>
                                 </div>
                             </div>
@@ -1864,7 +1947,12 @@ body, .summary-box, .summary-box * {
                                 <h5 class="mb-0 font-weight-bold text-white">📋 Detail Data Staff</h5>
                             </div>
                             <div class="header-search-container">
-                                <input type="search" id="staffSearchInput" class="form-control header-search-input" placeholder="Cari nama, posisi, atau status staff...">
+                                <div class="d-flex align-items-center" style="gap:12px;">
+                                    <input type="search" id="staffSearchInput" class="form-control header-search-input" placeholder="Cari nama, posisi, atau status staff...">
+                                    <a href="staff_input.php" class="btn btn-gradient-outline font-weight-bold px-4 shadow-custom ml-2" style="min-width:180px;">
+                                        <i class="fas fa-plus mr-2"></i>Tambah Staff
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body" style="background:#f7f9fc; border-radius: 0 0 18px 18px; padding: 15px 20px;">
@@ -2045,7 +2133,7 @@ body, .summary-box, .summary-box * {
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2025</div>
                     </div>
                 </div>
             </footer>

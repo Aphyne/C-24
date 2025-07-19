@@ -18,7 +18,7 @@ if (!isset($_SESSION["jabatan"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Data Master - Dokter</title>
+    <title>Apothecary | Data Master - Dokter</title>
     <link href="../../assets/css/styles.css" rel="stylesheet" />
     <link href="../../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -1067,7 +1067,7 @@ body, .summary-box, .summary-box * {
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -1093,7 +1093,7 @@ body, .summary-box, .summary-box * {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -1113,9 +1113,9 @@ body, .summary-box, .summary-box * {
                                     <a class="nav-link" href="../data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="../../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="../../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -1734,7 +1734,7 @@ if ($rendahRating > 0) $saranDokter[] = "$rendahRating dokter memiliki rating di
 if (empty($saranDokter)) $saranDokter[] = "Semua dokter memenuhi indikator performa yang baik.";
 else $saranDokter[] = "Saran: Pertimbangkan evaluasi, distribusi beban kerja, atau pelatihan layanan.";
 ?>
-<!-- 🔮 Insight MIS -->
+<!-- 🔮 Insight AI Saran Cerdas -->
 <div class="mb-4">
     <div class="insight-card shadow-sm">
         <div class="d-flex align-items-start">
@@ -1742,14 +1742,91 @@ else $saranDokter[] = "Saran: Pertimbangkan evaluasi, distribusi beban kerja, at
                 <i class="fas fa-lightbulb"></i>
             </div>
             <div class="flex-grow-1">
-                <h5 class="insight-title mb-3">💡 Insight Saran Cerdas</h5>
+                <h5 class="insight-title mb-3">🤖 Insight AI Saran Cerdas</h5>
                 <p class="insight-desc mb-3">
-                    Berdasarkan analisis performa dokter saat ini, berikut adalah temuan dan rekomendasi strategis:
+                    Berdasarkan analisis otomatis seluruh data dokter, berikut insight dan rekomendasi strategis untuk pengelolaan SDM klinik:
                 </p>
                 <ul class="insight-list">
-                    <?php foreach ($saranDokter as $item) { ?>
-                        <li><?= $item ?></li>
-                    <?php } ?>
+                <?php
+                // 1. Prediksi Kinerja Dokter
+                $dokterTurun = [];
+                foreach ($dokterPerformance as $d) {
+                    if ($d['kehadiran'] < 90 || $d['rating'] < 4.5) {
+                        $dokterTurun[] = $d['nama'];
+                    }
+                }
+                if (count($dokterTurun) > 0) {
+                    echo '<li><b>Prediksi Kinerja Turun:</b> ' . count($dokterTurun) . ' dokter berpotensi turun performa (kehadiran < 90% atau rating < 4.5): <span class="text-info">' . implode(', ', array_slice($dokterTurun,0,5)) . (count($dokterTurun)>5?' ...':'') . '</span></li>';
+                }
+
+                // 2. Rekomendasi Penjadwalan
+                $overload = [];
+                foreach ($dokterPerformance as $d) {
+                    if ($d['total_jam'] > $d['target_jam']) $overload[] = $d['nama'];
+                }
+                if (count($overload) > 0) {
+                    echo '<li><b>Rekomendasi Penjadwalan:</b> ' . count($overload) . ' dokter overload jam praktik, sebaiknya distribusi ulang jadwal: <span class="text-warning">' . implode(', ', array_slice($overload,0,5)) . (count($overload)>5?' ...':'') . '</span></li>';
+                }
+
+                // 3. Deteksi Anomali Data
+                $anomali = [];
+                foreach ($dokterPerformance as $d) {
+                    if ($d['total_jam'] > 0 && $d['total_pasien'] < 10 && $d['total_jam'] > $d['target_jam']*0.8) {
+                        $anomali[] = $d['nama'];
+                    }
+                }
+                if (count($anomali) > 0) {
+                    echo '<li><b>Deteksi Anomali:</b> Ada ' . count($anomali) . ' dokter jam praktik tinggi tapi pasien sedikit: <span class="text-danger">' . implode(', ', array_slice($anomali,0,5)) . (count($anomali)>5?' ...':'') . '</span></li>';
+                }
+
+                // 4. Segmentasi Dokter
+                $segHigh = $segMid = $segLow = 0;
+                foreach ($dokterPerformance as $d) {
+                    if ($d['kinerja'] == 'Tinggi') $segHigh++;
+                    elseif ($d['kinerja'] == 'Sedang') $segMid++;
+                    else $segLow++;
+                }
+                echo '<li><b>Segmentasi Kinerja:</b> Tinggi: <span class="text-success">'.$segHigh.'</span>, Sedang: <span class="text-primary">'.$segMid.'</span>, Rendah: <span class="text-danger">'.$segLow.'</span></li>';
+
+                // 5. Prediksi Kebutuhan Rekrutmen
+                $rasio = $totalDokterAktif > 0 ? round($totalPasienBulanIni/$totalDokterAktif) : 0;
+                if ($rasio > 200) {
+                    echo '<li><b>Prediksi Rekrutmen:</b> Rasio pasien/dokter bulan ini tinggi ('.$rasio.'), pertimbangkan rekrutmen dokter baru.</li>';
+                }
+
+                // 6. Analisis Kepuasan Pasien
+                $ratingTertinggi = null; $ratingTerendah = null;
+                foreach ($dokterPerformance as $d) {
+                    if ($ratingTertinggi === null || $d['rating'] > $ratingTertinggi['rating']) $ratingTertinggi = $d;
+                    if ($ratingTerendah === null || $d['rating'] < $ratingTerendah['rating']) $ratingTerendah = $d;
+                }
+                if ($ratingTertinggi && $ratingTerendah) {
+                    echo '<li><b>Kepuasan Pasien:</b> Rating tertinggi: <span class="text-success">'.$ratingTertinggi['nama'].' ('.$ratingTertinggi['rating'].'/5)</span>, terendah: <span class="text-danger">'.$ratingTerendah['nama'].' ('.$ratingTerendah['rating'].'/5)</span></li>';
+                }
+
+                // 7. Saran Pengembangan Karir
+                $stagnan = [];
+                foreach ($dokterPerformance as $d) {
+                    if ($d['kinerja'] == 'Rendah' || $d['rating'] < 4.2) $stagnan[] = $d['nama'];
+                }
+                if (count($stagnan) > 0) {
+                    echo '<li><b>Pengembangan Karir:</b> Rekomendasi pelatihan untuk '.count($stagnan).' dokter: <span class="text-info">'.implode(', ', array_slice($stagnan,0,5)).(count($stagnan)>5?' ...':'').'</span></li>';
+                }
+
+                // 8. Forecasting Jumlah Pasien
+                $prediksi = [];
+                foreach ($dokterPerformance as $d) {
+                    $prediksi[] = $d['nama'].': '.(int)($d['total_pasien']*1.05).' pasien (perkiraan bulan depan)';
+                }
+                if (count($prediksi) > 0) {
+                    echo '<li><b>Forecasting Pasien Bulan Depan:</b> <span class="text-primary">'.implode('; ', array_slice($prediksi,0,3)).(count($prediksi)>3?' ...':'').'</span></li>';
+                }
+
+                // Jika tidak ada insight khusus
+                if (count($dokterPerformance) == 0) {
+                    echo '<li>Data dokter belum tersedia untuk insight AI.</li>';
+                }
+                ?>
                 </ul>
             </div>
         </div>
@@ -1992,6 +2069,8 @@ else $saranDokter[] = "Saran: Pertimbangkan evaluasi, distribusi beban kerja, at
     </div>
     <div class="card-body" style="background:#f7f9fc; border-radius: 0 0 18px 18px;">
         <div class="table-responsive">
+            <!-- Elemen search dan button input data dokter bagian bawah (duplikat) dihapus, hanya tersisa satu baris di kanan atas tabel -->
+            <!-- Baris search dan button input data dokter di atas tabel dihapus agar tidak double, hanya DataTables search bawaan + button input yang akan dipindahkan ke kanan atas tabel -->
             <table class="table table-sm table-bordered table-hover table-master-dokter mb-0" id="dataTable">
                 <thead>
                     <tr class="text-center">
@@ -2043,14 +2122,12 @@ else $saranDokter[] = "Saran: Pertimbangkan evaluasi, distribusi beban kerja, at
             </table>
         </div>
     </div>
-    <div class="card-footer">
-        <a href="dokter_tambah.php" class="btn-success btn px-3 font-weight-bold"><i class="fas fa-plus"></i> Tambah Data Dokter</a>
-    </div>
+    <!-- Card footer dihapus agar button tidak redundant, button input data dokter sudah ada di atas tabel -->
 </div>
 <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2025</div>
                     </div>
                 </div>
             </footer>
@@ -2062,6 +2139,23 @@ else $saranDokter[] = "Saran: Pertimbangkan evaluasi, distribusi beban kerja, at
 <script src="../../assets/js/scripts.js"></script>
 <script src="../../assets/js/jquery.dataTables.min.js"></script>
 <script src="../../assets/js/dataTables.bootstrap4.min.js"></script>
-<script src="../../assets/demo/datatables-demo.js"></script>
+<script>
+$(document).ready(function() {
+    var table = $('#dataTable').DataTable({
+        lengthChange: false // Disable 'show 10 entries' dropdown
+    });
+    // Gabungkan search DataTables dan button input data dokter di kanan atas tabel
+    var filter = $('#dataTable_filter');
+    var inputBtn = $('<a href="dokter_input.php" class="btn btn-gradient-outline font-weight-bold px-4 shadow-custom ml-2" style="min-width:180px;"><i class="fas fa-plus mr-2"></i> Input Data Dokter</a>');
+    var wrapper = $('<div class="d-flex justify-content-end align-items-center mb-2" style="gap:12px;"></div>');
+    filter.css({'float':'','display':'flex','align-items':'center','gap':'8px','margin-bottom':'0'});
+    filter.find('label').css({'margin-bottom':'0','font-weight':'600','color':'#5459AC'});
+    filter.find('input').attr('placeholder','Cari dokter...').css({'border-radius':'8px','border':'2px solid #6fc3d0','padding':'6px 12px','font-size':'1rem','font-family':'Poppins,Arial,sans-serif','background':'#fff','color':'#222','transition':'border 0.18s','box-shadow':'0 2px 8px rgba(8,131,149,0.08)','margin-left':'8px'});
+    filter.append(inputBtn);
+    wrapper.append(filter);
+    // Tempatkan wrapper di atas tabel
+    $('.table-responsive').prepend(wrapper);
+});
+</script>
 </body>
 </html>

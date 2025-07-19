@@ -17,7 +17,7 @@ if (!isset($_SESSION["jabatan"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Data Master - Pasien</title>
+    <title>Apothecary | Data Master - Pasien</title>
     <link href="../../assets/css/styles.css" rel="stylesheet" />
     <link href="../../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="../../assets/js/all.min.js"></script>
@@ -827,7 +827,7 @@ h5.mt-5.font-weight-bold.text-secondary {
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -853,7 +853,7 @@ h5.mt-5.font-weight-bold.text-secondary {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -873,9 +873,9 @@ h5.mt-5.font-weight-bold.text-secondary {
                                     <a class="nav-link" href="../data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="../../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="../../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -1206,40 +1206,89 @@ h5.mt-5.font-weight-bold.text-secondary {
                     </script>
 
 
-                    <!-- 🟠 Row 2: Insight MIS -->
                     <?php
-                    $pasienBaruTurun = false; // Jika true, kampanye pemasaran bisa dievaluasi
-                    $rasioPasienPria = 35; // dalam persen
+                    // =============================
+                    // AI IMPLEMENTATION SECTION
+                    // =============================
+                    // 1. Prediksi pertumbuhan pasien bulan depan (regresi linier sederhana)
+                    $bulanLaluArr = [];
+                    $bulanLabelArr = [];
+                    for ($i = 5; $i >= 0; $i--) {
+                        $bulan = date('Y-m', strtotime("-{$i} month"));
+                        $bulanLabelArr[] = date('M Y', strtotime("-{$i} month"));
+                        $q = $koneksi->query("SELECT COUNT(*) as total FROM tb_pasien WHERE DATE_FORMAT(created_at, '%Y-%m') = '$bulan'");
+                        $bulanLaluArr[] = $q && $q->num_rows > 0 ? (int)$q->fetch_assoc()['total'] : 0;
+                    }
+                    // Regresi linier sederhana (y = a + bx)
+                    $n = count($bulanLaluArr);
+                    $sumX = $sumY = $sumXY = $sumX2 = 0;
+                    for ($i = 0; $i < $n; $i++) {
+                        $sumX += $i;
+                        $sumY += $bulanLaluArr[$i];
+                        $sumXY += $i * $bulanLaluArr[$i];
+                        $sumX2 += $i * $i;
+                    }
+                    $b = ($n * $sumXY - $sumX * $sumY) / (($n * $sumX2) - ($sumX * $sumX) ?: 1);
+                    $a = ($sumY - $b * $sumX) / $n;
+                    $prediksiBulanDepan = round($a + $b * $n);
+
+                    // 2. Deteksi anomali pertumbuhan pasien (jika bulan ini > 2x rata-rata 3 bulan sebelumnya)
+                    $rata3Bulan = $n >= 4 ? array_sum(array_slice($bulanLaluArr, -4, 3)) / 3 : 0;
+                    $anomaliPertumbuhan = ($pasienBulanIni > 2 * $rata3Bulan && $rata3Bulan > 0);
+
+                    // 3. Analisis sentimen ulasan pasien (berbasis kata kunci sederhana)
+                    if (!function_exists('ai_sentimen')) {
+                        function ai_sentimen($ulasan) {
+                            $positif = ['puas','memuaskan','ramah','baik','bersih','cepat','bagus','profesional','nyaman','komunikatif','bantu','detail'];
+                            $negatif = ['kurang','lama','buruk','tidak','jelek','antri','panjang','tidak nyaman','tidak ramah','parah','mengecewakan','keluhan'];
+                            $ulasan = strtolower($ulasan);
+                            $score = 0;
+                            foreach ($positif as $p) if (strpos($ulasan, $p) !== false) $score++;
+                            foreach ($negatif as $n) if (strpos($ulasan, $n) !== false) $score--;
+                            if ($score > 0) return 'positif';
+                            if ($score < 0) return 'negatif';
+                            return 'netral';
+                        }
+                    }
+                    // 4. Cari ulasan paling berpengaruh (helpful_count tertinggi)
+                    $ulasanPalingBerpengaruh = null;
+                    $maxHelpful = -1;
+                    foreach ($dataReview as $ul) {
+                        if ($ul['helpful'] > $maxHelpful) {
+                            $maxHelpful = $ul['helpful'];
+                            $ulasanPalingBerpengaruh = $ul;
+                        }
+                    }
                     ?>
 
-                    <!-- 🔮 Insight MIS -->
+                    <!-- 🔮 Insight AI Otomatis -->
                     <div class="mb-4">
                         <div class="insight-card shadow-sm">
                             <div class="d-flex align-items-center">
                                 <div class="insight-icon mr-3">
-                                    <i class="fas fa-lightbulb"></i>
+                                    <i class="fas fa-brain"></i>
                                 </div>
                                 <div>
-                                    <h6 class="insight-title mb-2">Insight MIS</h6>
-                                    <p class="insight-desc mb-2">
-                                        📈 Pasien meningkat sebesar <strong><?= $kenaikanPasienBulanIni ?>%</strong> dibanding bulan lalu.
-                                        Pertumbuhan didominasi oleh <strong>pasien baru (<?= $pasienBaru ?> orang)</strong>. Pertimbangkan
-                                        penambahan <em>kapasitas layanan</em> & jadwal dokter tambahan di akhir pekan.
-                                    </p>
-                                    <ul class="insight-list mb-0">
-                                        <?php if ($pasienBaruTurun): ?>
-                                        <li>📉 Jumlah pasien baru menurun 20% dari bulan lalu, evaluasi efektivitas <strong>kampanye pemasaran</strong>.</li>
-                                        <?php endif; ?>
-                                        <?php if ($ratingKurang > 0): ?>
-                                        <li>⭐ <strong><?= $ratingKurang ?> pasien</strong> memberi rating &lt; 3 bintang, perlu evaluasi <strong>pengalaman layanan & kecepatan</strong>.</li>
-                                        <?php endif; ?>
-                                        <?php if ($rasioPasienPria < 40): ?>
-                                        <li>👨 Rasio pasien pria hanya <strong><?= $rasioPasienPria ?>%</strong>. Pertimbangkan <strong>layanan khusus pria</strong> atau promosi yang relevan.</li>
-                                        <?php endif; ?>
-                                        <?php if ($kenaikanPasienBulanIni > 10): ?>
-                                        <li>📅 Pertumbuhan signifikan, pastikan <strong>dokter tambahan & ruang tunggu</strong> cukup untuk menghindari antrian panjang.</li>
-                                        <?php endif; ?>
-                                    </ul>
+                                    <div class="insight-title mb-1">Insight AI Otomatis</div>
+                                    <div class="insight-desc mb-2">
+                                        <ul class="insight-list mb-0">
+                                            <li>Prediksi pasien bulan depan: <b><?= $prediksiBulanDepan ?></b> pasien.</li>
+                                            <?php if ($anomaliPertumbuhan): ?>
+                                                <li style="color:#e74c3c"><b>Peringatan:</b> Pertumbuhan pasien bulan ini melonjak signifikan, cek validitas data atau faktor eksternal!</li>
+                                            <?php endif; ?>
+                                            <?php if ($pasienBaru < $rata3Bulan): ?>
+                                                <li style="color:#e67e22">Pasien baru bulan ini <b>lebih rendah</b> dari rata-rata 3 bulan terakhir. Evaluasi promosi atau pelayanan.</li>
+                                            <?php endif; ?>
+                                            <li>Ulasan paling berpengaruh: <b><?= $ulasanPalingBerpengaruh ? $ulasanPalingBerpengaruh['nama'] : '-' ?></b> (helpful: <?= $ulasanPalingBerpengaruh ? $ulasanPalingBerpengaruh['helpful'] : 0 ?>)</li>
+                                            <li>Sentimen ulasan: <b>
+                                                <?php
+                                                $sentimenCount = ['positif'=>0,'negatif'=>0,'netral'=>0];
+                                                foreach ($dataReview as $ul) $sentimenCount[ai_sentimen($ul['ulasan'])]++;
+                                                echo 'Positif: '.$sentimenCount['positif'].', Negatif: '.$sentimenCount['negatif'].', Netral: '.$sentimenCount['netral'];
+                                                ?>
+                                            </b></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1311,49 +1360,46 @@ h5.mt-5.font-weight-bold.text-secondary {
 
                     <div class="row" id="ulasanContainer">
                     <?php foreach ($dataReview as $index => $ulasan) { ?>
+                        <?php $sentimen = ai_sentimen($ulasan['ulasan']); ?>
                         <div class="col-md-4 mb-3 ulasan-item" style="<?= $index >= 3 ? 'display: none;' : '' ?>">
                             <div class="review-card shadow-sm">
                                 <div class="review-content">
                                     <div class="review-header">
                                         <div class="d-flex align-items-center mb-2">
                                             <div class="review-avatar" style="background: linear-gradient(135deg, <?= $ulasan['rating'] >= 4 ? '#6fc3d0, #5459AC' : '#ff6b6b, #ffa500' ?> 100%);">
-                                                <?= strtoupper(substr($ulasan['nama'],0,2)) ?>
+                                                <span style="font-size:1.1rem;">
+                                                    <?= strtoupper(substr($ulasan['nama'],0,1)) ?>
+                                                </span>
                                             </div>
                                             <div class="ml-3">
-                                                <div class="review-name"><?= $ulasan['nama'] ?></div>
-                                                <div class="review-badge <?= $ulasan['rating'] >= 4 ? 'badge-active' : 'badge-pending' ?>">
-                                                    <?= $ulasan['rating'] >= 4 ? 'Positif' : 'Perlu Perbaikan' ?>
-                                                </div>
+                                                <span class="review-name"><?= $ulasan['nama'] ?></span><br>
+                                                <span class="review-badge badge-<?= $sentimen=='positif'?'active':($sentimen=='negatif'?'pending':'') ?>" style="font-size:0.8rem;">
+                                                    <?= ucfirst($sentimen) ?>
+                                                </span>
+                                                <?php if ($ulasanPalingBerpengaruh && $ulasan['nama'] == $ulasanPalingBerpengaruh['nama'] && $ulasan['ulasan'] == $ulasanPalingBerpengaruh['ulasan']): ?>
+                                                    <span class="badge badge-success ml-1" style="font-size:0.8rem;">Paling Berpengaruh</span>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
-                                    
                                     <div class="review-body">
                                         <div class="review-meta">
-                                            <span><i class="fas fa-calendar-alt mr-1"></i><?= $ulasan['tanggal'] ?></span>
-                                            <span class="mx-2">|</span>
-                                            <span><i class="fas fa-user-check mr-1"></i><?= $ulasan['kunjungan'] ?></span>
-                                            <span class="mx-2">|</span>
-                                            <span><i class="fas fa-stethoscope mr-1"></i><?= $ulasan['kategori'] ?></span>
+                                            <span class="text-muted" style="font-size:0.9rem;">Kunjungan: <?= $ulasan['kunjungan'] ?> | <?= date('d M Y', strtotime($ulasan['tanggal'])) ?></span>
                                         </div>
-                                        
                                         <div class="review-rating mb-2">
-                                            <span class="review-star"><?= number_format($ulasan['rating'],1) ?> ★</span>
-                                            <?php if ($ulasan['helpful'] > 0) { ?>
-                                                <span class="ml-2 small text-muted">
-                                                    <i class="fas fa-thumbs-up"></i> <?= $ulasan['helpful'] ?> helpful
-                                                </span>
-                                            <?php } ?>
+                                            <?php for ($i=1;$i<=5;$i++): ?>
+                                                <span class="review-star" style="color:<?= $i <= round($ulasan['rating']) ? '#f7b731':'#e0e0e0' ?>;">★</span>
+                                            <?php endfor; ?>
+                                            <span style="font-size:0.95rem; color:#888; margin-left:4px;">(<?= $ulasan['rating'] ?>)</span>
                                         </div>
-                                        
                                         <div class="review-text">
-                                            "<?= $ulasan['ulasan'] ?>"
+                                            <?= htmlspecialchars($ulasan['ulasan']) ?>
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="review-footer">
                                     Usia: <?= $ulasan['usia'] ?> tahun | <?= $ulasan['gender'] ?>
+                                    <span class="ml-2 text-info" style="font-size:0.9rem;">Helpful: <?= $ulasan['helpful'] ?></span>
                                 </div>
                             </div>
                         </div>
@@ -1807,6 +1853,47 @@ h5.mt-5.font-weight-bold.text-secondary {
             }
         }
     });
+    // Tambahkan tombol input di sebelah kanan filter search
+    setTimeout(function() {
+      var filter = document.querySelector('.dataTables_filter');
+      if (filter) {
+      var btn = document.createElement('a');
+      btn.href = 'pasien_input.php';
+      btn.className = 'btn btn-gradient ml-2';
+      btn.style.marginLeft = '16px';
+      btn.style.marginTop = '0px';
+      btn.style.marginBottom = '0px';
+      btn.style.height = '38px';
+      btn.style.display = 'flex';
+      btn.style.alignItems = 'center';
+      btn.style.justifyContent = 'center';
+      btn.style.paddingTop = '0.375rem';
+      btn.style.paddingBottom = '0.375rem';
+      filter.style.display = 'flex';
+      filter.style.alignItems = 'center';
+      filter.style.gap = '0.5rem';
+      filter.style.marginTop = '24px';
+      filter.style.marginBottom = '16px';
+      var wrapper = filter.closest('.dataTables_wrapper');
+      if (wrapper) {
+        wrapper.style.paddingTop = '12px';
+        wrapper.style.marginTop = '0px';
+      }
+      btn.style.background = 'linear-gradient(90deg, #5459AC 70%, #6fc3d0 100%)';
+      btn.style.color = '#fff';
+      btn.style.fontWeight = '700';
+      btn.style.borderRadius = '8px';
+      btn.style.border = 'none';
+      btn.style.padding = '8px 18px';
+      btn.style.display = 'flex';
+      btn.style.alignItems = 'center';
+      btn.style.gap = '8px';
+      btn.innerHTML = '<i class="fas fa-plus"></i> Input Data Pasien';
+      filter.appendChild(btn);
+      filter.style.display = 'flex';
+      filter.style.alignItems = 'center';
+      }
+    }, 300);
                     });
                     </script>
 
@@ -1862,13 +1949,10 @@ h5.mt-5.font-weight-bold.text-secondary {
                                 </table>
                             </div>
                         </div> -->
-                        <div class="card-footer">
-                            <a href="pasien_tambah.php" class="btn-success btn px-3 font-weight-bold"><i class="fas fa-plus "></i> Tambah Data Pasien</a>
-                        </div>
                         <footer class="py-3 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2025</div>
                     </div>
                     </div>
                 </div>
