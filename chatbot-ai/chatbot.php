@@ -457,4 +457,9 @@ if (!isset($_SESSION["jabatan"])) {
                 });
             });
         });
+<<<<<<< HEAD
         </script>
+=======
+        </script>
+    <!-- tes -->
+>>>>>>> f706d57de93ab7aa35703a147589c57671771ff3
