@@ -69,6 +69,7 @@ if ($pengeluaranBulanLalu > 0) {
 
 // Get data pengeluaran bulanan untuk chart (gunakan tahun data yang konsisten)
 $dataPengeluaranBulanan = [];
+$dataPengeluaranBulananAsli = [];
 
 $queryBulanan = "SELECT MONTH(tanggal) as bulan, SUM(jumlah) as total 
                  FROM pengeluaran 
@@ -77,16 +78,19 @@ $queryBulanan = "SELECT MONTH(tanggal) as bulan, SUM(jumlah) as total
                  ORDER BY MONTH(tanggal)";
 $resultBulanan = mysqli_query($koneksi, $queryBulanan);
 $tempBulananData = [];
+$tempBulananDataAsli = [];
 while ($row = mysqli_fetch_assoc($resultBulanan)) {
-    $tempBulananData[$row['bulan']] = round($row['total'] / 1000000, 1); // Convert to millions
+    $tempBulananData[$row['bulan']] = round($row['total'] / 1000000, 1); // Untuk chart (jutaan)
+    $tempBulananDataAsli[$row['bulan']] = $row['total']; // Untuk AI (nilai asli)
 }
-
 // Fill missing months with 0
 for ($i = 1; $i <= 12; $i++) {
     $dataPengeluaranBulanan[] = isset($tempBulananData[$i]) ? $tempBulananData[$i] : 0;
+    $dataPengeluaranBulananAsli[] = isset($tempBulananDataAsli[$i]) ? $tempBulananDataAsli[$i] : 0;
 }
 
-echo "<!-- Debug: Data Bulanan = " . json_encode($dataPengeluaranBulanan) . " -->";
+echo "<!-- Debug: Data Bulanan Chart = " . json_encode($dataPengeluaranBulanan) . " -->";
+echo "<!-- Debug: Data Bulanan Asli = " . json_encode($dataPengeluaranBulananAsli) . " -->";
 
 // Get data pengeluaran per kategori untuk pie chart (gunakan tahun data yang konsisten)
 $piePengeluaranData = [];
@@ -156,6 +160,107 @@ while ($row = mysqli_fetch_assoc($resultBreakdown)) {
 echo "<!-- Debug: Breakdown Count = " . count($breakdownPengeluaran) . " -->";
 echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
 
+// ====== AI FEATURE: Insight Otomatis Pengeluaran ======
+// 1. Prediksi pengeluaran bulan depan (forecast sederhana)
+$prediksiPengeluaranBulanDepan = null;
+if (count($dataPengeluaranBulananAsli) >= 2) {
+    $growths = [];
+    for ($i = 1; $i < count($dataPengeluaranBulananAsli); $i++) {
+        if ($dataPengeluaranBulananAsli[$i-1] > 0) {
+            $growths[] = ($dataPengeluaranBulananAsli[$i] - $dataPengeluaranBulananAsli[$i-1]) / $dataPengeluaranBulananAsli[$i-1];
+        }
+    }
+    $avgGrowth = count($growths) > 0 ? array_sum($growths) / count($growths) : 0;
+    $prediksiPengeluaranBulanDepan = end($dataPengeluaranBulananAsli) * (1 + $avgGrowth);
+}
+
+// 2. Deteksi anomali pengeluaran bulanan (outlier)
+$anomaliPengeluaranBulan = null;
+if (count($dataPengeluaranBulananAsli) >= 3) {
+    $mean = array_sum($dataPengeluaranBulananAsli) / count($dataPengeluaranBulananAsli);
+    $variance = array_sum(array_map(function($v) use ($mean) { return pow($v - $mean, 2); }, $dataPengeluaranBulananAsli)) / count($dataPengeluaranBulananAsli);
+    $stddev = sqrt($variance);
+    foreach ($dataPengeluaranBulananAsli as $idx => $val) {
+        if ($stddev > 0 && (abs($val - $mean) > 2 * $stddev)) {
+            $anomaliPengeluaranBulan = $idx + 1; // bulan ke-n
+            break;
+        }
+    }
+}
+
+// 3. Kategori dengan pertumbuhan tertinggi/terendah dibanding tahun lalu
+$kategoriTertinggi = null;
+$kategoriTerendah = null;
+if (!empty($breakdownPengeluaran)) {
+    $queryLastYear = "SELECT kategori, SUM(jumlah) as total FROM pengeluaran WHERE YEAR(tanggal) = ".($tahunData-1)." GROUP BY kategori";
+    $resultLastYear = mysqli_query($koneksi, $queryLastYear);
+    $lastYearData = [];
+    while ($row = mysqli_fetch_assoc($resultLastYear)) {
+        $lastYearData[$row['kategori']] = $row['total'];
+    }
+    $maxGrowth = null;
+    $maxGrowthKategori = null;
+    $minGrowth = null;
+    $minGrowthKategori = null;
+    foreach ($breakdownPengeluaran as $item) {
+        $nama = $item['kategori'];
+        $now = $item['total'];
+        $last = isset($lastYearData[$nama]) ? $lastYearData[$nama] : null;
+        if ($last && $last > 0) {
+            $growth = ($now - $last) / $last;
+            if ($maxGrowth === null || $growth > $maxGrowth) {
+                $maxGrowth = $growth;
+                $maxGrowthKategori = $nama;
+            }
+            if ($minGrowth === null || $growth < $minGrowth) {
+                $minGrowth = $growth;
+                $minGrowthKategori = $nama;
+            }
+        }
+    }
+    if ($maxGrowthKategori && $maxGrowth > 0.05) {
+        $kategoriTertinggi = [$maxGrowthKategori, $maxGrowth];
+    }
+    if ($minGrowthKategori && $minGrowth < -0.05) {
+        $kategoriTerendah = [$minGrowthKategori, $minGrowth];
+    }
+}
+
+// 4. Kategori dominan (>50% total pengeluaran)
+$kategoriDominan = null;
+if (!empty($breakdownPengeluaran)) {
+    $totalAll = array_sum(array_column($breakdownPengeluaran, 'total'));
+    foreach ($breakdownPengeluaran as $item) {
+        if ($totalAll > 0 && $item['total']/$totalAll > 0.5) {
+            $kategoriDominan = [$item['kategori'], $item['total']/$totalAll];
+            break;
+        }
+    }
+}
+
+// 5. Korelasi jumlah transaksi vs total pengeluaran per kategori
+$korelasiTransaksiPengeluaran = null;
+if (!empty($breakdownPengeluaran)) {
+    $arrTransaksi = [];
+    $arrTotal = [];
+    foreach ($breakdownPengeluaran as $item) {
+        $arrTotal[] = $item['total'];
+        $arrTransaksi[] = (int) filter_var($item['detail'], FILTER_SANITIZE_NUMBER_INT);
+    }
+    $n = count($arrTotal);
+    if ($n > 1) {
+        $meanT = array_sum($arrTotal)/$n;
+        $meanN = array_sum($arrTransaksi)/$n;
+        $cov = 0; $varT = 0; $varN = 0;
+        for ($i=0;$i<$n;$i++) {
+            $cov += ($arrTotal[$i]-$meanT)*($arrTransaksi[$i]-$meanN);
+            $varT += pow($arrTotal[$i]-$meanT,2);
+            $varN += pow($arrTransaksi[$i]-$meanN,2);
+        }
+        $corr = ($varT > 0 && $varN > 0) ? $cov / sqrt($varT*$varN) : 0;
+        $korelasiTransaksiPengeluaran = $corr;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -167,7 +272,7 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Kasir Pembayaran</title>
+    <title>Apothecary | Kasir Pembayaran</title>
     <link href="../assets/css/styles.css" rel="stylesheet" />
     <link href="../assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="../assets/js/all.min.js"></script>
@@ -531,7 +636,7 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="../index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -558,7 +663,7 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link " href="../index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -578,9 +683,9 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
                                     <a class="nav-link" href="../data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link " href="../data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link " href="../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -692,15 +797,38 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
                                     Pengeluaran bulan ini <strong>Rp <?= number_format($pengeluaranBulanIni, 0, ',', '.') ?></strong> <?= $pertumbuhanPengeluaran > 10 ? 'perlu dipantau lebih ketat' : 'masih dalam batas wajar' ?>.
                                 </p>
                                 <ul class="insight-list mb-0">
-                                    <?php if (!empty($piePengeluaranData)): ?>
-                                    <li>💊 <strong><?= $piePengeluaranData[0]['nama'] ?></strong> adalah pengeluaran terbesar, optimalisasi pengadaan dapat mengurangi biaya.</li>
-                                    <?php if (isset($piePengeluaranData[1])): ?>
-                                    <li>👥 <strong><?= $piePengeluaranData[1]['nama'] ?></strong> <?= strpos(strtolower($piePengeluaranData[1]['nama']), 'gaji') !== false ? 'stabil, evaluasi produktivitas untuk efisiensi maksimal' : 'perlu monitoring untuk kontrol anggaran' ?>.</li>
-                                    <?php endif; ?>
-                                    <?php if (isset($piePengeluaranData[2])): ?>
-                                    <li>⚡ <strong><?= $piePengeluaranData[2]['nama'] ?></strong> relatif kecil, namun perlu monitoring berkelanjutan.</li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
+                                    <!-- AI Insight Tambahan -->
+                                    <li>🤖 <strong>Prediksi AI:</strong> Estimasi pengeluaran bulan depan sekitar <strong>Rp <?php
+                                        if ($prediksiPengeluaranBulanDepan !== null && $prediksiPengeluaranBulanDepan > 0) {
+                                            echo number_format($prediksiPengeluaranBulanDepan*1000000, 0, ',', '.');
+                                        } elseif (count($dataPengeluaranBulanan) >= 2) {
+                                            // Data ada, tapi prediksi 0, tampilkan 0
+                                            echo '0';
+                                        } else {
+                                            echo 'Data belum cukup';
+                                        }
+                                    ?></strong></li>
+                                    <li>🚨 <strong>Anomali Terdeteksi:</strong> <?php if ($anomaliPengeluaranBulan) { ?>Pengeluaran bulan <?= date('F', mktime(0,0,0,$anomaliPengeluaranBulan,1)) ?> berbeda signifikan dari rata-rata. Perlu analisis lebih lanjut.<?php } else { ?>Tidak ada anomali signifikan terdeteksi.<?php } ?></li>
+                                    <li>📈 <strong>Kategori dengan pertumbuhan tertinggi:</strong> <?php
+                                        if ($kategoriTertinggi) {
+                                            echo $kategoriTertinggi[0] . ' (naik ' . number_format($kategoriTertinggi[1]*100,1) . '% dibanding tahun lalu)';
+                                        } elseif (!empty($breakdownPengeluaran) && isset($resultLastYear) && mysqli_num_rows($resultLastYear) > 0) {
+                                            echo 'Tidak ada pertumbuhan signifikan.';
+                                        } else {
+                                            echo 'Data tahun lalu belum tersedia.';
+                                        }
+                                    ?></li>
+                                    <li>🔻 <strong>Kategori dengan penurunan terbesar:</strong> <?php
+                                        if ($kategoriTerendah) {
+                                            echo $kategoriTerendah[0] . ' (turun ' . number_format(abs($kategoriTerendah[1]*100),1) . '% dibanding tahun lalu)';
+                                        } elseif (!empty($breakdownPengeluaran) && isset($resultLastYear) && mysqli_num_rows($resultLastYear) > 0) {
+                                            echo 'Tidak ada penurunan signifikan.';
+                                        } else {
+                                            echo 'Data tahun lalu belum tersedia.';
+                                        }
+                                    ?></li>
+                                    <li>🏅 <strong>Kategori Dominan:</strong> <?php if ($kategoriDominan) { ?><?= $kategoriDominan[0] ?> menyumbang lebih dari <?= number_format($kategoriDominan[1]*100,1) ?>% total pengeluaran tahun ini.<?php } else { ?>Belum ada kategori yang menyumbang lebih dari 50% total pengeluaran tahun ini.<?php } ?></li>
+                                    <li>🔗 <strong>Korelasi Transaksi-Pengeluaran:</strong> <?php if (isset($korelasiTransaksiPengeluaran)) { ?><?= ($korelasiTransaksiPengeluaran > 0.7 ? 'Sangat kuat' : ($korelasiTransaksiPengeluaran > 0.4 ? 'Cukup kuat' : ($korelasiTransaksiPengeluaran < -0.4 ? 'Negatif' : 'Lemah'))) ?> (<?= number_format($korelasiTransaksiPengeluaran,2) ?>). <?= $korelasiTransaksiPengeluaran > 0.4 ? 'Semakin banyak transaksi, semakin besar pengeluaran.' : ($korelasiTransaksiPengeluaran < -0.4 ? 'Volume transaksi tinggi tidak selalu berarti pengeluaran tinggi.' : 'Hubungan transaksi dan pengeluaran tidak signifikan.') ?><?php } else { ?>Data transaksi dan pengeluaran per kategori belum cukup untuk analisis korelasi.<?php } ?></li>
                                     <li>🎯 <strong>Saran:</strong> <?= $pertumbuhanPengeluaran > 15 ? 'Evaluasi mendesak diperlukan untuk mengendalikan pengeluaran' : 'Evaluasi supplier dan pertimbangkan kontrak jangka panjang untuk harga lebih baik' ?>.</li>
                                 </ul>
                             </div>
@@ -898,6 +1026,13 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
                         </div>
                     </div>
                 </div>
+
+                <!-- Button Input Data Pengeluaran -->
+                <div class="d-flex justify-content-end mb-4">
+                    <a href="pembayaran_input.php" class="btn btn-primary btn-lg font-weight-bold" style="border-radius: 10px; background: linear-gradient(90deg, #5459AC 70%, #6fc3d0 100%); border: none;">
+                        <i class="fas fa-plus-circle mr-2"></i> Input Data Pengeluaran
+                    </a>
+                </div>
             <!-- Script Chart.js -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
@@ -1045,7 +1180,7 @@ echo "<!-- Debug: Tahun Data = " . $tahunData . " -->";
             <footer class="py-4 bg-dark mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted font-weight-bold">Copyright &copy; Clinic 24 - 2024</div>
+                        <div class="text-muted font-weight-bold">Copyright &copy; Apothecary - 2025</div>
                     </div>
                 </div>
             </footer>

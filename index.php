@@ -205,8 +205,67 @@ $dokterAktifHariIniData = mysqli_fetch_assoc($resultDokterAktifHariIni);
 $dokterAktifHariIni = $dokterAktifHariIniData['dokter_aktif'] ? $dokterAktifHariIniData['dokter_aktif'] : 0;
 
 // ==== DATA UNTUK TINDAKAN CEPAT ====
-?>
 
+// ==== AI INSIGHTS GENERATION ====
+// Include AI configuration and classes
+require_once 'ai-insights/config/gemini_config.php';
+require_once 'ai-insights/classes/GeminiInsightGenerator.php';
+
+// Prepare comprehensive clinic data for AI analysis
+$clinicMetrics = [
+    'keuntungan_tahun' => $keuntunganTahunIni,
+    'pengeluaran_tahun' => $pengeluaranTahunIni,
+    'total_pasien' => $totalPasien,
+    'pasien_baru_bulan' => $pasienBaruBulanIni,
+    'pasien_hari_ini' => $pasienHariIni,
+    'obat_kritis' => $jumlahObatKritis,
+    'total_obat' => $totalObat,
+    'dokter_aktif' => $dokterAktif,
+    'staff_aktif' => $staffAktif,
+    'pemeriksaan_selesai' => $pemeriksaanSelesai,
+    'jadwal_hari_ini' => $jadwalHariIni,
+    'dokter_aktif_hari_ini' => $dokterAktifHariIni,
+    'tren_7_hari' => $dataTren7Hari,
+    'diagnosa_tertinggi' => $diagnosaTertinggi,
+    'obat_kritis_detail' => $obatKritisDetail,
+    'dokter_tidak_hadir' => $dokterTidakHadir,
+    'pemeriksaan_3_hari' => $pemeriksaan3Hari
+];
+
+// Generate AI Insights with fallback to static content
+$aiInsights = [];
+if (isAIEnabled()) {
+    try {
+        $gemini = new GeminiInsightGenerator();
+        $aiInsights = $gemini->generateAllInsights($clinicMetrics);
+    } catch (Exception $e) {
+        // Log error but continue with static insights
+        error_log('AI Insights Error: ' . $e->getMessage());
+        $aiInsights = null;
+    }
+}
+
+// Prepare insight contents (AI or fallback static)
+$insightStokKritis = $aiInsights['inventory'] ?? 
+    ('<strong>' . ($obatKritisDetail['nama_obat'] ?? 'Paracetamol') . '</strong> hanya tersisa <strong>' . ($obatKritisDetail['stok'] ?? '5') . ' unit</strong>. Segera lakukan pemesanan ulang sebelum stok habis.');
+
+$insightOperasional = $aiInsights['operational'] ?? 
+    'Antrian tertinggi biasanya pada <strong>Senin 08:00-10:00</strong>. Pertimbangkan menambah 1 dokter pada jam tersebut.';
+
+$insightTren = $aiInsights['predictive'] ?? 
+    (count($pemeriksaan3Hari) >= 3 && $pemeriksaan3Hari[2] < $pemeriksaan3Hari[1] && $pemeriksaan3Hari[1] < $pemeriksaan3Hari[0] ? 
+        'Tren pemeriksaan menurun <strong>3 hari berturut-turut</strong>. Evaluasi strategi pemasaran diperlukan.' : 
+        'Tren pemeriksaan stabil. Diagnosis tertinggi: <strong>' . ($diagnosaTertinggi['diagnosa'] ?? 'Flu') . '</strong> (' . ($diagnosaTertinggi['jumlah'] ?? '25') . ' kasus).');
+
+$insightTimMedis = $aiInsights['patient_flow'] ?? 
+    ($dokterTidakHadir ? 
+        '<strong>' . $dokterTidakHadir['nama_dokter'] . '</strong> tidak hadir hari ini. Pastikan coverage pemeriksaan tetap optimal.' : 
+        'Semua <strong>' . $dokterAktif . ' dokter aktif</strong> bertugas hari ini. Tim medis lengkap dan siap melayani.');
+
+// AI status indicator for UI
+$aiPoweredBadge = ($aiInsights ? '<span style="font-size:9px;background:linear-gradient(45deg,#5459AC,#6fc3d0);color:white;padding:1px 4px;border-radius:8px;margin-left:5px;font-weight:600;">AI</span>' : '');
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <!-- haloww -->
@@ -216,7 +275,7 @@ $dokterAktifHariIni = $dokterAktifHariIniData['dokter_aktif'] ? $dokterAktifHari
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Poli Klinik | Dashboard</title>
+    <title>Apothecary | Dashboard</title>
     <link href="assets/css/styles.css" rel="stylesheet" />
     <link href="assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <script src="assets/js/all.min.js"></script>
@@ -598,7 +657,7 @@ body {
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bold text-center" href="index.php">Clinic 24</a>
+        <a class="navbar-brand font-weight-bold text-center" href="index.php">Apothecary</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
         <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
@@ -625,7 +684,7 @@ body {
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">C24</div>
+                        <div class="sb-sidenav-menu-heading">Apothecary</div>
                         <a class="nav-link active" href="index.php">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
@@ -653,9 +712,9 @@ body {
                                     </a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="data-pendaftaran/pendaftaran.php">
+                            <a class="nav-link" href="chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                                Data Pendaftaran
+                                Chatbot AI
                             </a>
                             <a class="nav-link" href="data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
@@ -1328,9 +1387,9 @@ createChart(tahunAktif, <?php echo ($currentMonth - 1); ?>);
                 <i class="fas fa-exclamation-triangle" style="font-size: 16px;"></i>
               </span>
               <div>
-                <div style="color:#dc3545; font-weight: 700; margin-bottom: 5px;">🚨 URGENT - Stok Kritis!</div>
+                <div style="color:#dc3545; font-weight: 700; margin-bottom: 5px;">🚨 URGENT - Stok Kritis!<?php echo $aiPoweredBadge; ?></div>
                 <span style="color:#5459AC; font-size: 14px;">
-                  <strong><?php echo $obatKritisDetail['nama_obat'] ?? 'Paracetamol'; ?></strong> hanya tersisa <strong><?php echo $obatKritisDetail['stok'] ?? '5'; ?> unit</strong>. Segera lakukan pemesanan ulang sebelum stok habis.
+                  <?php echo $insightStokKritis; ?>
                 </span>
               </div>
             </div>
@@ -1343,9 +1402,9 @@ createChart(tahunAktif, <?php echo ($currentMonth - 1); ?>);
                 <i class="fas fa-clock" style="font-size: 16px;"></i>
               </span>
               <div>
-                <div style="color:#ffc107; font-weight: 700; margin-bottom: 5px;">⏰ Optimasi Jadwal</div>
+                <div style="color:#ffc107; font-weight: 700; margin-bottom: 5px;">⏰ Optimasi Jadwal<?php echo $aiPoweredBadge; ?></div>
                 <span style="color:#5459AC; font-size: 14px;">
-                  Antrian tertinggi biasanya pada <strong>Senin 08:00-10:00</strong>. Pertimbangkan menambah 1 dokter pada jam tersebut.
+                  <?php echo $insightOperasional; ?>
                 </span>
               </div>
             </div>
@@ -1358,15 +1417,9 @@ createChart(tahunAktif, <?php echo ($currentMonth - 1); ?>);
                 <i class="fas fa-chart-line" style="font-size: 16px;"></i>
               </span>
               <div>
-                <div style="color:#3dbfd3; font-weight: 700; margin-bottom: 5px;">📈 Analisis Tren</div>
+                <div style="color:#3dbfd3; font-weight: 700; margin-bottom: 5px;">📈 Analisis Tren<?php echo $aiPoweredBadge; ?></div>
                 <span style="color:#5459AC; font-size: 14px;">
-                  <?php 
-                  if (count($pemeriksaan3Hari) >= 3 && $pemeriksaan3Hari[2] < $pemeriksaan3Hari[1] && $pemeriksaan3Hari[1] < $pemeriksaan3Hari[0]) {
-                      echo 'Tren pemeriksaan menurun <strong>3 hari berturut-turut</strong>. Evaluasi strategi pemasaran diperlukan.';
-                  } else {
-                      echo 'Tren pemeriksaan stabil. Diagnosis tertinggi: <strong>' . ($diagnosaTertinggi['diagnosa'] ?? 'Flu') . '</strong> (' . ($diagnosaTertinggi['jumlah'] ?? '25') . ' kasus).';
-                  }
-                  ?>
+                  <?php echo $insightTren; ?>
                 </span>
               </div>
             </div>
@@ -1379,20 +1432,24 @@ createChart(tahunAktif, <?php echo ($currentMonth - 1); ?>);
                 <i class="fas fa-user-check" style="font-size: 16px;"></i>
               </span>
               <div>
-                <div style="color:#28a745; font-weight: 700; margin-bottom: 5px;">👨‍⚕️ Status Tim Medis</div>
+                <div style="color:#28a745; font-weight: 700; margin-bottom: 5px;">👨‍⚕️ Status Tim Medis<?php echo $aiPoweredBadge; ?></div>
                 <span style="color:#5459AC; font-size: 14px;">
-                  <?php 
-                  if ($dokterTidakHadir) {
-                      echo '<strong>' . $dokterTidakHadir['nama_dokter'] . '</strong> tidak hadir hari ini. Pastikan coverage pemeriksaan tetap optimal.';
-                  } else {
-                      echo 'Semua <strong>' . $dokterAktif . ' dokter aktif</strong> bertugas hari ini. Tim medis lengkap dan siap melayani.';
-                  }
-                  ?>
+                  <?php echo $insightTimMedis; ?>
                 </span>
               </div>
             </div>
           </li>
         </ul>
+        
+        <!-- AI Refresh Button (hanya muncul jika AI aktif) -->
+        <?php if ($aiInsights): ?>
+        <div class="text-center mt-3" style="border-top: 1px solid rgba(84,89,172,0.1); padding-top: 15px;">
+          <button class="btn btn-outline-primary btn-sm" onclick="refreshAIInsights()" style="font-size: 12px; padding: 4px 12px; border-radius: 15px;">
+            <i class="fas fa-sync-alt" style="font-size: 11px;"></i> Refresh AI Insights
+          </button>
+        </div>
+        <?php endif; ?>
+        
       </div>
     </div>
   </div>
@@ -1559,12 +1616,11 @@ const chartTren7Hari = new Chart(ctxTren, {
   }
 });
 </script>
-
             </main>
             <footer class="py-4 bg-light mt-auto" style="margin-top: 40px !important;">
                 <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Poli Klinik 2025 | Sistem Manajemen Klinik
+                        <div class="text-muted">Copyright &copy; Apothecary 2025 | Sistem Manajemen Klinik
                         </div>
                         <div class="text-muted">
                             <i class="fas fa-heart text-danger"></i> Dibuat dengan penuh dedikasi
@@ -1582,6 +1638,36 @@ const chartTren7Hari = new Chart(ctxTren, {
     <script src="assets/demo/chart-bar-demo.js"></script>
     <script src="assets/js/dataTables.bootstrap4.min.js"></script>
     <script src="assets/demo/datatables-demo.js"></script>
-</body>
+    
+    <!-- AI Insights JavaScript -->
+    <script>
+    // AI Insights Management Functions
+    function refreshAIInsights() {
+        // Show loading state
+        const refreshBtn = document.querySelector('button[onclick="refreshAIInsights()"]');
+        if (refreshBtn) {
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 11px;"></i> Loading...';
+            refreshBtn.disabled = true;
+        }
+        
+        // Simple page reload for fresh AI insights
+        // In production, you could implement AJAX for smoother UX
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    }
+    
+    // Auto-refresh AI insights every 30 minutes (if enabled)
+    const autoRefreshAI = false; // Set to true to enable auto-refresh
+    if (autoRefreshAI && <?php echo ($aiInsights ? 'true' : 'false'); ?>) {
+        setInterval(() => {
+            // Silent refresh in background
+            fetch(window.location.href)
+                .then(() => console.log('AI insights refreshed in background'))
+                .catch(err => console.log('AI refresh failed:', err));
+        }, 30 * 60 * 1000); // 30 minutes
+    }
+    </script>
 
+</body>
 </html>
