@@ -994,11 +994,11 @@ if (!isset($_SESSION["jabatan"])) {
                                     <a class="nav-link" href="../data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../chatbot-ai/chatbot.php">
+                            <!-- <a class="nav-link" href="../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
                                 Chatbot AI
-                            </a>
-                            <a class="nav-link active" href="data-pemeriksaan/pemeriksaan.php">
+                            </a> -->
+                            <a class="nav-link active" href="../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
                                 Data Pemeriksaan
                             </a>

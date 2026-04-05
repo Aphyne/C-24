@@ -5,7 +5,7 @@
  */
 
 // ===== KONFIGURASI GEMINI API =====
-define('GEMINI_API_KEY', 'AIzaSyDrIVvYfs3WBnmlD7v9Hnn3Oi-OTRCZBD0');
+define('GEMINI_API_KEY', 'AIzaSyDgyJ8f2MWZxBJPoL5pF9d9tmSFunGe2es');
 define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent');
 
 // ===== KONFIGURASI CACHE =====

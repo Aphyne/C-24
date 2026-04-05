@@ -683,10 +683,10 @@ if (!empty($breakdownPengeluaran)) {
                                     <a class="nav-link" href="../data-master/data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link " href="../chatbot-ai/chatbot.php">
+                            <!-- <a class="nav-link " href="../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
                                 Chatbot AI
-                            </a>
+                            </a> -->
                             <a class="nav-link" href="../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
                                 Data Pemeriksaan
@@ -695,7 +695,7 @@ if (!empty($breakdownPengeluaran)) {
                                 <div class="sb-nav-link-icon"><i class="fas fa-scroll"></i></div>
                                 Keuntungan
                             </a>
-                            <a class="nav-link active" href="data-pembayaran/pembayaran.php">
+                            <a class="nav-link active" href="../data-pembayaran/pembayaran.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
                                 Pengeluaran
                             </a>

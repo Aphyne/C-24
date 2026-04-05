@@ -1100,13 +1100,13 @@ body, .summary-box, .summary-box * {
                                     <a class="nav-link" href="../data-pasien/pasien.php">Data Pasien</a>
                                     <a class="nav-link" href="../data-dokter/dokter.php">Data Dokter</a>
                                     <a class="nav-link" href="../data-obat/obat.php">Data Obat</a>
-                                    <a class="nav-link active" href="data-staff/staff.php">Data Staff</a>
+                                    <a class="nav-link active" href="../data-staff/staff.php">Data Staff</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="../../chatbot-ai/chatbot.php">
+                            <!-- <a class="nav-link" href="../../chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
                                 Chatbot AI
-                            </a>
+                            </a> -->
                             <a class="nav-link" href="../../data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
                                 Data Pemeriksaan

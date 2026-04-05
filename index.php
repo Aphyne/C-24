@@ -712,10 +712,10 @@ body {
                                     </a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="chatbot-ai/chatbot.php">
+                            <!-- <a class="nav-link" href="chatbot-ai/chatbot.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
                                 Chatbot AI
-                            </a>
+                            </a> -->
                             <a class="nav-link" href="data-pemeriksaan/pemeriksaan.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-address-book"></i></div>
                                 Data Pemeriksaan
